@@ -2270,13 +2270,13 @@ mDNSlocal mDNSs32 ReverseMapDomainType(const domainname *const name)
     return(mDNSAddrType_None);
 }
 
-mDNSlocal void SendARP(mDNS *const m, const mDNSu8 op, const AuthRecord *const rr,
+mDNSlocal void mDNS_SendARP(mDNS *const m, const mDNSu8 op, const AuthRecord *const rr,
                        const mDNSv4Addr *const spa, const mDNSEthAddr *const tha, const mDNSv4Addr *const tpa, const mDNSEthAddr *const dst)
 {
     int i;
     mDNSu8 *ptr = m->omsg.data;
     NetworkInterfaceInfo *intf = FirstInterfaceForID(m, rr->resrec.InterfaceID);
-    if (!intf) { LogMsg("SendARP: No interface with InterfaceID %p found %s", rr->resrec.InterfaceID, ARDisplayString(m,rr)); return; }
+    if (!intf) { LogMsg("mDNS_SendARP: No interface with InterfaceID %p found %s", rr->resrec.InterfaceID, ARDisplayString(m,rr)); return; }
 
     // 0x00 Destination address
     for (i=0; i<6; i++) *ptr++ = dst->b[i];
@@ -2595,7 +2595,7 @@ mDNSlocal void SendResponses(mDNS *const m)
                         {
                             LogSPS("ARP Announcement %2d Capturing traffic for H-MAC %.6a I-MAC %.6a %s",
                                     rr->AnnounceCount, &rr->WakeUp.HMAC, &rr->WakeUp.IMAC, ARDisplayString(m,rr));
-                            SendARP(m, 1, rr, &rr->AddressProxy.ip.v4, &zeroEthAddr, &rr->AddressProxy.ip.v4, &onesEthAddr);
+                            mDNS_SendARP(m, 1, rr, &rr->AddressProxy.ip.v4, &zeroEthAddr, &rr->AddressProxy.ip.v4, &onesEthAddr);
                         }
                         else if (rr->AddressProxy.type == mDNSAddrType_IPv6)
                         {
@@ -3677,7 +3677,7 @@ mDNSlocal void SendQueries(mDNS *const m)
                     // (using our sender IP address) instead of an ARP *probe* (using all-zero sender IP address).
                     // A similar concern may apply to the NDP Probe too. -- SC
                     LogSPS("SendQueries ARP Probe %d %s %s", ar->ProbeCount, InterfaceNameForID(m, ar->resrec.InterfaceID), ARDisplayString(m,ar));
-                    SendARP(m, 1, ar, &zerov4Addr, &zeroEthAddr, &ar->AddressProxy.ip.v4, &ar->WakeUp.IMAC);
+                    mDNS_SendARP(m, 1, ar, &zerov4Addr, &zeroEthAddr, &ar->AddressProxy.ip.v4, &ar->WakeUp.IMAC);
                 }
                 else if (ar->AddressProxy.type == mDNSAddrType_IPv6)
                 {
@@ -4041,7 +4041,7 @@ mDNSlocal void SendWakeup(mDNS *const m, mDNSInterfaceID InterfaceID, mDNSEthAdd
 
     mDNSu8 *ptr = m->omsg.data;
     NetworkInterfaceInfo *intf = FirstInterfaceForID(m, InterfaceID);
-    if (!intf) { LogMsg("SendARP: No interface with InterfaceID %p found", InterfaceID); return; }
+    if (!intf) { LogMsg("SendWakeup: No interface with InterfaceID %p found", InterfaceID); return; }
 
     // 0x00 Destination address
     for (i=0; i<6; i++) *ptr++ = EthAddr->b[i];
@@ -13853,7 +13853,7 @@ mDNSlocal void mDNSCoreReceiveRawARP(mDNS *const m, const ARP_EthIP *const arp, 
                 }
                 else if (msg == msg4)
                 {
-                    SendARP(m, 2, rr, (mDNSv4Addr *)arp->tpa.b, &arp->sha, (mDNSv4Addr *)arp->spa.b, &arp->sha);
+                    mDNS_SendARP(m, 2, rr, (mDNSv4Addr *)arp->tpa.b, &arp->sha, (mDNSv4Addr *)arp->spa.b, &arp->sha);
                 }
             }
     }
