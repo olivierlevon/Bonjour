@@ -326,7 +326,6 @@ DEBUG_LOCAL OSStatus	RegisterServer( HINSTANCE inInstance, CLSID inCLSID, LPCTST
 		{ HKEY_CLASSES_ROOT,	TEXT( "CLSID\\%s\\InprocServer32" ),  	TEXT( "ThreadingModel" ),	TEXT( "Apartment" ) }
 	};
 	DWORD				size;
-	OSVERSIONINFO		versionInfo;
 	
 	// Convert the CLSID to a string based on the encoding of this code (ANSI or Unicode).
 	
