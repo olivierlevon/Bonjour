@@ -282,8 +282,6 @@ mDNSlocal HANDLE					gSMBThreadQuitEvent			= NULL;
 mDNSexport mStatus	mDNSPlatformInit( mDNS * const inMDNS )
 {
 	mStatus		err;
-	OSVERSIONINFO osInfo;
-	BOOL ok;
 	WSADATA		wsaData;
 	int			supported;
 	struct sockaddr_in	sa4;
@@ -949,7 +947,7 @@ mDNSexport mDNSu32	mDNSPlatformInterfaceIndexfromInterfaceID( mDNS * const inMDN
 TCPSocket *
 mDNSPlatformTCPSocket
 	(
-	mDNS			* const m,
+	
 	TCPSocketFlags		flags,
 	mDNSIPPort			*	port, 
 	mDNSBool			useBackgroundTrafficClass
@@ -961,8 +959,10 @@ mDNSPlatformTCPSocket
 	int					len;
 	mStatus				err		= mStatus_NoError;
 
-	DEBUG_UNUSED( m );
 	DEBUG_UNUSED( useBackgroundTrafficClass );
+
+	extern mDNS mDNSStorage;
+	mDNS			* const m = &mDNSStorage;
 
 	require_action( flags == 0, exit, err = mStatus_UnsupportedErr );
 
@@ -1246,12 +1246,15 @@ exit:
 //	mDNSPlatformUDPSocket
 //===========================================================================================================================
 
-mDNSexport UDPSocket* mDNSPlatformUDPSocket(mDNS *const m, const mDNSIPPort requestedport)
+mDNSexport UDPSocket* mDNSPlatformUDPSocket(const mDNSIPPort requestedport) 
 {
 	UDPSocket*	sock	= NULL;
 	mDNSIPPort	port	= requestedport;
 	mStatus		err		= mStatus_NoError;
 	unsigned	i;
+
+	extern mDNS mDNSStorage;
+	mDNS			* const m = &mDNSStorage;
 
 	// Setup connection data object
 
@@ -1375,8 +1378,7 @@ mDNSexport mStatus
 	struct sockaddr_storage		addr;
 	int							n;
 	
-	DEBUG_USE_ONLY( inMDNS );
-	DEBUG_USE_ONLY( useBackgroundTrafficClass );
+	(void) useBackgroundTrafficClass;
 	
 	n = (int)( inMsgEnd - ( (const mDNSu8 * const) inMsg ) );
 	check( inMDNS );
@@ -1441,24 +1443,22 @@ exit:
 	return( err );
 }
 
-mDNSexport void mDNSPlatformUpdateProxyList(mDNS *const m, const mDNSInterfaceID InterfaceID)
-	{
-	DEBUG_UNUSED( m );
+mDNSexport void mDNSPlatformUpdateProxyList(const mDNSInterfaceID InterfaceID)
+{
 	DEBUG_UNUSED( InterfaceID );
-	}
+}
 
-mDNSexport void mDNSPlatformSetAllowSleep(mDNS *const m, mDNSBool allowSleep, const char *reason)
-	{
-	DEBUG_UNUSED( m );
+mDNSexport void mDNSPlatformSetAllowSleep(mDNSBool allowSleep, const char *reason)
+{
 	DEBUG_UNUSED( allowSleep );
 	DEBUG_UNUSED( reason );
-	}
+}
 
 //===========================================================================================================================
 //	mDNSPlatformSendRawPacket
 //===========================================================================================================================
 
-mDNSexport void mDNSPlatformSendWakeupPacket(mDNS *const m, mDNSInterfaceID InterfaceID, char *ethaddr, char *ipaddr, int iteration)
+mDNSexport void mDNSPlatformSendWakeupPacket(mDNSInterfaceID InterfaceID, char *ethaddr, char *ipaddr, int iteration)
 {
 	unsigned char			mac[ 6 ];
 	unsigned char			buf[ 102 ];
@@ -1471,6 +1471,9 @@ mDNSexport void mDNSPlatformSendWakeupPacket(mDNS *const m, mDNSInterfaceID Inte
 	(void) InterfaceID; // unused
 	(void) ipaddr;      // unused
 	(void) iteration;   // unused
+
+	extern mDNS mDNSStorage;
+	mDNS			* const m = &mDNSStorage;
 
 	require_action( ethaddr, exit, err = mStatus_BadParamErr );
 
@@ -1543,13 +1546,12 @@ mDNSexport void mDNSPlatformFormatTime(unsigned long te, mDNSu8 *buf, int bufsiz
 	if (bufsize) buf[0] = 0;
 	}
 
-mDNSexport void mDNSPlatformSetLocalAddressCacheEntry(mDNS *const m, const mDNSAddr *const tpa, const mDNSEthAddr *const tha, mDNSInterfaceID InterfaceID)
-	{
-	DEBUG_UNUSED( m );
+mDNSexport void mDNSPlatformSetLocalAddressCacheEntry(const mDNSAddr *const tpa, const mDNSEthAddr *const tha, mDNSInterfaceID InterfaceID)
+{
 	DEBUG_UNUSED( tpa );
 	DEBUG_UNUSED( tha );
 	DEBUG_UNUSED( InterfaceID );
-	}
+}
 
 mDNSexport void mDNSPlatformReceiveRawPacket(const void *const msg, const mDNSu8 *const end, mDNSInterfaceID InterfaceID)
 	{
@@ -1627,9 +1629,12 @@ mDNSPlatformTLSTearDownCerts(void)
 mDNSlocal void SetDNSServers( mDNS *const m );
 mDNSlocal void SetSearchDomainList( void );
 
-mDNSexport mDNSBool mDNSPlatformSetDNSConfig(mDNS *const m, mDNSBool setservers, mDNSBool setsearch, domainname *const fqdn, DNameListElem **regDomains, DNameListElem **browseDomains, mDNSBool ackConfig)
+mDNSexport mDNSBool mDNSPlatformSetDNSConfig(mDNSBool setservers, mDNSBool setsearch, domainname *const fqdn, DNameListElem **regDomains, DNameListElem **browseDomains, mDNSBool ackConfig)
 {
 	(void) ackConfig;
+
+	extern mDNS mDNSStorage;
+	mDNS			* const m = &mDNSStorage;
 
 	if (setservers) SetDNSServers(m);
 	if (setsearch) SetSearchDomainList();
@@ -2010,7 +2015,7 @@ exit:
 //===========================================================================================================================
 
 mDNSexport mStatus
-mDNSPlatformGetPrimaryInterface( mDNS * const m, mDNSAddr * v4, mDNSAddr * v6, mDNSAddr * router )
+mDNSPlatformGetPrimaryInterface(mDNSAddr * v4, mDNSAddr * v6, mDNSAddr * router )
 {
 	IP_ADAPTER_INFO *	pAdapterInfo;
 	IP_ADAPTER_INFO *	pAdapter;
@@ -2020,7 +2025,8 @@ mDNSPlatformGetPrimaryInterface( mDNS * const m, mDNSAddr * v4, mDNSAddr * v6, m
 	DWORD				index;
 	mStatus				err = mStatus_NoError;
 
-	DEBUG_UNUSED( m );
+	extern mDNS mDNSStorage;
+	mDNS			* const m = &mDNSStorage;
 
 	*v6 = zeroAddr;
 
@@ -2088,9 +2094,8 @@ mDNSexport void mDNSPlatformSendKeepalive(mDNSAddr *sadd, mDNSAddr *dadd, mDNSIP
 	(void) win;		// Unused
 }
 
-mDNSexport mStatus mDNSPlatformGetRemoteMacAddr(mDNS *const m, mDNSAddr *raddr)
+mDNSexport mStatus mDNSPlatformGetRemoteMacAddr(mDNSAddr *raddr)
 {
-	(void) m;		// Unused
 	(void) raddr;	// Unused
 
 	return mStatus_UnsupportedErr;
@@ -2117,9 +2122,8 @@ mDNSexport mStatus mDNSPlatformStoreOwnerOptRecord(char *ifname, DNSMessage *msg
 	return mStatus_UnsupportedErr;
 }
 
-mDNSexport mStatus mDNSPlatformRetrieveTCPInfo(mDNS *const m, mDNSAddr *laddr, mDNSIPPort *lport, mDNSAddr *raddr, mDNSIPPort *rport, mDNSTCPInfo *mti)
+mDNSexport mStatus mDNSPlatformRetrieveTCPInfo(mDNSAddr *laddr, mDNSIPPort *lport, mDNSAddr *raddr, mDNSIPPort *rport, mDNSTCPInfo *mti)
 {
-	(void) m;       // Unused
 	(void) laddr; 	// Unused
 	(void) raddr; 	// Unused
 	(void) lport; 	// Unused

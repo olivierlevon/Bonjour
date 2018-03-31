@@ -477,9 +477,6 @@ exit:
 
 static OSStatus SetServiceParameters()
 {
-	DWORD 			value;
-	DWORD			valueLen = sizeof(DWORD);
-	DWORD			type;
 	OSStatus		err;
 	HKEY			key;
 
@@ -511,9 +508,6 @@ exit:
 
 static OSStatus GetServiceParameters()
 {
-	DWORD 			value;
-	DWORD			valueLen;
-	DWORD			type;
 	OSStatus		err;
 	HKEY			key;
 
@@ -1949,7 +1943,8 @@ SPSSleepNotification( HANDLE event, void *context )
 static void
 CoreCallback(mDNS * const inMDNS, mStatus status)
 {
-
+	(void) status;
+	(void) inMDNS;
 }
 
 
@@ -2091,12 +2086,11 @@ udsSupportRemoveFDFromEventLoop( SocketRef fd, void *platform_data)		// Note: Th
 }
 
 
-mDNSexport void RecordUpdatedNiceLabel(mDNS *const m, mDNSs32 delay)
-	{
-	(void)m;
+mDNSexport void RecordUpdatedNiceLabel(mDNSs32 delay)
+{
 	(void)delay;
 	// No-op, for now
-	}
+}
 
 
 //===========================================================================================================================
