@@ -55,7 +55,8 @@ BAOBJ = $(OBJDIR)\BrowserApp
 
 #############################################################################
 
-all: setup Java postbuild
+#postbuild
+all: setup Java 
 
 # 'setup' sets up the build directory structure the way we want
 setup:
