@@ -269,12 +269,6 @@ xcopy /I/Y "$(TargetPath)"                                                      
   <ItemGroup>
     <ResourceCompile Include="mdnsNSP.rc" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\DLL\dnssd.vcxproj">
-      <Project>{ab581101-18f0-46f6-b56a-83a6b1ea657e}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

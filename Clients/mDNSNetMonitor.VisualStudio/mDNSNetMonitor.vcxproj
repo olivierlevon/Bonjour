@@ -238,12 +238,6 @@ xcopy /I/Y "$(TargetPath)"                                                      
   <ItemGroup>
     <ResourceCompile Include="mDNSNetMonitor.rc" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\mDNSWindows\SystemService\Service.vcxproj">
-      <Project>{c1d98254-ba27-4427-a3be-a68ca2cc5f69}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

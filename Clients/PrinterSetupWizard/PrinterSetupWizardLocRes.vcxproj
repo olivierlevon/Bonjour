@@ -337,12 +337,6 @@ xcopy /I/Y "$(TargetPath)"                                                      
     <None Include="res\PrinterSetupWizardLocRes.rc2" />
     <None Include="ReadMe.txt" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\mDNSWindows\DLL\dnssd.vcxproj">
-      <Project>{ab581101-18f0-46f6-b56a-83a6b1ea657e}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

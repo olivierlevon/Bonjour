@@ -344,7 +344,6 @@ xcopy /I/Y "$(TargetPath)"                                                      
     <None Include="res\Info.ico" />
     <None Include="res\NetworkPrinter.ico" />
     <None Include="res\watermark.bmp" />
-    <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuildStep Include="res\PrinterSetupWizard.manifest">
@@ -356,12 +355,6 @@ xcopy /I/Y "$(TargetPath)"                                                      
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="PrinterSetupWizard.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\mDNSWindows\DLLStub\DLLStub.vcxproj">
-      <Project>{3a2b6325-3053-4236-84bd-aa9be2e323e5}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
