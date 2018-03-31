@@ -55,7 +55,6 @@ void setlinebuf( FILE * fp ) {}
 #   include <arpa/inet.h>       // For inet_addr()
 #   include "mDNSPosix.h"      // Defines the specific types needed to run mDNS on this platform
 #endif
-#include "ExampleClientApp.h"
 
 //*************************************************************************************************************
 // Types and structures

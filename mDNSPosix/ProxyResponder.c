@@ -27,7 +27,6 @@
 
 #include "mDNSEmbeddedAPI.h"    // Defines the interface to the client layer above
 #include "mDNSPosix.h"          // Defines the specific types needed to run mDNS on this platform
-#include "ExampleClientApp.h"
 
 // Compatibility workaround: Solaris 2.5 has no INADDR_NONE
 #ifndef INADDR_NONE

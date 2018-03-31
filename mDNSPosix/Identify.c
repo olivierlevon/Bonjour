@@ -41,7 +41,6 @@
 
 #include "mDNSEmbeddedAPI.h" // Defines the interface to the mDNS core code
 #include "mDNSPosix.h"    // Defines the specific types needed to run mDNS on this platform
-#include "ExampleClientApp.h"
 
 //*************************************************************************************************************
 // Globals
