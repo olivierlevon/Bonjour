@@ -25,6 +25,10 @@
 
 #include <strsafe.h>
 
+#include <DebugServices.h>
+
+#undef GetAddrInfo
+
 #include "DNSSDService.h"
 
 #include "DNSSDEventManager.h"
@@ -35,7 +39,7 @@
 
 #include "StringServices.h"
 
-#include <DebugServices.h>
+
 
 
 

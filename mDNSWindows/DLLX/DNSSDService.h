@@ -21,15 +21,17 @@
 
 #include "resource.h"       // main symbols
 
+#include <CommonServices.h>
 
+#include <DebugServices.h>
+
+#undef GetAddrInfo
 
 #include "DLLX.h"
 
 #include "DNSSDEventManager.h"
 
-#include <CommonServices.h>
 
-#include <DebugServices.h>
 
 #include <dns_sd.h>
 
