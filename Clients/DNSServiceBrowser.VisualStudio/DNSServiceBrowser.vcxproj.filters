@@ -45,12 +45,10 @@
     <ClInclude Include="StdAfx.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Resource.h">
-      <Filter>Resource Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\mDNSShared\dns_sd.h">
       <Filter>Support</Filter>
     </ClInclude>
+    <ClInclude Include="Resources\Resource.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\DNSServiceBrowser.ico">
