@@ -101,7 +101,6 @@ mDNSlocal mStatus			TearDownInterface( mDNS * const inMDNS, mDNSInterfaceData *i
 mDNSlocal void CALLBACK		FreeInterface( mDNSInterfaceData *inIFD );
 mDNSlocal mStatus			SetupSocket( mDNS * const inMDNS, const struct sockaddr *inAddr, mDNSIPPort port, SocketRef *outSocketRef  );
 mDNSlocal mStatus			SockAddrToMDNSAddr( const struct sockaddr * const inSA, mDNSAddr *outIP, mDNSIPPort *outPort );
-mDNSlocal OSStatus			GetWindowsVersionString( char *inBuffer, size_t inBufferSize );
 mDNSlocal int				getifaddrs( struct ifaddrs **outAddrs );
 mDNSlocal void				freeifaddrs( struct ifaddrs *inAddrs );
 
@@ -195,7 +194,7 @@ mDNSlocal mDNS_PlatformSupport	gMDNSPlatformSupport;
 mDNSs32							mDNSPlatformOneSecond	= 0;
 mDNSlocal UDPSocket		*		gUDPSockets				= NULL;
 mDNSlocal int					gUDPNumSockets			= 0;
-mDNSlocal BOOL					gEnableIPv6				= TRUE;
+
 
 #if( MDNS_WINDOWS_USE_IPV6_IF_ADDRS )
 
@@ -307,22 +306,6 @@ mDNSexport mStatus	mDNSPlatformInit( mDNS * const inMDNS )
 	inMDNS->p->checkFileSharesTimeout		= 10;		// Retry time for CheckFileShares() in seconds
 	mDNSPlatformOneSecond 					= 1000;		// Use milliseconds as the quantum of time
 	
-	// Get OS version info
-	
-	osInfo.dwOSVersionInfoSize = sizeof( OSVERSIONINFO );
-	ok = GetVersionEx( &osInfo );
-	err = translate_errno( ok, (OSStatus) GetLastError(), kUnknownErr );
-	require_noerr( err, exit );
-	inMDNS->p->osMajorVersion = osInfo.dwMajorVersion;
-	inMDNS->p->osMinorVersion = osInfo.dwMinorVersion;
-	
-	// Don't enable IPv6 on anything less recent than Windows Vista
-
-	if ( inMDNS->p->osMajorVersion < 6 )
-	{
-		gEnableIPv6 = FALSE;
-	}
-
 	// Startup WinSock 2.2 or later.
 	
 	err = WSAStartup( MAKEWORD( kWinSockMajorMin, kWinSockMinorMin ), &wsaData );
@@ -389,39 +372,36 @@ mDNSexport mStatus	mDNSPlatformInit( mDNS * const inMDNS )
 
 #if ( MDNS_WINDOWS_ENABLE_IPV6 )
 
-	if ( gEnableIPv6 )
+	sa6.sin6_family		= AF_INET6;
+	sa6.sin6_addr		= in6addr_any;
+	sa6.sin6_scope_id	= 0;
+
+	// This call will fail if the machine hasn't installed IPv6.  In that case,
+	// the error will be WSAEAFNOSUPPORT.
+
+	err = SetupSocket( inMDNS, (const struct sockaddr*) &sa6, zeroIPPort, &inMDNS->p->unicastSock6.fd );
+	require_action( !err || ( err == WSAEAFNOSUPPORT ), exit, err = (mStatus) WSAGetLastError() );
+	err = kNoErr;
+	
+	// If we weren't able to create the socket (because IPv6 hasn't been installed) don't do this
+
+	if ( inMDNS->p->unicastSock6.fd != INVALID_SOCKET )
 	{
-		sa6.sin6_family		= AF_INET6;
-		sa6.sin6_addr		= in6addr_any;
-		sa6.sin6_scope_id	= 0;
+		sa6len = sizeof( sa6 );
+		err = getsockname( inMDNS->p->unicastSock6.fd, (struct sockaddr*) &sa6, &sa6len );
+		require_noerr( err, exit );
+		inMDNS->p->unicastSock6.port.NotAnInteger = sa6.sin6_port;
+		inMDNS->UnicastPort6 = inMDNS->p->unicastSock6.port;
 
-		// This call will fail if the machine hasn't installed IPv6.  In that case,
-		// the error will be WSAEAFNOSUPPORT.
-
-		err = SetupSocket( inMDNS, (const struct sockaddr*) &sa6, zeroIPPort, &inMDNS->p->unicastSock6.fd );
-		require_action( !err || ( err == WSAEAFNOSUPPORT ), exit, err = (mStatus) WSAGetLastError() );
-		err = kNoErr;
+		err = WSAIoctl( inMDNS->p->unicastSock6.fd, SIO_GET_EXTENSION_FUNCTION_POINTER, &kWSARecvMsgGUID, sizeof( kWSARecvMsgGUID ), &inMDNS->p->unicastSock6.recvMsgPtr, sizeof( inMDNS->p->unicastSock6.recvMsgPtr ), &size, NULL, NULL );
 		
-		// If we weren't able to create the socket (because IPv6 hasn't been installed) don't do this
-
-		if ( inMDNS->p->unicastSock6.fd != INVALID_SOCKET )
+		if ( err != 0 )
 		{
-			sa6len = sizeof( sa6 );
-			err = getsockname( inMDNS->p->unicastSock6.fd, (struct sockaddr*) &sa6, &sa6len );
-			require_noerr( err, exit );
-			inMDNS->p->unicastSock6.port.NotAnInteger = sa6.sin6_port;
-			inMDNS->UnicastPort6 = inMDNS->p->unicastSock6.port;
-
-			err = WSAIoctl( inMDNS->p->unicastSock6.fd, SIO_GET_EXTENSION_FUNCTION_POINTER, &kWSARecvMsgGUID, sizeof( kWSARecvMsgGUID ), &inMDNS->p->unicastSock6.recvMsgPtr, sizeof( inMDNS->p->unicastSock6.recvMsgPtr ), &size, NULL, NULL );
-			
-			if ( err != 0 )
-			{
-				inMDNS->p->unicastSock6.recvMsgPtr = NULL;
-			}
-
-			err = mDNSPollRegisterSocket( inMDNS->p->unicastSock6.fd, FD_READ, UDPSocketNotification, &inMDNS->p->unicastSock6 );
-			require_noerr( err, exit );
+			inMDNS->p->unicastSock6.recvMsgPtr = NULL;
 		}
+
+		err = mDNSPollRegisterSocket( inMDNS->p->unicastSock6.fd, FD_READ, UDPSocketNotification, &inMDNS->p->unicastSock6 );
+		require_noerr( err, exit );
 	}
 
 #endif
@@ -517,10 +497,7 @@ mDNSexport void	mDNSPlatformClose( mDNS * const inMDNS )
 	
 #if ( MDNS_WINDOWS_ENABLE_IPV6 )
 
-	if ( gEnableIPv6 )
-	{
-		UDPCloseSocket( &inMDNS->p->unicastSock6 );
-	}
+	UDPCloseSocket( &inMDNS->p->unicastSock6 );
 
 #endif
 
@@ -2522,54 +2499,52 @@ mStatus	SetupInterfaceList( mDNS * const inMDNS )
 	
 #if( MDNS_WINDOWS_ENABLE_IPV6 )
 
-	if ( gEnableIPv6 )
+	for( p = addrs; p; p = p->ifa_next )
 	{
-		for( p = addrs; p; p = p->ifa_next )
+		if( !p->ifa_addr || ( p->ifa_addr->sa_family != AF_INET6 ) || ( ( p->ifa_flags & flagMask ) != flagTest ) )
 		{
-			if( !p->ifa_addr || ( p->ifa_addr->sa_family != AF_INET6 ) || ( ( p->ifa_flags & flagMask ) != flagTest ) )
-			{
-				continue;
-			}
-			if( p->ifa_flags & IFF_LOOPBACK )
-			{
-				if( !loopbackv6 )
-				{
-					loopbackv6 = p;
-				}
-				continue;
-			}
-			dlog( kDebugLevelVerbose, DEBUG_NAME "Interface %40s (0x%08X) %##a\n", 
-				p->ifa_name ? p->ifa_name : "<null>", p->ifa_extra.index, p->ifa_addr );
-			
-			err = SetupInterface( inMDNS, p, &ifd );
-			require_noerr( err, exit );
-					
-			// If this guy is point-to-point (ifd->interfaceInfo.McastTxRx == 0 ) we still want to
-			// register him, but we also want to note that we haven't found a v4 interface
-			// so that we register loopback so same host operations work
-	 		
-			if ( ifd->interfaceInfo.McastTxRx == mDNStrue )
-			{
-				foundv6 = mDNStrue;
-			}
-
-			// If we're on a platform that doesn't have WSARecvMsg(), there's no way
-			// of determing the destination address of a packet that is sent to us.
-			// For multicast packets, that's easy to determine.  But for the unicast
-			// sockets, we'll fake it by taking the address of the first interface
-			// that is successfully setup.
-
-			if ( !foundUnicastSock6DestAddr )
-			{
-				inMDNS->p->unicastSock6.addr = ifd->interfaceInfo.ip;
-				foundUnicastSock6DestAddr = TRUE;
-			}
-
-			*next = ifd;
-			next  = &ifd->next;
-			++inMDNS->p->interfaceCount;
+			continue;
 		}
+		if( p->ifa_flags & IFF_LOOPBACK )
+		{
+			if( !loopbackv6 )
+			{
+				loopbackv6 = p;
+			}
+			continue;
+		}
+		dlog( kDebugLevelVerbose, DEBUG_NAME "Interface %40s (0x%08X) %##a\n", 
+			p->ifa_name ? p->ifa_name : "<null>", p->ifa_extra.index, p->ifa_addr );
+		
+		err = SetupInterface( inMDNS, p, &ifd );
+		require_noerr( err, exit );
+				
+		// If this guy is point-to-point (ifd->interfaceInfo.McastTxRx == 0 ) we still want to
+		// register him, but we also want to note that we haven't found a v4 interface
+		// so that we register loopback so same host operations work
+		
+		if ( ifd->interfaceInfo.McastTxRx == mDNStrue )
+		{
+			foundv6 = mDNStrue;
+		}
+
+		// If we're on a platform that doesn't have WSARecvMsg(), there's no way
+		// of determing the destination address of a packet that is sent to us.
+		// For multicast packets, that's easy to determine.  But for the unicast
+		// sockets, we'll fake it by taking the address of the first interface
+		// that is successfully setup.
+
+		if ( !foundUnicastSock6DestAddr )
+		{
+			inMDNS->p->unicastSock6.addr = ifd->interfaceInfo.ip;
+			foundUnicastSock6DestAddr = TRUE;
+		}
+
+		*next = ifd;
+		next  = &ifd->next;
+		++inMDNS->p->interfaceCount;
 	}
+
 
 #endif
 
@@ -2637,19 +2612,16 @@ mStatus	SetupInterfaceList( mDNS * const inMDNS )
 		
 #if( MDNS_WINDOWS_ENABLE_IPV6 )
 
-		if ( gEnableIPv6 )
-		{
-			// If we're on a platform that doesn't have WSARecvMsg(), there's no way
-			// of determing the destination address of a packet that is sent to us.
-			// For multicast packets, that's easy to determine.  But for the unicast
-			// sockets, we'll fake it by taking the address of the first interface
-			// that is successfully setup.
+		// If we're on a platform that doesn't have WSARecvMsg(), there's no way
+		// of determing the destination address of a packet that is sent to us.
+		// For multicast packets, that's easy to determine.  But for the unicast
+		// sockets, we'll fake it by taking the address of the first interface
+		// that is successfully setup.
 
-			if ( !foundUnicastSock6DestAddr )
-			{
-				inMDNS->p->unicastSock6.addr = ifd->sock.addr;
-				foundUnicastSock6DestAddr = TRUE;
-			}
+		if ( !foundUnicastSock6DestAddr )
+		{
+			inMDNS->p->unicastSock6.addr = ifd->sock.addr;
+			foundUnicastSock6DestAddr = TRUE;
 		}
 
 #endif
@@ -4225,106 +4197,6 @@ exit:
 	}
 
 	return ret;
-}
-
-//===========================================================================================================================
-//	GetWindowsVersionString
-//===========================================================================================================================
-
-mDNSlocal OSStatus	GetWindowsVersionString( char *inBuffer, size_t inBufferSize )
-{
-#if( !defined( VER_PLATFORM_WIN32_CE ) )
-	#define VER_PLATFORM_WIN32_CE		3
-#endif
-
-	OSStatus				err;
-	OSVERSIONINFO			osInfo;
-	BOOL					ok;
-	const char *			versionString;
-	DWORD					platformID;
-	DWORD					majorVersion;
-	DWORD					minorVersion;
-	DWORD					buildNumber;
-	
-	versionString = "unknown Windows version";
-	
-	osInfo.dwOSVersionInfoSize = sizeof( OSVERSIONINFO );
-	ok = GetVersionEx( &osInfo );
-	err = translate_errno( ok, (OSStatus) GetLastError(), kUnknownErr );
-	require_noerr( err, exit );
-	
-	platformID		= osInfo.dwPlatformId;
-	majorVersion	= osInfo.dwMajorVersion;
-	minorVersion	= osInfo.dwMinorVersion;
-	buildNumber		= osInfo.dwBuildNumber & 0xFFFF;
-	
-	if( ( platformID == VER_PLATFORM_WIN32_WINDOWS ) && ( majorVersion == 4 ) )
-	{
-		if( ( minorVersion < 10 ) && ( buildNumber == 950 ) )
-		{
-			versionString	= "Windows 95";
-		}
-		else if( ( minorVersion < 10 ) && ( ( buildNumber > 950 ) && ( buildNumber <= 1080 ) ) )
-		{
-			versionString	= "Windows 95 SP1";
-		}
-		else if( ( minorVersion < 10 ) && ( buildNumber > 1080 ) )
-		{
-			versionString	= "Windows 95 OSR2";
-		}
-		else if( ( minorVersion == 10 ) && ( buildNumber == 1998 ) )
-		{
-			versionString	= "Windows 98";
-		}
-		else if( ( minorVersion == 10 ) && ( ( buildNumber > 1998 ) && ( buildNumber < 2183 ) ) )
-		{
-			versionString	= "Windows 98 SP1";
-		}
-		else if( ( minorVersion == 10 ) && ( buildNumber >= 2183 ) )
-		{
-			versionString	= "Windows 98 SE";
-		}
-		else if( minorVersion == 90 )
-		{
-			versionString	= "Windows ME";
-		}
-	}
-	else if( platformID == VER_PLATFORM_WIN32_NT )
-	{
-		if( ( majorVersion == 3 ) && ( minorVersion == 51 ) )
-		{
-			versionString	= "Windows NT 3.51";
-		}
-		else if( ( majorVersion == 4 ) && ( minorVersion == 0 ) )
-		{
-			versionString	= "Windows NT 4";
-		}
-		else if( ( majorVersion == 5 ) && ( minorVersion == 0 ) )
-		{
-			versionString	= "Windows 2000";
-		}
-		else if( ( majorVersion == 5 ) && ( minorVersion == 1 ) )
-		{
-			versionString	= "Windows XP";
-		}
-		else if( ( majorVersion == 5 ) && ( minorVersion == 2 ) )
-		{
-			versionString	= "Windows Server 2003";
-		}
-	}
-	else if( platformID == VER_PLATFORM_WIN32_CE )
-	{
-		versionString		= "Windows CE";
-	}
-	
-exit:
-	if( inBuffer && ( inBufferSize > 0 ) )
-	{
-		inBufferSize -= 1;
-		strncpy( inBuffer, versionString, inBufferSize );
-		inBuffer[ inBufferSize ] = '\0';
-	}
-	return( err );
 }
 
 //===========================================================================================================================

@@ -110,8 +110,6 @@ struct	mDNS_PlatformSupport_struct
 	mDNSInterfaceData *			inactiveInterfaceList;
 	struct UDPSocket_struct		unicastSock4;
 	struct UDPSocket_struct		unicastSock6;
-	DWORD						osMajorVersion;
-	DWORD						osMinorVersion;
 };
 
 //---------------------------------------------------------------------------------------------------------------------------
