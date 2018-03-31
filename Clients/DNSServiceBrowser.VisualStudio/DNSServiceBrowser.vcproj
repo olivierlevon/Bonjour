@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="Application"
+	Name="DNSServiceBrowser"
 	ProjectGUID="{EDE4B529-4CF5-4A49-9B6F-C10F0EA24278}"
 	Keyword="MFCProj">
 	<Platforms>
@@ -33,7 +33,7 @@
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="StdAfx.h"
-				PrecompiledHeaderFile=".\Debug/Application.pch"
+				PrecompiledHeaderFile=".\Debug/DNSServiceBrowser.pch"
 				AssemblerListingLocation=".\Debug/"
 				ObjectFile=".\Debug/"
 				ProgramDataBaseFileName=".\Debug/"
@@ -55,7 +55,7 @@
 				SuppressStartupBanner="TRUE"
 				IgnoreDefaultLibraryNames="wsock32.lib"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\Debug/Application.pdb"
+				ProgramDatabaseFile=".\Debug/DNSServiceBrowser.pdb"
 				SubSystem="2"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -63,7 +63,7 @@
 				MkTypLibCompatible="FALSE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName=".\Debug/Application.tlb"/>
+				TypeLibraryName=".\Debug/DNSServiceBrowser.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -112,7 +112,7 @@
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
-				PrecompiledHeaderFile=".\Release/Application.pch"
+				PrecompiledHeaderFile=".\Release/DNSServiceBrowser.pch"
 				AssemblerListingLocation=".\Release/"
 				ObjectFile=".\Release/"
 				ProgramDataBaseFileName=".\Release/"
@@ -132,7 +132,7 @@
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				IgnoreDefaultLibraryNames="wsock32.lib"
-				ProgramDatabaseFile=".\Release/Application.pdb"
+				ProgramDatabaseFile=".\Release/DNSServiceBrowser.pdb"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"/>
@@ -142,7 +142,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName=".\Release/Application.tlb"/>
+				TypeLibraryName=".\Release/DNSServiceBrowser.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -178,10 +178,10 @@
 				RelativePath="Sources\AboutDialog.h">
 			</File>
 			<File
-				RelativePath="Sources\Application.cpp">
+				RelativePath="Sources\DNSServiceBrowser.cpp">
 			</File>
 			<File
-				RelativePath="Sources\Application.h">
+				RelativePath="Sources\DNSServiceBrowser.h">
 			</File>
 			<File
 				RelativePath="Sources\ChooserDialog.cpp">
@@ -206,13 +206,13 @@
 			Name="Resource Files"
 			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;rc">
 			<File
-				RelativePath="Resources\Application.ico">
+				RelativePath="Resources\DNSServiceBrowser.ico">
 			</File>
 			<File
-				RelativePath="Resources\Application.rc">
+				RelativePath="Resources\DNSServiceBrowser.rc">
 			</File>
 			<File
-				RelativePath="Resources\Application.rc2">
+				RelativePath="Resources\DNSServiceBrowser.rc2">
 			</File>
 			<File
 				RelativePath=".\Resources\Resource.h">
