@@ -36,14 +36,14 @@ SHAREDDIR = ..\..\mDNSShared
 
 JDK = "$(JAVA_HOME)"
 
-CC = cl
-RC = rc
-LD = ld
+CC = cl /NOLOGO
+RC = rc /NOLOGO
+LD = ld /NOLOGO
 CP = copy
 RM = del /Q
 RMDIR = rmdir /S /Q
 JAVAC = $(JDK)\bin\javac
-JAVAH = $(JDK)\bin\javah
+JAVAH = $(JDK)\bin\javac -h
 JAR = $(JDK)\bin\jar
 CFLAGS_COMMON = -LD -DAUTO_CALLBACKS=0 -I. -I..\.. \
 	-I$(COREDIR) -I$(SHAREDDIR) -I$(JDK)\include -I$(JDK)\include\win32
@@ -69,7 +69,8 @@ JAVACFLAGS = $(CFLAGS) $(JAVACFLAGS_OS)
 
 #############################################################################
 
-all: setup Java postbuild
+#postbuild
+all: setup Java 
 
 # 'setup' sets up the build directory structure the way we want
 setup:
@@ -100,7 +101,8 @@ clean:
 
 # The following targets build Java wrappers for the dns-sd.h API.
 
-Java: setup $(BUILDDIR)\dns_sd.jar $(BUILDDIR)\jdns_sd.dll postbuild
+#postbuild
+Java: setup $(BUILDDIR)\dns_sd.jar $(BUILDDIR)\jdns_sd.dll 
 	@echo "Java wrappers done"
 
 JAVASRC	= $(SHAREDDIR)\Java

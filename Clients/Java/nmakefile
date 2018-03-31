@@ -35,7 +35,7 @@ CP = copy
 RM = del /Q
 RMDIR = rmdir /S /Q
 JAVAC = $(JDK)\bin\javac
-JAVAH = $(JDK)\bin\javah
+JAVAH = $(JDK)\bin\javac -h
 JAR = $(JDK)\bin\jar
 
 # Set up diverging paths for debug vs. prod builds
