@@ -41,6 +41,7 @@
 #   include <mDNSWin32.h>
 #   include <PosixCompat.h>
 #   include <Poll.h>
+#   include <iphlpapi.h>
 #   define IFNAMSIZ 256
 static HANDLE gStopEvent = INVALID_HANDLE_VALUE;
 static mDNSBool gRunning;
@@ -816,7 +817,7 @@ mDNSlocal mDNSBool AddressMatchesFilterList(const mDNSAddr *srcaddr)
 }
 
 mDNSexport void mDNSCoreReceive(mDNS *const m, DNSMessage *const msg, const mDNSu8 *const end,
-                                const mDNSAddr *srcaddr, mDNSIPPort srcport, const mDNSAddr *dstaddr, mDNSIPPort dstport, const mDNSInterfaceID InterfaceID)
+                                const mDNSAddr *const srcaddr, const mDNSIPPort srcport, const mDNSAddr *dstaddr, const mDNSIPPort dstport, const mDNSInterfaceID InterfaceID)
 {
     const mDNSu8 StdQ = kDNSFlag0_QR_Query    | kDNSFlag0_OP_StdQuery;
     const mDNSu8 StdR = kDNSFlag0_QR_Response | kDNSFlag0_OP_StdQuery;
