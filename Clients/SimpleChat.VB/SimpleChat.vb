@@ -51,7 +51,8 @@ Public Class SimpleChat
         endPoint = m_socket.LocalEndPoint
         m_port = endPoint.Port
 
-        Dim txtRecord As Bonjour.TXTRecord
+        Dim txtRecord As New Bonjour.TXTRecord
+        txtRecord.SetValue("key", Encoding.UTF8.GetBytes("value"))
         m_async = m_socket.BeginReceive(m_buffer, 0, m_buffer.Length, SocketFlags.Partial, New AsyncCallback(AddressOf OnReceive), Me)
         m_registrar = m_service.Register(0, 0, Environment.UserName, "_p2pchat._udp", vbNullString, vbNullString, m_port, txtRecord, MyEventManager)
     End Sub
