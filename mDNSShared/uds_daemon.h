@@ -77,11 +77,6 @@ typedef struct browser_t
 	DNSQuestion q;
 } browser_t;
 
-#ifdef _WIN32
-typedef unsigned int pid_t;
-typedef unsigned int socklen_t;
-#endif
-
 #if (!defined(MAXCOMLEN))
 #define MAXCOMLEN 16
 #endif

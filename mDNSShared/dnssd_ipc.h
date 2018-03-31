@@ -36,6 +36,7 @@
 //
 #if defined(WIN32)
 #   include <winsock2.h>
+#   include <ws2tcpip.h>
 #   define dnssd_InvalidSocket  INVALID_SOCKET
 #   define dnssd_SocketValid(s) ((s) != INVALID_SOCKET)
 #   define dnssd_EWOULDBLOCK    WSAEWOULDBLOCK
@@ -48,6 +49,7 @@
 #   define ssize_t              int
 #   define getpid               _getpid
 #   define unlink               _unlink
+typedef unsigned int pid_t;
 extern char *win32_strerror(int inErrorCode);
 #else
 #   include <sys/types.h>
