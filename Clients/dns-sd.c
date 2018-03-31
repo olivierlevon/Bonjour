@@ -178,9 +178,9 @@ static DNSServiceRef sc1, sc2, sc3;     // DNSServiceRefs for kDNSServiceFlagsSh
 static int num_printed;
 static char addtest = 0;
 static DNSRecordRef record = NULL;
-static char myhinfoW[14] = "\002PC\012Windows XP";
-static char myhinfoX[ 9] = "\003Mac\004OS X";
-static char updatetest[3] = "\002AA";
+static char myhinfoW[] = "\002PC\012Windows 7";
+static char myhinfoX[] = "\003Mac\004OS X";
+static char updatetest[] = "\002AA";
 static char bigNULL[8192];  // 8K is maximum rdata we support
 
 #if _DNS_SD_LIBDISPATCH
@@ -2163,9 +2163,9 @@ int main(int argc, char **argv)
 
     case 'S':   {
         Opaque16 registerPort = { { 0x23, 0x45 } };                 // 9029 decimal
-        unsigned char txtrec[16] = "\xF" "/path=test.html";
+        unsigned char txtrec[] = "\xF" "/path=test.html";
         DNSRecordRef rec;
-        unsigned char nulrec[4] = "1234";
+        unsigned char nulrec[] = "1234";
 
         err = DNSServiceCreateConnection(&client);
         if (err) { fprintf(stderr, "DNSServiceCreateConnection failed %ld\n", (long int)err); return (-1); }
