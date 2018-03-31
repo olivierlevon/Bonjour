@@ -10,8 +10,10 @@ Thumbs.db
 *.user
 
 dlldata.c
+DLLX.h
 EventLog.rc
 EventLog.h
+
 
 # Build results
 [Dd]ebug/
