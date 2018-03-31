@@ -45,12 +45,8 @@
 #include <string.h>
 #ifdef _WIN32
 #include <winsock2.h>
+#include <ws2tcpip.h>
 #include <iphlpapi.h>
-static char *   win32_if_indextoname( DWORD ifIndex, char * nameBuff);
-static DWORD    win32_if_nametoindex( const char * nameStr );
-#define if_indextoname win32_if_indextoname
-#define if_nametoindex win32_if_nametoindex
-#define IF_NAMESIZE MAX_ADAPTER_NAME_LENGTH
 #else // _WIN32
 #include <sys/socket.h>
 #include <net/if.h>
@@ -948,117 +944,6 @@ JNIEXPORT jint JNICALL Java_com_apple_dnssd_AppleDNSSD_GetIfIndexForName( JNIEnv
 
     return ifIndex;
 }
-
-
-#if defined(_WIN32)
-static char*
-win32_if_indextoname( DWORD ifIndex, char * nameBuff)
-{
-    PIP_ADAPTER_INFO pAdapterInfo = NULL;
-    PIP_ADAPTER_INFO pAdapter = NULL;
-    DWORD dwRetVal = 0;
-    char            *   ifName = NULL;
-    ULONG ulOutBufLen = 0;
-
-    if (GetAdaptersInfo( NULL, &ulOutBufLen) != ERROR_BUFFER_OVERFLOW)
-    {
-        goto exit;
-    }
-
-    pAdapterInfo = (IP_ADAPTER_INFO *) malloc(ulOutBufLen);
-
-    if (pAdapterInfo == NULL)
-    {
-        goto exit;
-    }
-
-    dwRetVal = GetAdaptersInfo( pAdapterInfo, &ulOutBufLen );
-
-    if (dwRetVal != NO_ERROR)
-    {
-        goto exit;
-    }
-
-    pAdapter = pAdapterInfo;
-    while (pAdapter)
-    {
-        if (pAdapter->Index == ifIndex)
-        {
-            // It would be better if we passed in the length of nameBuff to this
-            // function, so we would have absolute certainty that no buffer
-            // overflows would occur.  Buffer overflows *shouldn't* occur because
-            // nameBuff is of size MAX_ADAPTER_NAME_LENGTH.
-            strcpy( nameBuff, pAdapter->AdapterName );
-            ifName = nameBuff;
-            break;
-        }
-
-        pAdapter = pAdapter->Next;
-    }
-
-exit:
-
-    if (pAdapterInfo != NULL)
-    {
-        free( pAdapterInfo );
-        pAdapterInfo = NULL;
-    }
-
-    return ifName;
-}
-
-
-static DWORD
-win32_if_nametoindex( const char * nameStr )
-{
-    PIP_ADAPTER_INFO pAdapterInfo = NULL;
-    PIP_ADAPTER_INFO pAdapter = NULL;
-    DWORD dwRetVal = 0;
-    DWORD ifIndex = 0;
-    ULONG ulOutBufLen = 0;
-
-    if (GetAdaptersInfo( NULL, &ulOutBufLen) != ERROR_BUFFER_OVERFLOW)
-    {
-        goto exit;
-    }
-
-    pAdapterInfo = (IP_ADAPTER_INFO *) malloc(ulOutBufLen);
-
-    if (pAdapterInfo == NULL)
-    {
-        goto exit;
-    }
-
-    dwRetVal = GetAdaptersInfo( pAdapterInfo, &ulOutBufLen );
-
-    if (dwRetVal != NO_ERROR)
-    {
-        goto exit;
-    }
-
-    pAdapter = pAdapterInfo;
-    while (pAdapter)
-    {
-        if (strcmp(pAdapter->AdapterName, nameStr) == 0)
-        {
-            ifIndex = pAdapter->Index;
-            break;
-        }
-
-        pAdapter = pAdapter->Next;
-    }
-
-exit:
-
-    if (pAdapterInfo != NULL)
-    {
-        free( pAdapterInfo );
-        pAdapterInfo = NULL;
-    }
-
-    return ifIndex;
-}
-#endif
 
 
 // Note: The C preprocessor stringify operator ('#') makes a string from its argument, without macro expansion
