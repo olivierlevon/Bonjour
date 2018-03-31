@@ -109,9 +109,6 @@
     <None Include="res\ControlPanel.rc2">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\EnergySaver.ico">
-      <Filter>Resource Files</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ControlPanel.rc">

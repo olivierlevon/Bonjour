@@ -112,8 +112,7 @@ IDB_ABOUT               BITMAP                  "res\\about.bmp"
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_BUTTON_2K           ICON                    "res\\button-2k.ico"
-IDI_BUTTON_XP           ICON                    "res\\button-xp.ico"
+IDI_BUTTON              ICON                    "res\\button.ico"
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 

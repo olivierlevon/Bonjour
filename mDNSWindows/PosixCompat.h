@@ -32,21 +32,6 @@ typedef int pid_t;
 
 
 /* 
- * Posix networking compatibility
- */
-extern unsigned
-if_nametoindex( const char * ifname );
-
-
-extern char*
-if_indextoname( unsigned ifindex, char * ifname );
-
-
-extern int
-inet_pton( int family, const char * addr, void * dst );
-
-
-/* 
  * Posix time compatibility
  */
 extern int

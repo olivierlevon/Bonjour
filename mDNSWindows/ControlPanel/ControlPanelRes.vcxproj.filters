@@ -16,31 +16,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\about.bmp">
+    <None Include="res\controlpanel.ico">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="about.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\button-2k.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\button-xp.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\cold.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="hot.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\logo.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="logo.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="Web.ico">
+    <None Include="res\EnergySaver.ico">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

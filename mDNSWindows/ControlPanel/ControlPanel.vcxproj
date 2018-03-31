@@ -90,7 +90,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..;../../mDNSCore;../../mDNSShared;../../Clients;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;DEBUG=1;UNICODE;_UNICODE;_WINDOWS;WINVER=0x0501;_WIN32_WINNT=0x0501;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;DEBUG=1;UNICODE;_UNICODE;_WINDOWS;WINVER=0x0601;_WIN32_WINNT=0x0601;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -140,7 +140,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..;../../mDNSCore;../../mDNSShared;../../Clients;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;DEBUG=1;UNICODE;_UNICODE;_WINDOWS;WINVER=0x0501;_WIN32_WINNT=0x0501;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;DEBUG=1;UNICODE;_UNICODE;_WINDOWS;WINVER=0x0601;_WIN32_WINNT=0x0601;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -190,7 +190,7 @@
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <AdditionalIncludeDirectories>..;../../mDNSCore;../../mDNSShared;../../Clients;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;WINVER=0x0501;_WIN32_WINNT=0x0501;UNICODE;_UNICODE;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;WINVER=0x0601;_WIN32_WINNT=0x0601;UNICODE;_UNICODE;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -246,7 +246,7 @@ xcopy /I/Y "$(TargetPath)"                                                      
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <AdditionalIncludeDirectories>..;../../mDNSCore;../../mDNSShared;../../Clients;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;WINVER=0x0501;_WIN32_WINNT=0x0501;UNICODE;_UNICODE;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;WINVER=0x0601;_WIN32_WINNT=0x0601;UNICODE;_UNICODE;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -370,7 +370,6 @@ xcopy /I/Y "$(TargetPath)"                                                      
   <ItemGroup>
     <None Include="res\controlpanel.ico" />
     <None Include="res\ControlPanel.rc2" />
-    <None Include="res\EnergySaver.ico" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ControlPanel.rc" />

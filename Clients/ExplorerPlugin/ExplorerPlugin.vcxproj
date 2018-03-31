@@ -118,7 +118,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\..\mDNSShared;..\..\mDNSWindows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_USRDLL;WIN32;_DEBUG;_WINDOWS;DEBUG=1;ENABLE_DOT_LOCAL_NAMES;WINVER=0x0501;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_USRDLL;WIN32;_DEBUG;_WINDOWS;DEBUG=1;ENABLE_DOT_LOCAL_NAMES;WINVER=0x0601;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -178,7 +178,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\..\mDNSShared;..\..\mDNSWindows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_USRDLL;WIN32;_DEBUG;_WINDOWS;DEBUG=1;ENABLE_DOT_LOCAL_NAMES;WINVER=0x0501;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_USRDLL;WIN32;_DEBUG;_WINDOWS;DEBUG=1;ENABLE_DOT_LOCAL_NAMES;WINVER=0x0601;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -239,7 +239,7 @@
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <AdditionalIncludeDirectories>..\..\mDNSShared;..\..\mDNSWindows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_USRDLL;WIN32;NDEBUG;_WINDOWS;WINVER=0x0501;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_USRDLL;WIN32;NDEBUG;_WINDOWS;WINVER=0x0601;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <BufferSecurityCheck>true</BufferSecurityCheck>
@@ -308,7 +308,7 @@ xcopy /I/Y "$(TargetPath)"                                                      
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <AdditionalIncludeDirectories>..\..\mDNSShared;..\..\mDNSWindows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_USRDLL;WIN32;NDEBUG;_WINDOWS;WINVER=0x0501;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_USRDLL;WIN32;NDEBUG;_WINDOWS;WINVER=0x0601;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <BufferSecurityCheck>true</BufferSecurityCheck>

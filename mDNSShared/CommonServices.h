@@ -236,12 +236,25 @@ extern "C" {
 // Windows
 
     #if ( !defined( WIN32_WINDOWS ) )
-        #define WIN32_WINDOWS       0x0401
+        #define WIN32_WINDOWS       0x0601
     #endif
 
     #if ( !defined( _WIN32_WINDOWS ) )
-        #define _WIN32_WINDOWS      0x0401
+        #define _WIN32_WINDOWS      0x0601
     #endif
+
+    #if ( !defined( _WIN32_WINNT ) )
+		//_WIN32_WINNT_WIN7
+        #define _WIN32_WINNT      0x0601
+	#elif ( _WIN32_WINNT < 0x0601)
+		#error Windows 7 / 2012 required at least !
+    #endif
+
+	//NTDDI
+	#if ( !defined( NTDDI_VERSION ) )
+		//NTDDI_WIN7               0x06010000
+		#define NTDDI_VERSION      0x06010000
+	#endif
 
     #if ( !defined( WIN32_LEAN_AND_MEAN ) )
         #define WIN32_LEAN_AND_MEAN         // Needed to avoid redefinitions by Windows interfaces.
@@ -257,6 +270,14 @@ extern "C" {
 
     #elif ( defined( _MSC_VER ) )
 
+		// stdint.h/stdbool.h available starting with Visual Studio 2015/2017
+		#if ( _MSC_VER < 1800)
+			#error Visual Studio 2015/2017 required at least !
+		#else
+			#include    <stdbool.h>
+			#include    <stdint.h>
+		#endif
+	
         #pragma warning( disable:4127 ) // Disable "conditional expression is constant" warning for debug macros.
         #pragma warning( disable:4706 ) // Disable "assignment within conditional expression" for Microsoft headers.
 
@@ -265,10 +286,6 @@ extern "C" {
     #include    <windows.h>
     #include    <winsock2.h>
     #include    <Ws2tcpip.h>
-
-    #if ( defined( _MSC_VER ) )
-        #pragma warning( default:4706 )
-    #endif
 
 #else
     #error unknown OS - update this file to support your OS
@@ -459,11 +476,10 @@ typedef int SocketRef;
 // socklen_t is not defined on the following platforms so emulate it if not defined:
 //
 // - Pre-Panther Mac OS X. Panther defines SO_NOADDRERR so trigger off that.
-// - Windows SDK prior to 2003. 2003+ SDK's define EAI_AGAIN so trigger off that.
 // - VxWorks
 
 #if ( TARGET_LANGUAGE_C_LIKE )
-    #if ( ( TARGET_OS_MAC && !defined( SO_NOADDRERR ) ) || ( TARGET_OS_WIN32 && !defined( EAI_AGAIN ) ) || TARGET_OS_VXWORKS )
+    #if ( ( TARGET_OS_MAC && !defined( SO_NOADDRERR ) ) || TARGET_OS_VXWORKS )
 typedef int socklen_t;
     #endif
 #endif
@@ -471,10 +487,9 @@ typedef int socklen_t;
 // ssize_t is not defined on the following platforms so emulate it if not defined:
 //
 // - Mac OS X when not building with BSD headers
-// - Windows
 
 #if ( TARGET_LANGUAGE_C_LIKE )
-    #if ( !defined(_SSIZE_T) && ( TARGET_OS_WIN32 || !defined( _BSD_SSIZE_T_DEFINED_ ) ) && !TARGET_OS_FREEBSD && !TARGET_OS_LINUX && !TARGET_OS_VXWORKS && !TARGET_OS_MAC)
+    #if ( !defined(_SSIZE_T) && ( !defined( _BSD_SSIZE_T_DEFINED_ ) ) && !TARGET_OS_FREEBSD && !TARGET_OS_LINUX && !TARGET_OS_VXWORKS && !TARGET_OS_MAC)
 typedef int ssize_t;
     #endif
 #endif
@@ -747,20 +762,7 @@ typedef int ssize_t;
 
     #define INT8_MIN                    SCHAR_MIN
 
-    #if ( defined( _MSC_VER ) )
-
-// C99 stdint.h not supported in VC++/VS.NET yet.
-
-typedef INT8 int8_t;
-typedef UINT8 uint8_t;
-typedef INT16 int16_t;
-typedef UINT16 uint16_t;
-typedef INT32 int32_t;
-typedef UINT32 uint32_t;
-typedef __int64 int64_t;
-typedef unsigned __int64 uint64_t;
-
-    #elif ( TARGET_OS_VXWORKS && ( TORNADO_VERSION < 220 ) )
+    #if ( TARGET_OS_VXWORKS && ( TORNADO_VERSION < 220 ) )
 typedef long long int64_t;
 typedef unsigned long long uint64_t;
     #endif

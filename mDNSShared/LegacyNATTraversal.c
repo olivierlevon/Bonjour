@@ -23,28 +23,9 @@
 
 #if defined( WIN32 )
 #   include "CommonServices.h"
-#   include <winsock2.h>
-#   include <ws2tcpip.h>
+
 #   define strcasecmp   _stricmp
 #   define strncasecmp  _strnicmp
-
-static int
-inet_pton( int family, const char * addr, void * dst )
-{
-    struct sockaddr_storage ss;
-    int sslen = sizeof( ss );
-
-    ZeroMemory( &ss, sizeof( ss ) );
-    ss.ss_family = (ADDRESS_FAMILY)family;
-
-    if ( WSAStringToAddressA( (LPSTR)addr, family, NULL, ( struct sockaddr* ) &ss, &sslen ) == 0 )
-    {
-        if ( family == AF_INET ) { memcpy( dst, &( ( struct sockaddr_in* ) &ss)->sin_addr, sizeof( IN_ADDR ) ); return 1; }
-        else if ( family == AF_INET6 ) { memcpy( dst, &( ( struct sockaddr_in6* ) &ss)->sin6_addr, sizeof( IN6_ADDR ) ); return 1; }
-        else return 0;
-    }
-    else return 0;
-}
 #else
 #   include <arpa/inet.h>       // For inet_pton()
 #endif

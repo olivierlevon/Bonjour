@@ -363,21 +363,16 @@ DEBUG_LOCAL OSStatus	RegisterServer( HINSTANCE inInstance, CLSID inCLSID, LPCTST
 		require_noerr( err, exit );
 	}
 	
-	// If running on NT, register the extension as approved.
+	// Register the extension as approved.
 	
-	versionInfo.dwOSVersionInfoSize = sizeof( versionInfo );
-	GetVersionEx( &versionInfo );
-	if( versionInfo.dwPlatformId == VER_PLATFORM_WIN32_NT )
-	{
-		lstrcpyn( keyName, TEXT( "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Shell Extensions\\Approved" ), sizeof_array( keyName ) );
-		err = RegCreateKeyEx( HKEY_LOCAL_MACHINE, keyName, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &key, NULL );
-		require_noerr( err, exit );
-		
-		lstrcpyn( data, inName, sizeof_array( data ) );
-		size = (DWORD)( ( lstrlen( data ) + 1 ) * sizeof( TCHAR ) );
-		err = RegSetValueEx( key, clsidString, 0, REG_SZ, (LPBYTE) data, size );
-		RegCloseKey( key );
-	}
+	lstrcpyn( keyName, TEXT( "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Shell Extensions\\Approved" ), sizeof_array( keyName ) );
+	err = RegCreateKeyEx( HKEY_LOCAL_MACHINE, keyName, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &key, NULL );
+	require_noerr( err, exit );
+	
+	lstrcpyn( data, inName, sizeof_array( data ) );
+	size = (DWORD)( ( lstrlen( data ) + 1 ) * sizeof( TCHAR ) );
+	err = RegSetValueEx( key, clsidString, 0, REG_SZ, (LPBYTE) data, size );
+	RegCloseKey( key );
 
 	// register toolbar button
 	lstrcpyn( keyName, TEXT( "SOFTWARE\\Microsoft\\Internet Explorer\\Extensions\\{7F9DB11C-E358-4ca6-A83D-ACC663939424}"), sizeof_array( keyName ) );
@@ -400,29 +395,13 @@ DEBUG_LOCAL OSStatus	RegisterServer( HINSTANCE inInstance, CLSID inCLSID, LPCTST
 	size = (DWORD)( ( lstrlen( data ) + 1 ) * sizeof( TCHAR ) );
 	RegSetValueEx( key, L"BandCLSID", 0, REG_SZ, (LPBYTE) data, size );
 
-	// check if we're running XP or later
-	if ( ( versionInfo.dwPlatformId == VER_PLATFORM_WIN32_NT ) &&
-		 ( versionInfo.dwMajorVersion == 5 ) &&
-	     ( versionInfo.dwMinorVersion >= 1 ) )
-	{
-		wsprintf( data, L"%s,%d", (LPCTSTR) g_nonLocalizedResourcesName, IDI_BUTTON_XP );
-		size = (DWORD)( ( lstrlen( data ) + 1 ) * sizeof( TCHAR ) );
-		RegSetValueEx( key, L"Icon", 0, REG_SZ, (LPBYTE) data, size);
+	wsprintf( data, L"%s,%d", (LPCTSTR) g_nonLocalizedResourcesName, IDI_BUTTON );
+	size = (DWORD)( ( lstrlen( data ) + 1 ) * sizeof( TCHAR ) );
+	RegSetValueEx( key, L"Icon", 0, REG_SZ, (LPBYTE) data, size);
 
-		wsprintf( data, L"%s,%d", (LPCTSTR) g_nonLocalizedResourcesName, IDI_BUTTON_XP );
-		size = (DWORD)( ( lstrlen( data ) + 1 ) * sizeof( TCHAR ) );
-		RegSetValueEx( key, L"HotIcon", 0, REG_SZ, (LPBYTE) data, size);
-	}
-	else
-	{
-		wsprintf( data, L"%s,%d", (LPCTSTR) g_nonLocalizedResourcesName, IDI_BUTTON_2K );
-		size = (DWORD)( ( lstrlen( data ) + 1 ) * sizeof( TCHAR ) );
-		RegSetValueEx( key, L"Icon", 0, REG_SZ, (LPBYTE) data, size);
-
-		wsprintf( data, L"%s,%d", (LPCTSTR) g_nonLocalizedResourcesName, IDI_BUTTON_2K );
-		size = (DWORD)( ( lstrlen( data ) + 1 ) * sizeof( TCHAR ) );
-		RegSetValueEx( key, L"HotIcon", 0, REG_SZ, (LPBYTE) data, size);
-	}
+	wsprintf( data, L"%s,%d", (LPCTSTR) g_nonLocalizedResourcesName, IDI_BUTTON );
+	size = (DWORD)( ( lstrlen( data ) + 1 ) * sizeof( TCHAR ) );
+	RegSetValueEx( key, L"HotIcon", 0, REG_SZ, (LPBYTE) data, size);
 
 	RegCloseKey( key );
 	
@@ -497,21 +476,16 @@ DEBUG_LOCAL OSStatus	UnregisterServer( CLSID inCLSID )
 	wsprintf( keyName, L"CLSID\\%s", clsidString );
 	MyRegDeleteKey( HKEY_CLASSES_ROOT, keyName );
 	
-	// If running on NT, de-register the extension as approved.
+	// De-register the extension as approved.
 	
-	versionInfo.dwOSVersionInfoSize = sizeof( versionInfo );
-	GetVersionEx( &versionInfo );
-	if( versionInfo.dwPlatformId == VER_PLATFORM_WIN32_NT )
-	{
-		lstrcpyn( keyName, TEXT( "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Shell Extensions\\Approved" ), sizeof_array( keyName ) );
-		err = RegCreateKeyEx( HKEY_LOCAL_MACHINE, keyName, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &key, NULL );
-		require_noerr( err, exit );
+	lstrcpyn( keyName, TEXT( "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Shell Extensions\\Approved" ), sizeof_array( keyName ) );
+	err = RegCreateKeyEx( HKEY_LOCAL_MACHINE, keyName, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &key, NULL );
+	require_noerr( err, exit );
 
-		RegDeleteValue( key, clsidString );
+	RegDeleteValue( key, clsidString );
 
-		err = RegCloseKey( key );
-		require_noerr( err, exit );
-	}
+	err = RegCloseKey( key );
+	require_noerr( err, exit );
 
 	// de-register toolbar button
 

@@ -55,8 +55,8 @@
 			<![CDATA[Privileged]]>
 		</Condition>
 		<Condition
-			Message = "[ProductName] requires that your computer is running Windows XP SP2 or newer.">
-			<![CDATA[((VersionNT=501 AND ServicePackLevel>=2) OR VersionNT>501)]]>
+			Message = "[ProductName] requires that your computer is running Windows Seven SP1 or newer.">
+			<![CDATA[((VersionNT=601 AND ServicePackLevel>=1) OR VersionNT>601)]]>
 		</Condition>
 		<?if $(var.Win64) = "no"?>
 		<Condition
