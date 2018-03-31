@@ -363,12 +363,9 @@ xcopy /I/Y "$(TargetPath)"                                                      
     <ClInclude Include="..\WinServices.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\configurator.ico" />
     <None Include="res\controlpanel.ico" />
     <None Include="res\ControlPanel.rc2" />
     <None Include="res\EnergySaver.ico" />
-    <None Include="res\failure.ico" />
-    <None Include="res\success.ico" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ControlPanel.rc" />

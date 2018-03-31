@@ -103,9 +103,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\configurator.ico">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="res\controlpanel.ico">
       <Filter>Resource Files</Filter>
     </None>
@@ -113,12 +110,6 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="res\EnergySaver.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\failure.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\success.ico">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

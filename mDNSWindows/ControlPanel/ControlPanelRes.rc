@@ -105,8 +105,6 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDR_APPLET              ICON                    "res\\controlpanel.ico"
-IDI_FAILURE             ICON                    "res\\failure.ico"
-IDI_SUCCESS             ICON                    "res\\success.ico"
 IDI_ENERGY_SAVER	ICON			"res\\EnergySaver.ico"
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////

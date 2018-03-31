@@ -369,15 +369,10 @@ xcopy /I/Y "$(TargetPath)"                                                      
     <ClInclude Include="resource_res.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="about.bmp" />
     <None Include="res\about.bmp" />
     <None Include="res\button-2k.ico" />
     <None Include="res\button-xp.ico" />
-    <None Include="res\cold.ico" />
-    <None Include="hot.ico" />
-    <None Include="logo.bmp" />
     <None Include="res\logo.bmp" />
-    <None Include="Web.ico" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ExplorerPluginRes.rc" />

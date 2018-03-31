@@ -10,8 +10,6 @@
 #define IDR_APPLET_PAGE3                134
 #define IDR_APPLET_PAGE4                135
 #define IDR_APPLET_PAGE5                136
-#define IDI_FAILURE                     140
-#define IDI_SUCCESS                     141
 #define IDI_ENERGY_SAVER				142
 #define IDR_ADD_BROWSE_DOMAIN           143
 #define IDR_POWER_MANAGEMENT_WARNING	144
