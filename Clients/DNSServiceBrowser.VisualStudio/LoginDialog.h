@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-#ifndef	__LOGIN_DIALOG__
-#define	__LOGIN_DIALOG__
 
 #pragma once
 
@@ -50,4 +48,3 @@ class	LoginDialog : public CDialog
 		DECLARE_MESSAGE_MAP()
 };
 
-#endif	// __LOGIN_DIALOG__

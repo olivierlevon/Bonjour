@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by Application.rc
+// Used by DNSServiceBrowser.rc
 //
 #define IDS_ABOUTBOX                    101
 #define IDS_CHOOSER_DOMAIN_COLUMN_NAME  102

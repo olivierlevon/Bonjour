@@ -15,12 +15,9 @@
  * limitations under the License.
  */
 
-#if !defined(AFX_ADMIN_H__8663733F_6A15_439F_B568_F5A0125CD572__INCLUDED_)
-#define AFX_ADMIN_H__8663733F_6A15_439F_B568_F5A0125CD572__INCLUDED_
 
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
+
 
 #include	"stdafx.h"
 
@@ -62,7 +59,5 @@ class	Application : public CWinApp
 		DECLARE_MESSAGE_MAP()
 };
 
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
 
-#endif // !defined(AFX_ADMIN_H__8663733F_6A15_439F_B568_F5A0125CD572__INCLUDED_)
+

@@ -53,7 +53,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.\Resources;..\;..\..\..\;..\..\..\..\mDNSCore;..\..\..\DNSServices;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\Resources;../../mDNSShared;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;DEBUG=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -71,7 +71,7 @@
       <ObjectFileName>.\Debug/</ObjectFileName>
       <ProgramDataBaseFileName>.\Debug/</ProgramDataBaseFileName>
       <BrowseInformation>true</BrowseInformation>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <TreatWarningAsError>true</TreatWarningAsError>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -79,10 +79,9 @@
     </ClCompile>
     <Link>
       <AdditionalOptions>/MACHINE:I386 /IGNORE:4089 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>../../mDNSWindows/DLL/$(Platform)/$(Configuration)/dnssd.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>DNSServiceBrowser Debug.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <IgnoreSpecificDefaultLibraries>wsock32.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>.\Debug/DNSServiceBrowser.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
@@ -105,7 +104,7 @@
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>.\Resources;..\;..\..\..\;..\..\..\..\mDNSCore;..\..\..\DNSServices;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\Resources;../../mDNSShared;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -121,17 +120,16 @@
       <ObjectFileName>.\Release/</ObjectFileName>
       <ProgramDataBaseFileName>.\Release/</ProgramDataBaseFileName>
       <BrowseInformation>true</BrowseInformation>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <TreatWarningAsError>true</TreatWarningAsError>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <CompileAs>Default</CompileAs>
     </ClCompile>
     <Link>
       <AdditionalOptions>/MACHINE:I386 /IGNORE:4089 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>../../mDNSWindows/DLL/$(Platform)/$(Configuration)/dnssd.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>DNSServiceBrowser.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <IgnoreSpecificDefaultLibraries>wsock32.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ProgramDatabaseFile>.\Release/DNSServiceBrowser.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -150,32 +148,20 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\mDNSCore\DNSCommon.c" />
-    <ClCompile Include="..\..\..\..\mDNSCore\DNSDigest.c" />
-    <ClCompile Include="..\..\..\..\mDNSCore\mDNS.c" />
-    <ClCompile Include="..\..\..\..\mDNSCore\uDNS.c" />
-    <ClCompile Include="..\..\..\DebugServices.c" />
-    <ClCompile Include="..\..\..\DNSServices\DNSServices.c" />
-    <ClCompile Include="..\..\..\mDNSWin32.c" />
-    <ClCompile Include="Sources\AboutDialog.cpp" />
-    <ClCompile Include="Sources\ChooserDialog.cpp" />
-    <ClCompile Include="Sources\DNSServiceBrowser.cpp" />
-    <ClCompile Include="Sources\LoginDialog.cpp" />
-    <ClCompile Include="Sources\StdAfx.cpp" />
+    <ClCompile Include="AboutDialog.cpp" />
+    <ClCompile Include="ChooserDialog.cpp" />
+    <ClCompile Include="DNSServiceBrowser.cpp" />
+    <ClCompile Include="LoginDialog.cpp" />
+    <ClCompile Include="StdAfx.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\mDNSCore\DNSCommon.h" />
-    <ClInclude Include="..\..\..\..\mDNSCore\mDNSClientAPI.h" />
-    <ClInclude Include="..\..\..\..\mDNSCore\mDNSDebug.h" />
-    <ClInclude Include="..\..\..\..\mDNSCore\uDNS.h" />
-    <ClInclude Include="..\..\..\CommonServices.h" />
-    <ClInclude Include="..\..\..\DebugServices.h" />
+    <ClInclude Include="..\..\mDNSShared\dns_sd.h" />
     <ClInclude Include="Resources\Resource.h" />
-    <ClInclude Include="Sources\AboutDialog.h" />
-    <ClInclude Include="Sources\ChooserDialog.h" />
-    <ClInclude Include="Sources\DNSServiceBrowser.h" />
-    <ClInclude Include="Sources\LoginDialog.h" />
-    <ClInclude Include="Sources\StdAfx.h" />
+    <ClInclude Include="AboutDialog.h" />
+    <ClInclude Include="ChooserDialog.h" />
+    <ClInclude Include="DNSServiceBrowser.h" />
+    <ClInclude Include="LoginDialog.h" />
+    <ClInclude Include="StdAfx.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\DNSServiceBrowser.ico" />

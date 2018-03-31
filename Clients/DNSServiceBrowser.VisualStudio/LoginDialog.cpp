@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-#include	<assert.h>
-#include	<stdlib.h>
 
 #include	"stdafx.h"
 

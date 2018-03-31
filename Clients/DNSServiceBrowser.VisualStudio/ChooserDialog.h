@@ -15,21 +15,12 @@
  * limitations under the License.
  */
 
-#if !defined(AFX_CHOOSERDIALOG_H__AC258704_B307_4901_9F98_A0AC022FD8AC__INCLUDED_)
-#define AFX_CHOOSERDIALOG_H__AC258704_B307_4901_9F98_A0AC022FD8AC__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
-#include	<string>
-#include	<vector>
-
-#include	"afxcmn.h"
+#include	"stdafx.h"
 
 #include	"Resource.h"
 
-#include	"DNSServices.h"
 
 //===========================================================================================================================
 //	Structures

@@ -15,12 +15,8 @@
  * limitations under the License.
  */
 
-#if !defined(AFX_ABOUTDIALOG_H__4B8A04B2_9735_4F4A_AFCA_15F85FB3D763__INCLUDED_)
-#define AFX_ABOUTDIALOG_H__4B8A04B2_9735_4F4A_AFCA_15F85FB3D763__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
+
 
 #include	"Resource.h"
 
@@ -56,7 +52,4 @@ class	AboutDialog : public CDialog
 		DECLARE_MESSAGE_MAP()
 };
 
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
 
-#endif // !defined(AFX_ABOUTDIALOG_H__4B8A04B2_9735_4F4A_AFCA_15F85FB3D763__INCLUDED_)

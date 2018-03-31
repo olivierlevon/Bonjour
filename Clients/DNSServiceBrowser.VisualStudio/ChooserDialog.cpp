@@ -15,25 +15,14 @@
  * limitations under the License.
  */
 
-#include	<assert.h>
-#include	<stdio.h>
-#include	<stdlib.h>
-#include	<string.h>
-#include	<time.h>
-
-#include	<algorithm>
-#include	<memory>
-
 #include	"stdafx.h"
-
-#include	"DNSServices.h"
-
-#include	"Application.h"
+ 
+#include	"DNSServiceBrowser.h"
 #include	"AboutDialog.h"
 #include	"LoginDialog.h"
-#include	"Resource.h"
-
 #include	"ChooserDialog.h"
+
+#include	"Resource.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

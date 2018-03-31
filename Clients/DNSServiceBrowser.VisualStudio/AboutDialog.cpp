@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-#include	<stdlib.h>
 
 #include	"stdafx.h"
+
 
 #include	"AboutDialog.h"
 

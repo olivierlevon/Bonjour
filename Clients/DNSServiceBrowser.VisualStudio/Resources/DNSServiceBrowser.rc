@@ -50,7 +50,7 @@ BEGIN
     "LANGUAGE 9, 1\r\n"
     "#pragma code_page(1252)\r\n"
     "#endif //_WIN32\r\n"
-    "#include ""Resources\\Application.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""Resources\\DNSServiceBrowser.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
     "#include ""afxres.rc""         // Standard components\r\n"
     "#endif\r\n"
     "\0"
@@ -66,7 +66,7 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDR_MAIN_ICON           ICON                    "Application.ico"
+IDR_MAIN_ICON           ICON                    "DNSServiceBrowser.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -314,7 +314,7 @@ END
 LANGUAGE 9, 1
 #pragma code_page(1252)
 #endif //_WIN32
-#include "Resources\Application.rc2"  // non-Microsoft Visual C++ edited resources
+#include "Resources\DNSServiceBrowser.rc2"  // non-Microsoft Visual C++ edited resources
 #include "afxres.rc"         // Standard components
 #endif
 

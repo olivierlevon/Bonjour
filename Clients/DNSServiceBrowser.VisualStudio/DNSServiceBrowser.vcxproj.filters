@@ -13,78 +13,42 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Sources\AboutDialog.cpp">
+    <ClCompile Include="AboutDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\DNSServiceBrowser.cpp">
+    <ClCompile Include="DNSServiceBrowser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\ChooserDialog.cpp">
+    <ClCompile Include="ChooserDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\LoginDialog.cpp">
+    <ClCompile Include="LoginDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\StdAfx.cpp">
+    <ClCompile Include="StdAfx.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\mDNSCore\DNSCommon.c">
-      <Filter>Support</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\mDNSCore\DNSDigest.c">
-      <Filter>Support</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\DNSServices\DNSServices.c">
-      <Filter>Support</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\DebugServices.c">
-      <Filter>Support</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\mDNSCore\mDNS.c">
-      <Filter>Support</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\mDNSWin32.c">
-      <Filter>Support</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\mDNSCore\uDNS.c">
-      <Filter>Support</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Sources\AboutDialog.h">
+    <ClInclude Include="AboutDialog.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\DNSServiceBrowser.h">
+    <ClInclude Include="DNSServiceBrowser.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\ChooserDialog.h">
+    <ClInclude Include="ChooserDialog.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\LoginDialog.h">
+    <ClInclude Include="LoginDialog.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\StdAfx.h">
+    <ClInclude Include="StdAfx.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Resources\Resource.h">
+    <ClInclude Include="Resource.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\CommonServices.h">
-      <Filter>Support</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\mDNSCore\DNSCommon.h">
-      <Filter>Support</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\DebugServices.h">
-      <Filter>Support</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\mDNSCore\mDNSClientAPI.h">
-      <Filter>Support</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\mDNSCore\mDNSDebug.h">
-      <Filter>Support</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\mDNSCore\uDNS.h">
+    <ClInclude Include="..\..\mDNSShared\dns_sd.h">
       <Filter>Support</Filter>
     </ClInclude>
   </ItemGroup>

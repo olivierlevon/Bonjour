@@ -15,17 +15,13 @@
  * limitations under the License.
  */
 
-#include	<assert.h>
 
 #include	"StdAfx.h"
 
-#include	"DNSServices.h"
-
-#include	"Application.h"
-
+#include	"DNSServiceBrowser.h"
 #include	"ChooserDialog.h"
 
-#include	"stdafx.h"
+
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
