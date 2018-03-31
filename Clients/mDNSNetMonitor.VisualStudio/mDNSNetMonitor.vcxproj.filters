@@ -36,7 +36,7 @@
     <ClCompile Include="..\..\mDNSWindows\mDNSWin32.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\mDNSPosix\NetMonitor.c">
+    <ClCompile Include="..\..\mDNSShared\NetMonitor.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\mDNSWindows\PosixCompat.c">

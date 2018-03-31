@@ -1,21 +1,24 @@
-Microsoft Visual Studio Solution File, Format Version 8.00
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BonjourExample", "BonjourExample.vcproj", "{0A842379-799E-414C-BF1F-BF11A8D3A8A8}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.2015
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BonjourExample", "BonjourExample.vcxproj", "{0A842379-799E-414C-BF1F-BF11A8D3A8A8}"
 EndProject
 Global
-	GlobalSection(SolutionConfiguration) = preSolution
-		Debug = Debug
-		Release = Release
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
 	EndGlobalSection
-	GlobalSection(ProjectConfiguration) = postSolution
-		{0A842379-799E-414C-BF1F-BF11A8D3A8A8}.Debug.ActiveCfg = Debug|Win32
-		{0A842379-799E-414C-BF1F-BF11A8D3A8A8}.Debug.Build.0 = Debug|Win32
-		{0A842379-799E-414C-BF1F-BF11A8D3A8A8}.Release.ActiveCfg = Release|Win32
-		{0A842379-799E-414C-BF1F-BF11A8D3A8A8}.Release.Build.0 = Release|Win32
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0A842379-799E-414C-BF1F-BF11A8D3A8A8}.Debug|x86.ActiveCfg = Debug|Win32
+		{0A842379-799E-414C-BF1F-BF11A8D3A8A8}.Debug|x86.Build.0 = Debug|Win32
+		{0A842379-799E-414C-BF1F-BF11A8D3A8A8}.Release|x86.ActiveCfg = Release|Win32
+		{0A842379-799E-414C-BF1F-BF11A8D3A8A8}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-	EndGlobalSection
-	GlobalSection(ExtensibilityAddIns) = postSolution
+		SolutionGuid = {FC4BABBF-FFD5-4769-8A89-24D5670670A9}
 	EndGlobalSection
 EndGlobal

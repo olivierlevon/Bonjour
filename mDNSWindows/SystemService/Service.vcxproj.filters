@@ -33,7 +33,7 @@
     <ClCompile Include="..\..\mDNSShared\GenLinkedList.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\mDNSMacOSX\LegacyNATTraversal.c">
+    <ClCompile Include="..\..\mDNSShared\LegacyNATTraversal.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="main.c">
