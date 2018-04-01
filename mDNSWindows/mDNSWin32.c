@@ -2810,8 +2810,6 @@ mDNSlocal mStatus	SetupSocket( mDNS * const inMDNS, const struct sockaddr *inAdd
 	mStatus			err;
 	SocketRef		sock;
 	int				option;
-	DWORD			bytesReturned = 0;
-	BOOL			behavior = FALSE;
 	
 	DEBUG_UNUSED( inMDNS );
 	
@@ -2910,15 +2908,6 @@ mDNSlocal mStatus	SetupSocket( mDNS * const inMDNS, const struct sockaddr *inAdd
 		sa6.sin6_addr		= sa6p->sin6_addr;
 		sa6.sin6_scope_id	= sa6p->sin6_scope_id;
 		
-		err = bind( sock, (struct sockaddr *) &sa6, sizeof( sa6 ) );
-		check_translated_errno( err == 0, errno_compat(), kUnknownErr );
-		
-		// Turn on option to receive destination addresses and receiving interface.
-		
-		option = 1;
-		err = setsockopt( sock, IPPROTO_IPV6, IPV6_PKTINFO, (char *) &option, sizeof( option ) );
-		check_translated_errno( err == 0, errno_compat(), kOptionErr );
-		
 		// We only want to receive IPv6 packets (not IPv4-mapped IPv6 addresses) because we have a separate socket 
 		// for IPv4, but the IPv6 stack in Windows currently doesn't support IPv4-mapped IPv6 addresses and doesn't
 		// support the IPV6_V6ONLY socket option so the following code would typically not be executed (or needed).
@@ -2928,6 +2917,15 @@ mDNSlocal mStatus	SetupSocket( mDNS * const inMDNS, const struct sockaddr *inAdd
 			err = setsockopt( sock, IPPROTO_IPV6, IPV6_V6ONLY, (char *) &option, sizeof( option ) );
 			check_translated_errno( err == 0, errno_compat(), kOptionErr );		
 		#endif
+
+		err = bind( sock, (struct sockaddr *) &sa6, sizeof( sa6 ) );
+		check_translated_errno( err == 0, errno_compat(), kUnknownErr );
+		
+		// Turn on option to receive destination addresses and receiving interface.
+		
+		option = 1;
+		err = setsockopt( sock, IPPROTO_IPV6, IPV6_PKTINFO, (char *) &option, sizeof( option ) );
+		check_translated_errno( err == 0, errno_compat(), kOptionErr );
 		
 		if ( !mDNSIPPortIsZero( port ) )
 		{
