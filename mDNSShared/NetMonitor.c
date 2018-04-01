@@ -896,15 +896,22 @@ mDNSlocal mStatus mDNSNetMonitor(void)
 
 #if defined( WIN32 )
     status = SetupInterfaceList(&mDNSStorage);
-    if (status) return(status);
+    if (status) 
+		return(status);
     gStopEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
-    if (gStopEvent == INVALID_HANDLE_VALUE) return mStatus_UnknownErr;
+    if (gStopEvent == INVALID_HANDLE_VALUE) 
+		return mStatus_UnknownErr;
     mDNSPollRegisterEvent( gStopEvent, StopNotification, NULL );
-    if (!SetConsoleCtrlHandler(ConsoleControlHandler, TRUE)) return mStatus_UnknownErr;
-    gRunning = mDNStrue; while (gRunning) mDNSPoll( INFINITE );
-    TearDownInterfaceList(&mDNSStorage);
-    if (!SetConsoleCtrlHandler(ConsoleControlHandler, FALSE)) return mStatus_UnknownErr;
+    if (!SetConsoleCtrlHandler(ConsoleControlHandler, TRUE)) 
+		return mStatus_UnknownErr;
+    gRunning = mDNStrue; 
+    while (gRunning) 
+		mDNSPoll( INFINITE );
+    mDNSPollUnregisterEvent( gStopEvent );
+    if (!SetConsoleCtrlHandler(ConsoleControlHandler, FALSE)) 
+		return mStatus_UnknownErr;
     CloseHandle(gStopEvent);
+    TearDownInterfaceList(&mDNSStorage);
 #else
     mDNSPosixListenForSignalInEventLoop(SIGINT);
     mDNSPosixListenForSignalInEventLoop(SIGTERM);
