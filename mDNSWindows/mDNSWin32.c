@@ -3071,7 +3071,6 @@ UDPSocketNotification( SOCKET sock, LPWSANETWORKEVENTS event, void *context )
 	mDNSAddr				dstAddr;
 	mDNSIPPort				dstPort;
 	uint8_t					controlBuffer[ 128 ];
-	mDNSu8				*	end;
 	int						num;
 	DWORD					numTries;
 	mStatus					err;
@@ -3085,8 +3084,8 @@ UDPSocketNotification( SOCKET sock, LPWSANETWORKEVENTS event, void *context )
 	
 	// Initialize the buffer structure
 
-	wbuf.buf		= (char *) &udpSock->packet;
-	wbuf.len		= (u_long) sizeof( udpSock->packet );
+	wbuf.buf		= (char *) &udpSock->m->imsg.m;
+	wbuf.len		= (u_long) sizeof( udpSock->m->imsg.m );
 	sockSrcAddrLen	= sizeof( sockSrcAddr );
 
 	numTries = 0;
@@ -3234,9 +3233,8 @@ UDPSocketNotification( SOCKET sock, LPWSANETWORKEVENTS event, void *context )
 	dlog( kDebugLevelChatty, DEBUG_NAME "\n" );
 
 	iid = udpSock->ifd ? udpSock->ifd->interfaceInfo.InterfaceID : NULL;
-	end = ( (mDNSu8 *) &udpSock->packet ) + num;
 
-	mDNSCoreReceive( udpSock->m, &udpSock->packet, end, &srcAddr, srcPort, &dstAddr, dstPort, iid );
+	mDNSCoreReceive( udpSock->m, &udpSock->m->imsg.m, (unsigned char*)&udpSock->m->imsg + num, &srcAddr, srcPort, &dstAddr, dstPort, iid );
 
 exit:
 
