@@ -55,6 +55,15 @@
 #include    "dnssec.h"
 #include    "nsec.h"
 
+#ifdef ETCHOSTS_ENABLED
+#include <fcntl.h>
+#include <io.h>
+#endif
+
+#ifdef UNIT_TEST
+#include "unittest.h"
+#endif
+
 #if 0
 #pragma mark == Constants ==
 #endif
@@ -244,10 +253,37 @@ mDNSlocal HANDLE					gSMBThreadQuitEvent			= NULL;
 #define	kSMBRegisterEvent			( WAIT_OBJECT_0 + 1 )
 #define kSMBDeregisterEvent			( WAIT_OBJECT_0 + 2 )
 
+static AuthRecord *lpbkv4 = mDNSNULL;
+static AuthRecord *lpbkv6 = mDNSNULL;
+
 #if 0
 #pragma mark -
 #pragma mark == Platform Support ==
 #endif
+
+mDNSlocal void CleanupPTRRecord(mDNS *const m, AuthRecord *rr) 
+{
+	mStatus err;
+
+	if (rr != NULL)
+	{
+		err = mDNS_Deregister(m, rr);
+		//There is no callback so should free here anyway !!!
+		mDNSPlatformMemFree(rr);
+		verbosedebugf("%s  %d %m", __FUNCTION__, err, err);
+	}
+}
+
+mDNSlocal void CleanupLocalHostRecords(mDNS *const m)
+{
+	CleanupPTRRecord(m, lpbkv4);
+	CleanupPTRRecord(m, lpbkv6);
+}
+
+#ifdef ETCHOSTS_ENABLED	
+mDNSlocal void mDNSWin32UpdateEtcHosts(mDNS *const m);
+mDNSlocal void mDNSWin32CleanupEtcHosts(mDNS *const m);
+#endif	
 
 //===========================================================================================================================
 //	mDNSPlatformInit
@@ -380,7 +416,11 @@ mDNSexport mStatus	mDNSPlatformInit( mDNS * const inMDNS )
 	// Notify core of domain secret keys
 
 	SetDomainSecrets( inMDNS );
-	
+
+#ifdef ETCHOSTS_ENABLED	
+    mDNSWin32UpdateEtcHosts(inMDNS);
+#endif
+
 	// Success!
 
 	mDNSCoreInitComplete( inMDNS, err );
@@ -407,6 +447,10 @@ mDNSexport void	mDNSPlatformClose( mDNS * const inMDNS )
 	
 	dlog( kDebugLevelTrace, DEBUG_NAME "platform close\n" );
 	check( inMDNS );
+
+#ifdef ETCHOSTS_ENABLED	
+    mDNSWin32CleanupEtcHosts(inMDNS);
+#endif
 
 	if ( gSMBThread != NULL )
 	{
@@ -1276,7 +1320,9 @@ exit:
 //===========================================================================================================================
 //	mDNSPlatformUDPClose
 //===========================================================================================================================
-	
+#ifdef UNIT_TEST
+UNITTEST_UDPCLOSE
+#else	
 mDNSexport void mDNSPlatformUDPClose( UDPSocket *sock )
 {
 	UDPSocket	*	current  = gUDPSockets;
@@ -1307,6 +1353,7 @@ mDNSexport void mDNSPlatformUDPClose( UDPSocket *sock )
 		current	= current->next;
 	}
 }
+#endif
 
 //===========================================================================================================================
 //	mDNSPlatformSendUDP
@@ -2088,6 +2135,9 @@ mDNSexport mStatus mDNSPlatformRetrieveTCPInfo(mDNSAddr *laddr, mDNSIPPort *lpor
 	return mStatus_UnsupportedErr;
 }
 
+#ifdef UNIT_TEST
+UNITTEST_SETSOCKOPT
+#else
 mDNSexport void mDNSPlatformSetSocktOpt(void *sock, mDNSTransport_Type transType, mDNSAddr_Type addrType, const DNSQuestion *q)
     {
     (void) sock;
@@ -2095,6 +2145,7 @@ mDNSexport void mDNSPlatformSetSocktOpt(void *sock, mDNSTransport_Type transType
     (void) addrType;
     (void) q;
     }
+#endif // UNIT_TEST
 
 mDNSexport mDNSs32 mDNSPlatformGetPID()
     {
@@ -2711,7 +2762,9 @@ mDNSlocal mStatus	SetupInterface( mDNS * const inMDNS, const struct ifaddrs *inI
 		inMDNS->p->nextDHCPLeaseExpires = inIFA->ifa_dhcpLeaseExpires;
 	}
 
+#ifndef UNIT_TEST
 	ifd->interfaceInfo.NetWake = inIFA->ifa_womp;
+#endif
 
 	// Register this interface with mDNS.
 	
@@ -4893,9 +4946,994 @@ SendMulticastWakeupPacket( void *arg )
 	_endthread();
 }
 
+#if COMPILER_LIKES_PRAGMA_MARK
+#pragma mark -
+#pragma mark - /etc/hosts support
+#endif
+
+#ifdef ETCHOSTS_ENABLED
+
+// "/etc/hosts"
+
+#define ETCHOSTSDIR TEXT("C:\\Windows\\System32\\drivers\\etc")
+#define ETCHOSTS "C:\\Windows\\System32\\drivers\\etc\\hosts"
+
+// Implementation Notes
+//
+// As /etc/hosts file can be huge (1000s of entries - when this comment was written, the test file had about
+// 23000 entries with about 4000 duplicates), we can't use a linked list to store these entries. So, we parse
+// them into a hash table. The implementation need to be able to do the following things efficiently
+//
+// 1. Detect duplicates e.g., two entries with "1.2.3.4 foo"
+// 2. Detect whether /etc/hosts has changed and what has changed since the last read from the disk
+// 3. Ability to support multiple addresses per name e.g., "1.2.3.4 foo, 2.3.4.5 foo". To support this, we
+//    need to be able set the RRSet of a resource record to the first one in the list and also update when
+//    one of them go away. This is needed so that the core thinks that they are all part of the same RRSet and
+//    not a duplicate
+// 4. Don't maintain any local state about any records registered with the core to detect changes to /etc/hosts
+
+
+#define ETCHOSTS_BUFSIZE    1024    // Buffer size to parse a single line in /etc/hosts
+
+static ARListElem *EtcHostsAuthRecs = mDNSNULL;
+
+#ifdef WATCH_ETCHOSTS
+
+void RefreshDirectory(LPTSTR lpDir)
+{
+	verbosedebugf("%s ", __FUNCTION__);
+
+
+}
+
+void WatchDirectory(LPTSTR lpDir)
+{
+	DWORD dwWaitStatus; 
+	HANDLE dwChangeHandles; 
+	TCHAR lpDrive[4];
+	TCHAR lpFile[_MAX_FNAME];
+	TCHAR lpExt[_MAX_EXT];
+
+	verbosedebugf("%s ", __FUNCTION__);
+	
+	_tsplitpath_s(lpDir, lpDrive, 4, NULL, 0, lpFile, _MAX_FNAME, lpExt, _MAX_EXT);
+
+	lpDrive[2] = (TCHAR)'\\';
+	lpDrive[3] = (TCHAR)'\0';
+
+	// Watch the directory for file creation and deletion. 
+ 	dwChangeHandles = FindFirstChangeNotification( 
+	  lpDir,                         // directory to watch 
+	  FALSE,                         // do not watch subtree 
+	  FILE_NOTIFY_CHANGE_LAST_WRITE);  // watch file last write changes 
+
+	if (dwChangeHandles == INVALID_HANDLE_VALUE) 
+	{
+		verbosedebugf("ERROR: FindFirstChangeNotification function failed.");
+
+		return;
+	}
+ 
+	// Change notification is set. Now wait on notification 
+	// handle and refresh accordingly. 
+	while (TRUE) 
+	{ 
+		// Wait for notification.
+        dwWaitStatus = WaitForMultipleObjects(1, dwChangeHandles, FALSE, INFINITE); 
+        switch (dwWaitStatus) 
+        { 
+        case WAIT_OBJECT_0: 
+ 
+         // A file was created, renamed, or deleted in the directory.
+         // Refresh this directory and restart the notification.
+ 
+             RefreshDirectory(lpDir); 
+             if ( FindNextChangeNotification(dwChangeHandles) == FALSE )
+             {
+				 int ret = GetLastError(); 
+				verbosedebugf("ERROR: FindNextChangeNotification function failed %d %s.", ret, win32_strerror(ret));
+
+				goto exit;
+             }
+             break; 
+ 
+
+        case WAIT_TIMEOUT:
+
+         // A timeout occurred, this would happen if some value other 
+         // than INFINITE is used in the Wait call and no changes occur.
+         // In a single-threaded environment you might not want an
+         // INFINITE wait.
+ 
+            verbosedebugf("No changes in the timeout period.");
+            break;
+
+        default: 
+            verbosedebugf("ERROR: Unhandled dwWaitStatus.");
+
+			goto exit;
+            break;
+        }
+    }
+   
+exit:  
+	if (dwChangeHandles != INVALID_HANDLE_VALUE) 
+		FindCloseChangeNotification(dwChangeHandles);
+}
+#endif
+
+mDNSexport void FreeEtcHosts(mDNS *const m, AuthRecord *const rr, mStatus result)
+{
+	verbosedebugf("%s rr %p result %d %m", __FUNCTION__, rr, result, result);
+	
+    if (result == mStatus_MemFree)
+    {
+        LogInfo("FreeEtcHostsCallback: %s", ARDisplayString(m, rr));
+
+        freeL("etchosts", rr);
+    }
+}
+
+// Returns true on success and false on failure
+
+mDNSBool mDNSWin32CreateEtcHostsEntry(mDNS *const m, const domainname *domain, const struct sockaddr *sa, const domainname *cname, char *ifname, AuthHash *auth)
+{
+    AuthRecord *rr;
+    mDNSu32 namehash;
+    AuthGroup *ag;
+    mDNSInterfaceID InterfaceID = mDNSInterface_LocalOnly;
+    mDNSu16 rrtype;
+    ARListElem *ptr;
+
+    if (!domain)
+    {
+        LogMsg("mDNSWin32CreateEtcHostsEntry: ERROR!! name NULL");
+        return mDNSfalse;
+    }
+    if (!sa && !cname)
+    {
+        LogMsg("mDNSWin32CreateEtcHostsEntry: ERROR!! sa and cname both NULL");
+        return mDNSfalse;
+    }
+
+    if (sa && sa->sa_family != AF_INET && sa->sa_family != AF_INET6)
+    {
+        LogMsg("mDNSWin32CreateEtcHostsEntry: ERROR!! sa with bad family %d", sa->sa_family);
+        return mDNSfalse;
+    }
+
+	verbosedebugf("%s domain %##s sa %##a cname %##s ifname %s auth %p", __FUNCTION__, domain, (sa), cname, ifname, auth);
+	
+    if (ifname)
+    {
+        mDNSu32 ifindex = if_nametoindex(ifname);
+        if (!ifindex)
+        {
+            LogMsg("mDNSWin32CreateEtcHostsEntry: hosts entry %##s with invalid ifname %s", domain->c, ifname);
+            return mDNSfalse;
+        }
+        InterfaceID = (mDNSInterfaceID)(uintptr_t)ifindex;
+    }
+
+    if (sa)
+        rrtype = (sa->sa_family == AF_INET ? kDNSType_A : kDNSType_AAAA);
+    else
+        rrtype = kDNSType_CNAME;
+
+    // Check for duplicates. See whether we parsed an entry before like this ?
+    namehash = DomainNameHashValue(domain);
+    ag = AuthGroupForName(auth, namehash, domain);
+    if (ag)
+    {
+        rr = ag->members;
+        while (rr)
+        {
+            if (rr->resrec.rrtype == rrtype)
+            {
+                if (rrtype == kDNSType_A)
+                {
+                    mDNSv4Addr ip;
+
+                    ip.NotAnInteger = ((struct sockaddr_in*)sa)->sin_addr.s_addr;
+                    if (mDNSSameIPv4Address(rr->resrec.rdata->u.ipv4, ip))
+                    {
+                        LogInfo("mDNSWin32CreateEtcHostsEntry: Same IPv4 address for name %##s", domain->c);
+                        return mDNSfalse;
+                    }
+                }
+                else 
+				if (rrtype == kDNSType_AAAA)
+                {
+                    mDNSv6Addr ip6;
+
+					ip6.l[0] = ((struct sockaddr_in6*)sa)->sin6_addr.s6_words[0]; // __u6_addr.__u6_addr32[0];
+					ip6.l[1] = ((struct sockaddr_in6*)sa)->sin6_addr.s6_words[1]; // __u6_addr.__u6_addr32[1];
+					ip6.l[2] = ((struct sockaddr_in6*)sa)->sin6_addr.s6_words[2]; // __u6_addr.__u6_addr32[2];
+					ip6.l[3] = ((struct sockaddr_in6*)sa)->sin6_addr.s6_words[3]; // __u6_addr.__u6_addr32[3];
+                    if (mDNSSameIPv6Address(rr->resrec.rdata->u.ipv6, ip6))
+                    {
+                        LogInfo("mDNSWin32CreateEtcHostsEntry: Same IPv6 address for name %##s", domain->c);
+                        return mDNSfalse;
+                    }
+                }
+                else 
+				if (rrtype == kDNSType_CNAME)
+                {
+                    if (SameDomainName(&rr->resrec.rdata->u.name, cname))
+                    {
+                        LogInfo("mDNSWin32CreateEtcHostsEntry: Same cname %##s for name %##s", cname->c, domain->c);
+                        return mDNSfalse;
+                    }
+                }
+            }
+            rr = rr->next;
+        }
+    }
+	
+	ptr = (ARListElem *)malloc(sizeof(*ptr));
+	if (ptr == mDNSNULL)
+	{ 
+		LogMsg("ERROR: mDNSWin32CreateEtcHostsEntry - malloc");
+		return mDNSfalse;
+	}
+	mDNSPlatformMemZero(ptr, sizeof(*ptr));
+    ptr->next = EtcHostsAuthRecs;
+    EtcHostsAuthRecs = ptr;
+	rr = & ptr->ar;
+    mDNS_SetupResourceRecord(rr, NULL, InterfaceID, rrtype, 1, kDNSRecordTypeKnownUnique, AuthRecordLocalOnly, FreeEtcHosts, NULL);
+    AssignDomainName(&rr->namestorage, domain);
+
+    if (sa)
+    {
+        rr->resrec.rdlength = sa->sa_family == AF_INET ? sizeof(mDNSv4Addr) : sizeof(mDNSv6Addr);
+        if (sa->sa_family == AF_INET)
+            rr->resrec.rdata->u.ipv4.NotAnInteger = ((struct sockaddr_in*)sa)->sin_addr.s_addr;
+        else
+        {
+			rr->resrec.rdata->u.ipv6.l[0] = ((struct sockaddr_in6*)sa)->sin6_addr.s6_words[0];
+            rr->resrec.rdata->u.ipv6.l[1] = ((struct sockaddr_in6*)sa)->sin6_addr.s6_words[1];
+            rr->resrec.rdata->u.ipv6.l[2] = ((struct sockaddr_in6*)sa)->sin6_addr.s6_words[2];
+            rr->resrec.rdata->u.ipv6.l[3] = ((struct sockaddr_in6*)sa)->sin6_addr.s6_words[3];
+        }
+    }
+    else
+    {
+        rr->resrec.rdlength = DomainNameLength(cname);
+        rr->resrec.rdata->u.name.c[0] = 0;
+        AssignDomainName(&rr->resrec.rdata->u.name, cname);
+    }
+    rr->resrec.namehash = DomainNameHashValue(rr->resrec.name);
+    SetNewRData(&rr->resrec, mDNSNULL, 0);  // Sets rr->rdatahash for us
+    LogInfo("mDNSWin32CreateEtcHostsEntry: Adding resource record %s", ARDisplayString(m, rr));
+    InsertAuthRecord(m, auth, rr);
+    return mDNStrue;
+}
+
+mDNSlocal int EtcHostsParseOneName(int start, int length, char *buffer, char **name)
+{
+    int i;
+
+	verbosedebugf("%s buffer %s length %d name %p", __FUNCTION__, buffer, length, name);
+	
+    *name = NULL;
+    for (i = start; i < length; i++)
+    {
+        if (buffer[i] == '#')
+            return -1;
+        if (buffer[i] != ' ' && buffer[i] != ',' && buffer[i] != '\t')
+        {
+            *name = &buffer[i];
+
+            // Found the start of a name, find the end and null terminate
+            for (i++; i < length; i++)
+            {
+                if (buffer[i] == ' ' || buffer[i] == ',' || buffer[i] == '\t')
+                {
+                    buffer[i] = 0;
+                    break;
+                }
+            }
+            return i;
+        }
+    }
+    return -1;
+}
+
+mDNSlocal void mDNSWin32ParseEtcHostsLine(mDNS *const m, char *buffer, ssize_t length, AuthHash *auth)
+{
+    int i;
+    int ifStart = 0;
+    char *ifname = NULL;
+    domainname name1d;
+    domainname name2d;
+    char *name1;
+    char *name2;
+    int aliasIndex;
+    struct addrinfo *gairesults = NULL;
+    struct addrinfo hints;
+	
+	verbosedebugf("%s buffer %s length %d AuthHash %p", __FUNCTION__, buffer, length, auth);
+	
+    //Ignore leading whitespaces and tabs
+    while (*buffer == ' ' || *buffer == '\t')
+    {
+        buffer++;
+        length--;
+    }
+
+    // Find the end of the address string
+    for (i = 0; i < length; i++)
+    {
+        if (buffer[i] == ' ' || buffer[i] == ',' || buffer[i] == '\t' || buffer[i] == '%')
+        {
+            if (buffer[i] == '%')
+                ifStart = i + 1;
+            buffer[i] = 0;
+            break;
+        }
+    }
+
+    // Convert the address string to an address
+
+    mDNSPlatformMemZero(&hints, sizeof(hints));
+    hints.ai_flags = AI_NUMERICHOST;
+	
+    if (getaddrinfo(buffer, NULL, &hints, &gairesults) != 0)
+    {
+        LogInfo("mDNSWin32ParseEtcHostsLine: getaddrinfo %d", WSAGetLastError());
+        return;
+    }
+
+    if (ifStart)
+    {
+        // Parse the interface
+        ifname = &buffer[ifStart];
+        for (i = ifStart + 1; i < length; i++)
+        {
+            if (buffer[i] == ' ' || buffer[i] == ',' || buffer[i] == '\t')
+            {
+                buffer[i] = 0;
+                break;
+            }
+        }
+    }
+
+    i = EtcHostsParseOneName(i + 1, length, buffer, &name1);
+    if (i == length)
+    {
+        // Common case (no aliases) : The entry is of the form "1.2.3.4 somehost" with no trailing white spaces/tabs etc.
+        if (!MakeDomainNameFromDNSNameString(&name1d, name1))
+        {
+            LogMsg("mDNSWin32ParseEtcHostsLine: ERROR!! cannot convert to domain name %s", name1);
+            freeaddrinfo(gairesults);
+            return;
+        }
+        mDNSWin32CreateEtcHostsEntry(m, &name1d, gairesults->ai_addr, mDNSNULL, ifname, auth);
+    }
+    else
+	if (i != -1)
+    {
+        domainname first;
+
+        // We might have some extra white spaces at the end for the common case of "1.2.3.4 somehost".
+        // When we parse again below, EtchHostsParseOneName would return -1 and we will end up
+        // doing the right thing.
+
+        if (!MakeDomainNameFromDNSNameString(&first, name1))
+        {
+            LogMsg("mDNSWin32ParseEtcHostsLine: ERROR!! cannot convert to domain name %s", name1);
+            freeaddrinfo(gairesults);
+            return;
+        }
+        // If the /etc/hosts has an entry like this
+        //
+        // 1.2.3.4 sun star bright
+        //
+        // star and bright are aliases (gethostbyname h_alias should point to these) and sun is the canonical
+        // name (getaddrinfo ai_cannonname and gethostbyname h_name points to "sun")
+        //
+        // To achieve this, we need to add the entry like this:
+        //
+        // star CNAME bright
+        // bright CNAME sun
+        // sun A 1.2.3.4
+        //
+        // We store the first name we parsed in "first". Then we parse additional names adding CNAME records
+        // till we reach the end. When we reach the end, we wrap around and add one final CNAME with the last
+        // entry and the first entry. Finally, we add the Address (A/AAAA) record.
+        aliasIndex = 0;
+        while (i <= length)
+        {
+            // Parse a name. If there are no names, we need to know whether we
+            // parsed CNAMEs before or not. If we parsed CNAMEs before, then we
+            // add a CNAME with the last name and the first name. Otherwise, this
+            // is same as the common case above where the line has just one name
+            // but with trailing white spaces.
+            i = EtcHostsParseOneName(i + 1, length, buffer, &name2);
+            if (name2)
+            {
+                if (!MakeDomainNameFromDNSNameString(&name2d, name2))
+                {
+                    LogMsg("mDNSWin32ParseEtcHostsLine: ERROR!! cannot convert to domain name %s", name2);
+                    freeaddrinfo(gairesults);
+                    return;
+                }
+                aliasIndex++;
+            }
+            else 
+			if (!aliasIndex)
+            {
+                // We have never parsed any aliases. This case happens if there
+                // is just one name and some extra white spaces at the end.
+                LogInfo("mDNSWin32ParseEtcHostsLine: White space at the end of %##s", first.c);
+                break;
+            }
+            else
+            {
+                // We have parsed at least one alias before and we reached the end of the line.
+                // Setup a CNAME for the last name with "first" name as its RDATA
+                name2d.c[0] = 0;
+                AssignDomainName(&name2d, &first);
+            }
+
+            // Don't add a CNAME for the first alias we parse (see the example above).
+            // As we parse more, we might discover that there are no more aliases, in
+            // which case we would have set "name2d" to "first" above. We need to add
+            // the CNAME in that case.
+
+            if (aliasIndex > 1 || SameDomainName(&name2d, &first))
+            {
+                // Ignore if it points to itself
+                if (!SameDomainName(&name1d, &name2d))
+                {
+                    if (!mDNSWin32CreateEtcHostsEntry(m, &name1d, mDNSNULL, &name2d, ifname, auth)) //m, 
+                    {
+                        freeaddrinfo(gairesults);
+                        return;
+                    }
+                }
+                else
+                    LogMsg("mDNSWin32ParseEtcHostsLine: Ignoring entry with same names name1 %##s, name2 %##s", name1d.c, name2d.c);
+            }
+
+            // If we have already wrapped around, we just need to add the A/AAAA record alone
+            // which is done below
+            if (SameDomainName(&name2d, &first))
+				break;
+
+            // Remember the current name so that we can set the CNAME record if we parse one
+            // more name
+            name1d.c[0] = 0;
+            AssignDomainName(&name1d, &name2d);
+        }
+        // Added all the CNAMEs if any, add the "A/AAAA" record
+        mDNSWin32CreateEtcHostsEntry(m, &first, gairesults->ai_addr, mDNSNULL, ifname, auth); //m, //OLE code ret
+    }
+    freeaddrinfo(gairesults);
+}
+
+mDNSlocal void mDNSWin32ParseEtcHosts(mDNS *const m, int fd, AuthHash *auth)
+{
+    mDNSBool good;
+    char buf[ETCHOSTS_BUFSIZE];
+    ssize_t len;
+    FILE *fp;
+	char systemDirectory[MAX_PATH];
+	char hFileName[MAX_PATH];
+
+	verbosedebugf("%s fd %d AuthHash %p", __FUNCTION__, fd, auth);
+	
+    if (fd == -1)
+	{
+		LogInfo("mDNSWin32ParseEtcHosts: fd is -1"); 
+		return; 
+	}
+
+	GetSystemDirectoryA( systemDirectory, sizeof( systemDirectory ) );
+	snprintf( hFileName, sizeof( hFileName ), "%s\\drivers\\etc\\hosts", systemDirectory );
+    fp = fopen(hFileName, "r");
+    if (!fp) 
+	{ 
+		LogInfo("mDNSWin32ParseEtcHosts: fp is NULL"); 
+		return; 
+	}
+
+    while (1)
+    {
+        good = (fgets(buf, ETCHOSTS_BUFSIZE, fp) != NULL);
+        if (!good)
+			break;
+
+        // skip comment and empty lines
+        if (buf[0] == '#' || buf[0] == '\r' || buf[0] == '\n')
+            continue;
+
+        len = strlen(buf);
+        if (!len) 
+			break;    // sanity check
+        //Check for end of line code(mostly only \n but pre-OS X Macs could have only \r)
+        if (buf[len - 1] == '\r' || buf[len - 1] == '\n')
+        {
+            buf[len - 1] = '\0';
+            len = len - 1;
+        }
+        // fgets always null terminates and hence even if we have no
+        // newline at the end, it is null terminated. The callee
+        // (mDNSWin32ParseEtcHostsLine) expects the length to be such that
+        // buf[length] is zero and hence we decrement len to reflect that.
+        if (len)
+        {
+            //Additional check when end of line code is 2 chars ie\r\n(DOS, other old OSes)
+            //here we need to check for just \r but taking extra caution.
+            if (buf[len - 1] == '\r' || buf[len - 1] == '\n')
+            {
+                buf[len - 1] = '\0';
+                len = len - 1;
+            }
+        }
+        if (!len) //Sanity Check: len should never be zero
+        {
+            LogMsg("mDNSWin32ParseEtcHosts: Length is zero!");
+            continue;
+        }
+        mDNSWin32ParseEtcHostsLine(m, buf, len, auth);
+    }
+    fclose(fp);
+}
+
+mDNSlocal int mDNSWin32GetEtcHostsFD(mDNS *const m)
+{
+	int fd;
+	
+	verbosedebugf("%s ", __FUNCTION__);
+	
+#ifdef __DISPATCH_GROUP__
+    // Can't do this stuff to be notified of changes in /etc/hosts if we don't have libdispatch
+    static dispatch_queue_t etcq     = 0;
+    static dispatch_source_t etcsrc   = 0;
+    static dispatch_source_t hostssrc = 0;
+
+    // First time through? just schedule ourselves on the main queue and we'll do the work later
+    if (!etcq)
+    {
+        etcq = dispatch_get_main_queue();
+        if (etcq)
+        {
+            // Do this work on the queue, not here - solves potential synchronization issues
+            dispatch_async(etcq, ^{mDNSWin32UpdateEtcHosts(m);});
+        }
+        return -1;
+    }
+
+    if (hostssrc)
+		return dispatch_source_get_handle(hostssrc);
+#endif
+
+    fd = _open(ETCHOSTS, O_RDONLY);
+	if (fd == -1)
+	{
+		LogInfo("mDNSWin32GetEtcHostsFD: " ETCHOSTS " open failed %d\n", GetLastError());
+	}
+
+#ifdef __DISPATCH_GROUP__
+    // Can't do this stuff to be notified of changes in /etc/hosts if we don't have libdispatch
+    if (fd == -1)
+    {
+        // If the open failed and we're already watching /etc, we're done
+        if (etcsrc)
+		{ 
+			LogInfo("mDNSWin32GetEtcHostsFD: Returning etcfd because no etchosts"); 
+			return fd; 
+		}
+
+        // we aren't watching /etc, we should be
+        fd = open("/etc", O_RDONLY);
+        if (fd == -1)
+		{ 
+			LogInfo("mDNSWin32GetEtcHostsFD: etc does not exist"); 
+			return -1; 
+		}
+        etcsrc = dispatch_source_create(DISPATCH_SOURCE_TYPE_VNODE, fd, DISPATCH_VNODE_DELETE | DISPATCH_VNODE_WRITE | DISPATCH_VNODE_RENAME, etcq);
+        if (etcsrc == NULL)
+        {
+            close(fd);
+            return -1;
+        }
+        dispatch_source_set_event_handler(etcsrc,
+                                          ^{
+                                              u_int32_t flags = dispatch_source_get_data(etcsrc);
+                                              LogMsg("mDNSWin32GetEtcHostsFD: /etc changed 0x%x", flags);
+                                              if ((flags & (DISPATCH_VNODE_DELETE | DISPATCH_VNODE_RENAME)) != 0)
+                                              {
+                                                  dispatch_source_cancel(etcsrc);
+                                                  dispatch_release(etcsrc);
+                                                  etcsrc = NULL;
+                                                  dispatch_async(etcq, ^{mDNSWin32UpdateEtcHosts(m);});
+                                                  return;
+                                              }
+                                              if ((flags & DISPATCH_VNODE_WRITE) != 0 && hostssrc == NULL)
+                                              {
+                                                  mDNSWin32UpdateEtcHosts(m);
+                                              }
+                                          });
+        dispatch_source_set_cancel_handler(etcsrc, ^{close(fd);});
+        dispatch_resume(etcsrc);
+
+        // Try and open /etc/hosts once more now that we're watching /etc, in case we missed the creation
+        fd = open("/etc/hosts", O_RDONLY | O_EVTONLY);
+        if (fd == -1) { LogMsg("mDNSWin32GetEtcHostsFD etc hosts does not exist, watching etc"); return -1; }
+    }
+
+    // create a dispatch source to watch for changes to hosts file
+    hostssrc = dispatch_source_create(DISPATCH_SOURCE_TYPE_VNODE, fd,
+                                      (DISPATCH_VNODE_DELETE | DISPATCH_VNODE_WRITE | DISPATCH_VNODE_RENAME |
+                                       DISPATCH_VNODE_ATTRIB | DISPATCH_VNODE_EXTEND | DISPATCH_VNODE_LINK | DISPATCH_VNODE_REVOKE), etcq);
+    if (hostssrc == NULL)
+    {
+        close(fd);
+        return -1;
+    }
+    dispatch_source_set_event_handler(hostssrc,
+                                      ^{
+                                          u_int32_t flags = dispatch_source_get_data(hostssrc);
+                                          LogInfo("mDNSWin32GetEtcHostsFD: /etc/hosts changed 0x%x", flags);
+                                          if ((flags & (DISPATCH_VNODE_DELETE | DISPATCH_VNODE_RENAME)) != 0)
+                                          {
+                                              dispatch_source_cancel(hostssrc);
+                                              dispatch_release(hostssrc);
+                                              hostssrc = NULL;
+                                              // Bug in LibDispatch: wait a second before scheduling the block. If we schedule
+                                              // the block immediately, we try to open the file and the file may not exist and may
+                                              // fail to get a notification in the future. When the file does not exist and
+                                              // we start to monitor the directory, on "dispatch_resume" of that source, there
+                                              // is no guarantee that the file creation will be notified always because when
+                                              // the dispatch_resume returns, the kevent manager may not have registered the
+                                              // kevent yet but the file may have been created
+                                              usleep(1000000);
+                                              dispatch_async(etcq, ^{mDNSWin32UpdateEtcHosts(m);});
+                                              return;
+                                          }
+                                          if ((flags & DISPATCH_VNODE_WRITE) != 0)
+                                          {
+                                              mDNSWin32UpdateEtcHosts(m);
+                                          }
+                                      });
+    dispatch_source_set_cancel_handler(hostssrc, ^{LogInfo("mDNSWin32GetEtcHostsFD: Closing etchosts fd %d", fd); close(fd);});
+    dispatch_resume(hostssrc);
+
+    // Cleanup /etc source, no need to watch it if we already have /etc/hosts
+    if (etcsrc)
+    {
+        dispatch_source_cancel(etcsrc);
+        dispatch_release(etcsrc);
+        etcsrc = NULL;
+    }
+
+    LogInfo("mDNSWin32GetEtcHostsFD: /etc/hosts being monitored, and not etc");
+    return hostssrc ? (int)dispatch_source_get_handle(hostssrc) : -1;
+#else
+    (void)m;
+
+#ifdef WATCH_ETCHOSTS
+	WatchDirectory(ETCHOSTSDIR);
+#endif
+	
+    return fd;
+#endif
+}
+
+// When /etc/hosts is modified, flush all the cache records as there may be local
+// authoritative answers now
+mDNSlocal void FlushAllCacheRecords(mDNS *const m)
+{
+    CacheRecord *cr;
+    mDNSu32 slot;
+    CacheGroup *cg;
+
+	verbosedebugf("%s ", __FUNCTION__);
+	
+    FORALL_CACHERECORDS(slot, cg, cr)
+    {
+        // Skip multicast.
+        if (cr->resrec.InterfaceID) continue;
+
+        // If a resource record can answer A or AAAA, they need to be flushed so that we will
+        // never used to deliver an ADD or RMV
+        if (RRTypeAnswersQuestionType(&cr->resrec, kDNSType_A) ||
+            RRTypeAnswersQuestionType(&cr->resrec, kDNSType_AAAA))
+        {
+            LogInfo("FlushAllCacheRecords: Purging Resourcerecord %s", CRDisplayString(m, cr));
+            mDNS_PurgeCacheResourceRecord(m, cr);
+        }
+    }
+}
+
+// Add new entries to the core. If justCheck is set, this function does not add, just returns true
+mDNSlocal mDNSBool EtcHostsAddNewEntries(mDNS *const m, AuthHash *newhosts, mDNSBool justCheck)
+{
+    AuthGroup *ag;
+    mDNSu32 slot;
+    AuthRecord *rr, *primary, *rrnext;
+	
+	verbosedebugf("%s AuthHash newhosts %p", __FUNCTION__, newhosts, justCheck);
+	
+    for (slot = 0; slot < AUTH_HASH_SLOTS; slot++)
+        for (ag = newhosts->rrauth_hash[slot]; ag; ag = ag->next)
+        {
+            primary = NULL;
+            for (rr = ag->members; rr; rr = rrnext)
+            {
+                AuthGroup *ag1;
+                AuthRecord *rr1;
+                mDNSBool found = mDNSfalse;
+
+                rrnext = rr->next;				
+                ag1 = AuthGroupForRecord(&m->rrauth, &rr->resrec);
+                if (ag1 && ag1->members)
+                {
+                    if (!primary) 
+						primary = ag1->members;
+                    rr1 = ag1->members;
+                    while (rr1)
+                    {
+                        // We are not using InterfaceID in checking for duplicates. This means,
+                        // if there are two addresses for a given name e.g., fe80::1%en0 and
+                        // fe80::1%en1, we only add the first one. It is not clear whether
+                        // this is a common case. To fix this, we also need to modify
+                        // mDNS_Register_internal in how it handles duplicates. If it becomes a
+                        // common case, we will fix it then.
+                        if (IdenticalResourceRecord(&rr1->resrec, &rr->resrec))
+                        {
+                            LogInfo("EtcHostsAddNewEntries: Skipping, not adding %s", ARDisplayString(m, rr1));
+                            found = mDNStrue;
+                            break;
+                        }
+                        rr1 = rr1->next;
+                    }
+                }
+                if (!found)
+                {
+					mStatus err;
+
+                    if (justCheck)
+                    {
+                        LogInfo("EtcHostsAddNewEntries: Entry %s not registered with core yet", ARDisplayString(m, rr));
+                        return mDNStrue;
+                    }
+                    RemoveAuthRecord(m, newhosts, rr);
+                    // if there is no primary, point to self
+                    rr->RRSet = (primary ? primary : rr);
+                    rr->next = NULL;
+                    LogInfo("EtcHostsAddNewEntries: Adding %s", ARDisplayString(m, rr));
+					err = mDNS_Register_internal(m, rr);
+                    if (err != mStatus_NoError)
+                        LogMsg("EtcHostsAddNewEntries: mDNS_Register failed for %s %d m", ARDisplayString(m, rr), err, err);
+                }
+            }
+        }
+    return mDNSfalse;
+}
+
+// Delete entries from the core that are no longer needed. If justCheck is set, this function
+// does not delete, just returns true
+mDNSlocal mDNSBool EtcHostsDeleteOldEntries(mDNS *const m, AuthHash *newhosts, mDNSBool justCheck)
+{
+    AuthGroup *ag;
+    mDNSu32 slot;
+    AuthRecord *rr, *rrnext;
+	mStatus err;
+	
+	verbosedebugf("%s AuthHash newhosts %p", __FUNCTION__, newhosts, justCheck);
+		
+    for (slot = 0; slot < AUTH_HASH_SLOTS; slot++)
+        for (ag = m->rrauth.rrauth_hash[slot]; ag; ag = ag->next)
+            for (rr = ag->members; rr; rr = rrnext)
+            {
+                mDNSBool found = mDNSfalse;
+                AuthGroup *ag1;
+                AuthRecord *rr1;
+				
+                rrnext = rr->next;
+                if (rr->RecordCallback != FreeEtcHosts)//Callback
+					continue;
+                ag1 = AuthGroupForRecord(newhosts, &rr->resrec);
+                if (ag1)
+                {
+                    rr1 = ag1->members;
+                    while (rr1)
+                    {
+                        if (IdenticalResourceRecord(&rr1->resrec, &rr->resrec))
+                        {
+                            LogInfo("EtcHostsDeleteOldEntries: Old record %s found in new, skipping", ARDisplayString(m, rr));
+                            found = mDNStrue;
+                            break;
+                        }
+                        rr1 = rr1->next;
+                    }
+                }
+                // there is no corresponding record in newhosts for the same name. This means
+                // we should delete this from the core.
+                if (!found)
+                {
+                    if (justCheck)
+                    {
+                        LogInfo("EtcHostsDeleteOldEntries: Record %s not found in new, deleting", ARDisplayString(m, rr));
+                        return mDNStrue;
+                    }
+                    // if primary is going away, make sure that the rest of the records
+                    // point to the new primary
+                    if (rr == ag->members)
+                    {
+                        AuthRecord *new_primary = rr->next;
+                        AuthRecord *r = new_primary;
+						
+                        while (r)
+                        {
+                            if (r->RRSet == rr)
+                            {
+                                LogInfo("EtcHostsDeleteOldEntries: Updating Resource Record %s to primary", ARDisplayString(m, r));
+                                r->RRSet = new_primary;
+                            }
+                            else 
+								LogMsg("EtcHostsDeleteOldEntries: ERROR!! Resource Record %s not pointing to primary %##s", ARDisplayString(m, r), r->resrec.name);
+                            r = r->next;
+                        }
+                    }
+                    LogInfo("EtcHostsDeleteOldEntries: Deleting %s", ARDisplayString(m, rr));
+                    err = mDNS_Deregister_internal(m, rr, mDNS_Dereg_normal);
+					verbosedebugf("%s  %d %m", __FUNCTION__, err, err); //OLE si err???
+					
+                }
+            }
+    return mDNSfalse;
+}
+
+void UpdateEtcHosts(mDNS *const m, void *context) //Callback
+{
+    AuthHash *newhosts = (AuthHash *)context;
+
+	verbosedebugf("%s context AuthHash newhosts %p", __FUNCTION__, context);
+	
+    mDNS_CheckLock(m);
+
+    //Delete old entries from the core if they are not present in the newhosts
+    EtcHostsDeleteOldEntries(m, newhosts, mDNSfalse);
+    // Add the new entries to the core if not already present in the core
+    EtcHostsAddNewEntries(m, newhosts, mDNSfalse);
+}
+
+mDNSlocal void FreeNewHosts(AuthHash *newhosts)
+{
+    mDNSu32 slot;
+    AuthGroup *ag, *agnext;
+    AuthRecord *rr, *rrnext;
+
+	verbosedebugf("%s newhosts %p", __FUNCTION__, newhosts);
+	
+    for (slot = 0; slot < AUTH_HASH_SLOTS; slot++)
+        for (ag = newhosts->rrauth_hash[slot]; ag; ag = agnext)
+        {
+            agnext = ag->next;
+            for (rr = ag->members; rr; rr = rrnext)
+            {
+                rrnext = rr->next;
+                freeL("etchosts", rr);
+            }
+            freeL("AuthGroups", ag);
+        }
+}
+
+mDNSlocal void mDNSWin32UpdateEtcHosts(mDNS *const m)
+{
+    AuthHash newhosts;
+	int fd;
+
+	verbosedebugf("%s ", __FUNCTION__);
+	
+    // As we will be modifying the core, we can only have one thread running at
+    // any point in time.
+	mDNS_Lock(m);
+
+    mDNSPlatformMemZero(&newhosts, sizeof(AuthHash));
+
+    // Get the file descriptor (will trigger us to start watching for changes)
+    fd = mDNSWin32GetEtcHostsFD(m);
+    if (fd != -1)
+    {
+        LogInfo("mDNSWin32UpdateEtcHosts: Parsing " ETCHOSTS " fd %d", fd);
+        mDNSWin32ParseEtcHosts(m, fd, &newhosts);
+    }
+    else 
+		LogInfo("mDNSWin32UpdateEtcHosts: " ETCHOSTS " is not present");
+
+    // Optimization: Detect whether /etc/hosts changed or not.
+    //
+    // 1. Check to see if there are any new entries. We do this by seeing whether any entries in
+    //    newhosts is already registered with core.  If we find at least one entry that is not
+    //    registered with core, then it means we have work to do.
+    //
+    // 2. Next, we check to see if any of the entries that are registered with core is not present
+    //   in newhosts. If we find at least one entry that is not present, it means we have work to
+    //   do.
+    //
+    // Note: We may not have to hold the lock right here as KQueueLock is held which prevents any
+    // other thread from running. But mDNS_Lock is needed here as we will be traversing the core
+    // data structure in EtcHostsDeleteOldEntries/NewEntries which might expect the lock to be held
+    // in the future and this code does not have to change.
+    mDNS_Lock(m);
+	
+    // Add the new entries to the core if not already present in the core
+    if (!EtcHostsAddNewEntries(m, &newhosts, mDNStrue))
+    {
+        // No new entries to add, check to see if we need to delete any old entries from the
+        // core if they are not present in the newhosts
+        if (!EtcHostsDeleteOldEntries(m, &newhosts, mDNStrue))
+        {
+            LogInfo("mDNSWin32UpdateEtcHosts: No work");
+            mDNS_Unlock(m);
+            FreeNewHosts(&newhosts);
+            return;
+        }
+    }
+
+    // This will flush the cache, stop and start the query so that the queries
+    // can look at the /etc/hosts again
+    //
+    // Notes:
+    //
+    // We can't delete and free the records here. We wait for the mDNSCoreRestartAddressQueries to
+    // deliver RMV events. It has to be done in a deferred way because we can't deliver RMV
+    // events for local records *before* the RMV events for cache records. mDNSCoreRestartAddressQueries
+    // delivers these events in the right order and then calls us back to delete them.
+    //
+    // Similarly, we do a deferred Registration of the record because mDNSCoreRestartAddressQueries
+    // is a common function that looks at all local auth records and delivers a RMV including
+    // the records that we might add here. If we deliver a ADD here, it will get a RMV and then when
+    // the query is restarted, it will get another ADD. To avoid this (ADD-RMV-ADD), we defer registering
+    // the record until the RMVs are delivered in mDNSCoreRestartAddressQueries after which UpdateEtcHostsCallback
+    // is called back where we do the Registration of the record. This results in RMV followed by ADD which
+    // looks normal.
+    mDNSCoreRestartAddressQueries(m, mDNSfalse, FlushAllCacheRecords, UpdateEtcHosts, &newhosts);//Callback
+	
+    mDNS_Unlock(m);
+
+    FreeNewHosts(&newhosts);
+
+	_close(fd);
+}
+
+mDNSlocal void mDNSWin32CleanupEtcHosts(mDNS *const m)
+{
+	ARListElem *rem;
+	(void) m;
+
+	verbosedebugf("%s EtcHostsAuthRecs %p", __FUNCTION__, EtcHostsAuthRecs);
+	
+    while (EtcHostsAuthRecs)
+    {
+		rem = EtcHostsAuthRecs;
+		
+        EtcHostsAuthRecs = EtcHostsAuthRecs->next;
+		verbosedebugf("%s deleting EtcHostsAuthRecs %p ar %p", __FUNCTION__, rem, &rem->ar);
+		freeL("mDNSWin32CleanupEtcHosts/ARListElem EtcHostsAuthRecs", rem);
+    }
+	EtcHostsAuthRecs = mDNSNULL;
+}
+
+#else
+//===========================================================================================================================
+//	FreeEtcHostsCallback
+//===========================================================================================================================
+
 mDNSexport void FreeEtcHosts(mDNS *const m, AuthRecord *const rr, mStatus result)
 {
 	DEBUG_UNUSED( m );
 	DEBUG_UNUSED( rr );
 	DEBUG_UNUSED( result );
 }
+#endif
+
+
+#ifdef UNIT_TEST
+#include "../unittests/mdns_win32_ut.c"
+#endif
