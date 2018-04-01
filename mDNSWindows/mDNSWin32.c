@@ -1716,6 +1716,8 @@ SetSearchDomainList( void )
 	require_noerr( err, exit );
 
 	err = RegQueryString( key, "SearchList", &searchList, &searchListLen, NULL );
+	if ( err == ERROR_FILE_NOT_FOUND ) // key does not always exist
+		goto exit;
 	require_noerr( err, exit );
 
 	// Windows separates the search domains with ','
