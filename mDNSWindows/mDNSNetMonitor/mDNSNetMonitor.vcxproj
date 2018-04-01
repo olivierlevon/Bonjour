@@ -81,7 +81,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>../../mDNSWindows/SystemService;../../mDNSWindows;../../mDNSShared;../../mDNSCore;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../mDNSWindows/SystemService;../../mDNSWindows;../../mDNSShared;../../mDNSCore;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_WIN32_WINNT=0x0601;MDNS_DEBUGMSGS=0;TARGET_OS_WIN32;WIN32_LEAN_AND_MEAN;USE_TCP_LOOPBACK;PLATFORM_NO_STRSEP;PLATFORM_NO_EPIPE;PLATFORM_NO_RLIMIT;PID_FILE=;UNICODE;_UNICODE;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;_WINSOCK_DEPRECATED_NO_WARNINGS;_USE_32BIT_TIME_T;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -110,7 +110,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>../../mDNSWindows/SystemService;../../mDNSWindows;../../mDNSShared;../../mDNSCore;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../mDNSWindows/SystemService;../../mDNSWindows;../../mDNSShared;../../mDNSCore;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_WIN32_WINNT=0x0601;MDNS_DEBUGMSGS=0;TARGET_OS_WIN32;WIN32_LEAN_AND_MEAN;USE_TCP_LOOPBACK;PLATFORM_NO_STRSEP;PLATFORM_NO_EPIPE;PLATFORM_NO_RLIMIT;PID_FILE=;UNICODE;_UNICODE;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -136,7 +136,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>../../mDNSWindows/SystemService;../../mDNSWindows;../../mDNSShared;../../mDNSCore;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../mDNSWindows/SystemService;../../mDNSWindows;../../mDNSShared;../../mDNSCore;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_WIN32_WINNT=0x0601;MDNS_DEBUGMSGS=0;TARGET_OS_WIN32;WIN32_LEAN_AND_MEAN;USE_TCP_LOOPBACK;PLATFORM_NO_STRSEP;PLATFORM_NO_EPIPE;PLATFORM_NO_RLIMIT;PID_FILE=;UNICODE;_UNICODE;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;_WINSOCK_DEPRECATED_NO_WARNINGS;_USE_32BIT_TIME_T;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader>
@@ -171,7 +171,7 @@ xcopy /I/Y "$(TargetPath)"                                                      
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>../../mDNSWindows/SystemService;../../mDNSWindows;../../mDNSShared;../../mDNSCore;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../mDNSWindows/SystemService;../../mDNSWindows;../../mDNSShared;../../mDNSCore;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_WIN32_WINNT=0x0601;MDNS_DEBUGMSGS=0;TARGET_OS_WIN32;WIN32_LEAN_AND_MEAN;USE_TCP_LOOPBACK;PLATFORM_NO_STRSEP;PLATFORM_NO_EPIPE;PLATFORM_NO_RLIMIT;PID_FILE=;UNICODE;_UNICODE;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader>
@@ -209,14 +209,14 @@ xcopy /I/Y "$(TargetPath)"                                                      
     <ClCompile Include="..\..\mDNSCore\DNSCommon.c" />
     <ClCompile Include="..\..\mDNSCore\DNSDigest.c" />
     <ClCompile Include="..\..\mDNSShared\dnssd_ipc.c" />
-    <ClCompile Include="..\..\mDNSWindows\Poll.c" />
-    <ClCompile Include="..\..\mDNSWindows\SystemService\Firewall.cpp" />
+    <ClCompile Include="..\Poll.c" />
+    <ClCompile Include="..\SystemService\Firewall.cpp" />
     <ClCompile Include="..\..\mDNSShared\GenLinkedList.c" />
     <ClCompile Include="..\..\mDNSShared\mDNSDebug.c" />
-    <ClCompile Include="..\..\mDNSWindows\mDNSWin32.c" />
+    <ClCompile Include="..\mDNSWin32.c" />
     <ClCompile Include="..\..\mDNSShared\NetMonitor.c" />
-    <ClCompile Include="..\..\mDNSWindows\PosixCompat.c" />
-    <ClCompile Include="..\..\mDNSWindows\Secret.c" />
+    <ClCompile Include="..\PosixCompat.c" />
+    <ClCompile Include="..\Secret.c" />
     <ClCompile Include="..\..\mDNSCore\uDNS.c" />
   </ItemGroup>
   <ItemGroup>
@@ -224,15 +224,15 @@ xcopy /I/Y "$(TargetPath)"                                                      
     <ClInclude Include="..\..\mDNSCore\CryptoAlg.h" />
     <ClInclude Include="..\..\mDNSCore\DNSCommon.h" />
     <ClInclude Include="..\..\mDNSShared\dnssd_ipc.h" />
-    <ClInclude Include="..\..\mDNSWindows\Poll.h" />
-    <ClInclude Include="..\..\mDNSWindows\SystemService\Firewall.h" />
+    <ClInclude Include="..\Poll.h" />
+    <ClInclude Include="..\SystemService\Firewall.h" />
     <ClInclude Include="..\..\mDNSShared\GenLinkedList.h" />
     <ClInclude Include="..\..\mDNSCore\mDNSDebug.h" />
     <ClInclude Include="..\..\mDNSCore\mDNSEmbeddedAPI.h" />
-    <ClInclude Include="..\..\mDNSWindows\mDNSWin32.h" />
-    <ClInclude Include="..\..\mDNSWindows\PosixCompat.h" />
-    <ClInclude Include="..\..\mDNSWindows\RegNames.h" />
-    <ClInclude Include="..\..\mDNSWindows\Secret.h" />
+    <ClInclude Include="..\mDNSWin32.h" />
+    <ClInclude Include="..\PosixCompat.h" />
+    <ClInclude Include="..\RegNames.h" />
+    <ClInclude Include="..\Secret.h" />
     <ClInclude Include="..\..\mDNSCore\uDNS.h" />
   </ItemGroup>
   <ItemGroup>

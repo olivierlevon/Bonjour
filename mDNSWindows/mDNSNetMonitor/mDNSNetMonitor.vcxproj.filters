@@ -24,7 +24,7 @@
     <ClCompile Include="..\..\mDNSShared\dnssd_ipc.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\mDNSWindows\SystemService\Firewall.cpp">
+    <ClCompile Include="..\SystemService\Firewall.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\mDNSShared\GenLinkedList.c">
@@ -33,22 +33,22 @@
     <ClCompile Include="..\..\mDNSShared\mDNSDebug.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\mDNSWindows\mDNSWin32.c">
+    <ClCompile Include="..\mDNSWin32.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\mDNSShared\NetMonitor.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\mDNSWindows\PosixCompat.c">
+    <ClCompile Include="..\PosixCompat.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\mDNSWindows\Secret.c">
+    <ClCompile Include="..\Secret.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\mDNSCore\uDNS.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\mDNSWindows\Poll.c">
+    <ClCompile Include="..\Poll.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\mDNSCore\anonymous.c">
@@ -65,7 +65,7 @@
     <ClInclude Include="..\..\mDNSShared\dnssd_ipc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\mDNSWindows\SystemService\Firewall.h">
+    <ClInclude Include="..\SystemService\Firewall.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\mDNSShared\GenLinkedList.h">
@@ -77,22 +77,22 @@
     <ClInclude Include="..\..\mDNSCore\mDNSEmbeddedAPI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\mDNSWindows\mDNSWin32.h">
+    <ClInclude Include="..\mDNSWin32.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\mDNSWindows\PosixCompat.h">
+    <ClInclude Include="..\PosixCompat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\mDNSWindows\RegNames.h">
+    <ClInclude Include="..\RegNames.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\mDNSWindows\Secret.h">
+    <ClInclude Include="..\Secret.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\mDNSCore\uDNS.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\mDNSWindows\Poll.h">
+    <ClInclude Include="..\Poll.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\mDNSCore\anonymous.h">

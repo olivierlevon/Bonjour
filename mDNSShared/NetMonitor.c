@@ -42,6 +42,12 @@
 #   include <PosixCompat.h>
 #   include <Poll.h>
 #   include <iphlpapi.h>
+#if defined(_DEBUG)
+#define VLD
+#ifdef VLD
+#include <vld.h> 
+#endif
+#endif
 #   define IFNAMSIZ 256
 static HANDLE gStopEvent = INVALID_HANDLE_VALUE;
 static mDNSBool gRunning;
@@ -185,8 +191,8 @@ typedef struct
     HostEntry   *hosts;
 } HostList;
 
-static HostList IPv4HostList = { 0, 0, 0 };
-static HostList IPv6HostList = { 0, 0, 0 };
+static HostList IPv4HostList = { 0, 0, NULL };
+static HostList IPv6HostList = { 0, 0, NULL };
 
 mDNSlocal HostEntry *FindHost(const mDNSAddr *addr, HostList *list)
 {
@@ -451,6 +457,19 @@ mDNSlocal void printstats(int max)
     }
 }
 
+mDNSlocal void deletestats()
+{
+	ActivityStat *s, *m;
+
+	s = stats;
+	while (s)
+	{
+		m = s;
+		s = s->next;
+		free(m);
+	}
+}
+
 mDNSlocal const mDNSu8 *FindUpdate(mDNS *const m, const DNSMessage *const query, const mDNSu8 *ptr, const mDNSu8 *const end,
                                    DNSQuestion *q, LargeCacheRecord *pkt)
 {
@@ -516,7 +535,7 @@ mDNSlocal void DisplaySizeCheck(const DNSMessage *const msg, const mDNSu8 *const
 
 mDNSlocal void DisplayResourceRecord(const mDNSAddr *const srcaddr, const char *const op, const ResourceRecord *const pktrr)
 {
-    static const char hexchars[16] = "0123456789ABCDEF";
+    static const char hexchars[] = "0123456789ABCDEF";
     #define MaxWidth 132
     char buffer[MaxWidth+8];
     char *p = buffer;
@@ -950,6 +969,8 @@ mDNSlocal mStatus mDNSNetMonitor(void)
     mprintf("Total Additional Records:         %7d   (avg%5d/min)\n", NumAdditionals, NumAdditionals * mul / div);
     mprintf("\n");
     printstats(kReportTopServices);
+	
+	deletestats();
 
     if (!ExactlyOneFilter)
     {
