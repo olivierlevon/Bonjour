@@ -186,7 +186,6 @@ DEBUG_LOCAL HANDLE						gSPSWakeupEvent			= NULL;
 DEBUG_LOCAL HANDLE						gSPSSleepEvent			= NULL;
 DEBUG_LOCAL SocketRef					gUDSSocket				= 0;
 DEBUG_LOCAL udsEventCallback			gUDSCallback			= NULL;
-DEBUG_LOCAL BOOL						gRetryFirewall			= FALSE;
 
 typedef DWORD ( WINAPI * GetIpInterfaceEntryFunctionPtr )( PMIB_IPINTERFACE_ROW );
 mDNSlocal HMODULE								gIPHelperLibraryInstance		= NULL;
@@ -1095,11 +1094,6 @@ static OSStatus	ServiceRun( int argc, LPTSTR argv[] )
 	err = CheckFirewall();
 	check_noerr( err );
 
-	if ( err )
-	{
-		gRetryFirewall = TRUE;
-	}
-	
 	// Run the service-specific stuff. This does not return until the service quits or is stopped.
 
 	ReportStatus( EVENTLOG_INFORMATION_TYPE, "Service started\n" );
