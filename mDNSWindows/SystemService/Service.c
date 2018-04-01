@@ -72,17 +72,16 @@
 #define	DEBUG_NAME							"[mDNSWin32] "
 #define kServiceFirewallName				L"Bonjour"
 #define	kServiceDependencies				TEXT("Tcpip\0\0")
-#define	kDNSServiceCacheEntryCountDefault	512
 #define kRetryFirewallPeriod				30 * 1000
 #define kDefValueSize						MAX_PATH + 1
 #define kZeroIndex							0
-#define kDefaultRouteMetric					399
 #define kSecondsTo100NSUnits				( 10 * 1000 * 1000 )
 #define kSPSMaintenanceWakePeriod			-30
 #define kWaitToRetry						(60 * 5)
 
 #define RR_CACHE_SIZE 500
 static CacheEntity gRRCache[RR_CACHE_SIZE];
+
 #if 0
 #pragma mark == Structures ==
 #endif
@@ -145,11 +144,6 @@ static mDNSu8			SystemWakeForNetworkAccess( LARGE_INTEGER * timeout );
 #	define StrCmp(X,Y)	strcmp(X,Y)
 #endif
 
-
-#define kLLNetworkAddr      "169.254.0.0"
-#define kLLNetworkAddrMask  "255.255.0.0"
-
-
 #include	"mDNSEmbeddedAPI.h"
 
 #if 0
@@ -159,6 +153,7 @@ static mDNSu8			SystemWakeForNetworkAccess( LARGE_INTEGER * timeout );
 //===========================================================================================================================
 //	Globals
 //===========================================================================================================================
+
 #define gMDNSRecord mDNSStorage
 DEBUG_LOCAL	mDNS_PlatformSupport		gPlatformStorage;
 DEBUG_LOCAL BOOL						gServiceQuietMode		= FALSE;
@@ -187,8 +182,6 @@ DEBUG_LOCAL HANDLE						gAdvertisedServicesChangedEvent	= NULL; // Advertised se
 DEBUG_LOCAL SERVICE_STATUS				gServiceStatus;
 DEBUG_LOCAL SERVICE_STATUS_HANDLE		gServiceStatusHandle 	= NULL;
 DEBUG_LOCAL HANDLE						gServiceEventSource		= NULL;
-DEBUG_LOCAL bool						gServiceAllowRemote		= false;
-DEBUG_LOCAL int							gServiceCacheEntryCount	= 0;	// 0 means to use the DNS-SD default.
 DEBUG_LOCAL HANDLE						gSPSWakeupEvent			= NULL;
 DEBUG_LOCAL HANDLE						gSPSSleepEvent			= NULL;
 DEBUG_LOCAL SocketRef					gUDSSocket				= 0;
@@ -207,6 +200,7 @@ mDNSlocal GetIpInterfaceEntryFunctionPtr		gGetIpInterfaceEntryFunctionPtr	= NULL
 //===========================================================================================================================
 //	Main
 //===========================================================================================================================
+
 int	Main( int argc, LPTSTR argv[] )
 {
 	OSStatus		err;
@@ -318,8 +312,6 @@ static void	Usage( void )
 	fprintf( stderr, "    -start       Starts the service dispatcher after processing all other arguments\n" );
 	fprintf( stderr, "    -server      Runs the service directly as a server (for debugging)\n" );
 	fprintf( stderr, "    -q           Toggles Quiet Mode (no events or output)\n" );
-	fprintf( stderr, "    -remote      Allow remote connections\n" );
-	fprintf( stderr, "    -cache n     Number of mDNS cache entries (defaults to %d)\n", kDNSServiceCacheEntryCountDefault );
 	fprintf( stderr, "    -h[elp]      Display Help/Usage\n" );
 	fprintf( stderr, "\n" );
 }
