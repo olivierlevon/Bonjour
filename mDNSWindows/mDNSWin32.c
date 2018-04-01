@@ -1543,7 +1543,9 @@ mDNSexport void mDNSPlatformWriteLogMsg( const char * ident, const char * msg, m
 			fflush(stderr);
 			}
 
-	mDNSStorage.p->reportStatusFunc( type, msg );
+	if (mDNSStorage.p->reportStatusFunc)
+		mDNSStorage.p->reportStatusFunc( type, msg );
+
 	dlog( kDebugLevelInfo, "%s\n", msg );
 	}
 
