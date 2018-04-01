@@ -211,33 +211,6 @@ mDNSlocal int					gUDPNumSockets			= 0;
 
 #endif
 
-#ifndef HCRYPTPROV
-   typedef ULONG_PTR HCRYPTPROV;    // WinCrypt.h, line 249
-#endif
-
-#ifndef CRYPT_MACHINE_KEYSET
-#	define CRYPT_MACHINE_KEYSET    0x00000020
-#endif
-
-#ifndef CRYPT_NEWKEYSET
-#	define CRYPT_NEWKEYSET         0x00000008
-#endif
-
-#ifndef PROV_RSA_FULL
-#  define PROV_RSA_FULL 1
-#endif
-
-typedef BOOL (__stdcall *fnCryptGenRandom)( HCRYPTPROV, DWORD, BYTE* ); 
-typedef BOOL (__stdcall *fnCryptAcquireContext)( HCRYPTPROV*, LPCTSTR, LPCTSTR, DWORD, DWORD);
-typedef BOOL (__stdcall *fnCryptReleaseContext)(HCRYPTPROV, DWORD);
-
-static fnCryptAcquireContext g_lpCryptAcquireContext 	= NULL;
-static fnCryptReleaseContext g_lpCryptReleaseContext 	= NULL;
-static fnCryptGenRandom		 g_lpCryptGenRandom 		= NULL;
-static HINSTANCE			 g_hAAPI32 					= NULL;
-static HCRYPTPROV			 g_hProvider 				= ( ULONG_PTR ) NULL;
-
-
 typedef DNSServiceErrorType ( DNSSD_API *DNSServiceRegisterFunc )
     (
     DNSServiceRef                       *sdRef,
@@ -509,28 +482,6 @@ mDNSexport void	mDNSPlatformClose( mDNS * const inMDNS )
 		gIPHelperLibraryInstance = NULL;
 	}
 #endif
-
-	if ( g_hAAPI32 )
-	{
-		// Release any resources
-
-		if ( g_hProvider && g_lpCryptReleaseContext )
-		{
-			( g_lpCryptReleaseContext )( g_hProvider, 0 );
-		}
-
-		// Free the AdvApi32.dll
-
-		FreeLibrary( g_hAAPI32 );
-
-		// And reset all the data
-
-		g_lpCryptAcquireContext = NULL;
-		g_lpCryptReleaseContext = NULL;
-		g_lpCryptGenRandom 		= NULL;
-		g_hProvider 			= ( ULONG_PTR ) NULL;
-		g_hAAPI32				= NULL;
-	}
 
 	WSACleanup();
 	
