@@ -2835,27 +2835,6 @@ mDNSlocal mStatus	SetupSocket( mDNS * const inMDNS, const struct sockaddr *inAdd
 		check_translated_errno( err == 0, errno_compat(), kOptionErr );
 	}
 
-	// <rdar://problem/7894393> Bonjour for Windows broken on Windows XP
-	//
-	// Not sure why, but the default behavior for sockets is to behave incorrectly
-	// when using them in Overlapped I/O mode on XP. According to MSDN:
-	//
-	// SIO_UDP_CONNRESET (opcode setting: I, T==3)
-	//     Windows XP:  Controls whether UDP PORT_UNREACHABLE messages are reported. Set to TRUE to enable reporting.
-	//     Set to FALSE to disable reporting.
-	//
-	// Packet traces from misbehaving Bonjour installations showed that ICMP port unreachable
-	// messages were being sent to us after we sent out packets to a multicast address. This is clearly
-	// incorrect behavior, but should be harmless. However, after receiving a port unreachable error, WinSock
-	// will no longer receive any packets from that socket, which is not harmless. This behavior is only
-	// seen on XP.
-	//
-	// So we turn off port unreachable reporting to make sure our sockets that are reading
-	// multicast packets function correctly under all circumstances.
-
-	err = WSAIoctl( sock, SIO_UDP_CONNRESET, &behavior, sizeof(behavior), NULL, 0, &bytesReturned, NULL, NULL );
-	check_translated_errno( err == 0, errno_compat(), kOptionErr );
-
 	if( inAddr->sa_family == AF_INET )
 	{
 		mDNSv4Addr				ipv4;
