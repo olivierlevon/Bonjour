@@ -43,7 +43,6 @@
 #   include <Poll.h>
 #   include <iphlpapi.h>
 #if defined(_DEBUG)
-#define VLD
 #ifdef VLD
 #include <vld.h> 
 #endif

@@ -52,6 +52,12 @@
 	#include	<powrprof.h>
 #endif
 
+#if defined(_DEBUG)
+#ifdef VLD
+#include <vld.h> 
+#endif
+#endif
+
 #ifndef HeapEnableTerminationOnCorruption
 #	define HeapEnableTerminationOnCorruption (HEAP_INFORMATION_CLASS)1
 #endif
