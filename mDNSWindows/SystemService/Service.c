@@ -40,17 +40,16 @@
 
 #include	"Firewall.h"
 
-#if( !TARGET_OS_WINDOWS_CE )
-	#include	<mswsock.h>
-	#include	<process.h>
-	#include	<ipExport.h>
-	#include	<ws2def.h>
-	#include	<ws2ipdef.h>
-	#include	<iphlpapi.h>
-	#include	<netioapi.h>
-	#include	<iptypes.h>
-	#include	<powrprof.h>
-#endif
+#include	<mswsock.h>
+#include	<process.h>
+#include	<ipExport.h>
+#include	<ws2def.h>
+#include	<ws2ipdef.h>
+#include	<iphlpapi.h>
+#include	<netioapi.h>
+#include	<iptypes.h>
+#include	<powrprof.h>
+
 
 #if defined(_DEBUG)
 #ifdef VLD
