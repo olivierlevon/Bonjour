@@ -2159,46 +2159,6 @@ mDNSexport mDNSBool mDNSPlatformInterfaceIsD2D(mDNSInterfaceID InterfaceID)
 	return mDNSfalse;
 }
 
-#if 0
-#pragma mark -
-#endif
-
-//===========================================================================================================================
-//	debugf_
-//===========================================================================================================================
-#if( MDNS_DEBUGMSGS )
-mDNSexport void	debugf_( const char *inFormat, ... )
-{
-	char		buffer[ 512 ];
-    va_list		args;
-    mDNSu32		length;
-	
-	va_start( args, inFormat );
-	length = mDNS_vsnprintf( buffer, sizeof( buffer ), inFormat, args );
-	va_end( args );
-	
-	dlog( kDebugLevelInfo, "%s\n", buffer );
-}
-#endif
-
-//===========================================================================================================================
-//	verbosedebugf_
-//===========================================================================================================================
-
-#if( MDNS_DEBUGMSGS > 1 )
-mDNSexport void	verbosedebugf_( const char *inFormat, ... )
-{
-	char		buffer[ 512 ];
-    va_list		args;
-    mDNSu32		length;
-	
-	va_start( args, inFormat );
-	length = mDNS_vsnprintf( buffer, sizeof( buffer ), inFormat, args );
-	va_end( args );
-	
-	dlog( kDebugLevelVerbose, "%s\n", buffer );
-}
-#endif
 
 #if 0
 #pragma mark -
