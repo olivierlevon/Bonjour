@@ -98,8 +98,11 @@ UNITTEST_HEADER(ValidQueryReqTest)
 	end = udns_query_request_message + sizeof(udns_query_request_message);
 
 	// Execute mDNSCoreReceive using a valid DNS message
+#ifdef _WIN32
+	mDNSCoreReceive(m, msg, end, &srcaddr, srcport, &dstaddr, dstport, (const mDNSInterfaceID)if_nametoindex("en0"));
+#else
 	mDNSCoreReceive(m, msg, end, &srcaddr, srcport, &dstaddr, dstport, if_nametoindex("en0"));
-
+#endif
 	// Verify that mDNSCoreReceiveQuery traversed the normal code path
 	UNITTEST_ASSERT(m->mDNSStats.NormalQueries == 1);
 
@@ -133,8 +136,11 @@ UNITTEST_HEADER(NullDstQueryReqTest)
 	end = udns_query_request_message_with_invalid_id + sizeof(udns_query_request_message_with_invalid_id);
 
 	// Execute mDNSCoreReceive to regress <rdar://problem/28556513>
+#ifdef _WIN32
+	mDNSCoreReceive(m, msg, end, &srcaddr, srcport, NULL, dstport, (const mDNSInterfaceID)if_nametoindex("en0"));
+#else
 	mDNSCoreReceive(m, msg, end, &srcaddr, srcport, NULL, dstport, if_nametoindex("en0"));
-
+#endif
 	// Verify that mDNSCoreReceiveQuery was NOT traversed through the normal code path
 	UNITTEST_ASSERT(m->mDNSStats.NormalQueries == 0);
 

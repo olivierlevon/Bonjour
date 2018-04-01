@@ -72,6 +72,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DNSServiceBrowser", "Client
 EndProject
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "BonjourQuickLooksInstaller", "mDNSWindows\BonjourQuickLooksInstaller\BonjourQuickLooksInstaller.wixproj", "{E24A4DC1-9B6F-4DA4-BD76-7D5FE73732BF}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "unittests", "mDNSWindows\unittests\unittests.vcxproj", "{813BDB18-83E5-46FF-9556-1FA7B8B540E0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -440,6 +442,20 @@ Global
 		{E24A4DC1-9B6F-4DA4-BD76-7D5FE73732BF}.Release|Win32.Build.0 = Release|x86
 		{E24A4DC1-9B6F-4DA4-BD76-7D5FE73732BF}.Release|x64.ActiveCfg = Release|x64
 		{E24A4DC1-9B6F-4DA4-BD76-7D5FE73732BF}.Release|x64.Build.0 = Release|x64
+		{813BDB18-83E5-46FF-9556-1FA7B8B540E0}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{813BDB18-83E5-46FF-9556-1FA7B8B540E0}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{813BDB18-83E5-46FF-9556-1FA7B8B540E0}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{813BDB18-83E5-46FF-9556-1FA7B8B540E0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{813BDB18-83E5-46FF-9556-1FA7B8B540E0}.Debug|Win32.Build.0 = Debug|Win32
+		{813BDB18-83E5-46FF-9556-1FA7B8B540E0}.Debug|x64.ActiveCfg = Debug|x64
+		{813BDB18-83E5-46FF-9556-1FA7B8B540E0}.Debug|x64.Build.0 = Debug|x64
+		{813BDB18-83E5-46FF-9556-1FA7B8B540E0}.Release|Any CPU.ActiveCfg = Release|Win32
+		{813BDB18-83E5-46FF-9556-1FA7B8B540E0}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{813BDB18-83E5-46FF-9556-1FA7B8B540E0}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{813BDB18-83E5-46FF-9556-1FA7B8B540E0}.Release|Win32.ActiveCfg = Release|Win32
+		{813BDB18-83E5-46FF-9556-1FA7B8B540E0}.Release|Win32.Build.0 = Release|Win32
+		{813BDB18-83E5-46FF-9556-1FA7B8B540E0}.Release|x64.ActiveCfg = Release|x64
+		{813BDB18-83E5-46FF-9556-1FA7B8B540E0}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -26,7 +26,7 @@
 const char *HWVersionString  = "unittestMac1,1";
 const char *OSVersionString  = "unittest 1.1.1 (1A111)";
 const char *BinaryNameString = "unittest";
-const char *VersionString    = "unittest mDNSResponer-00 (Jan  1 1970 00:00:00)";
+const char *VersionString    = "unittest mDNSResponder-00 (Jan  1 1970 00:00:00)";
 
 
 
@@ -34,7 +34,7 @@ UNITTEST_HEADER(run_tests)
 UNITTEST_GROUP(DNSMessageTest)
 UNITTEST_GROUP(ResourceRecordTest)
 UNITTEST_GROUP(mDNSCoreReceiveTest)
-//UNITTEST_GROUP(CNameRecordTests) // Commenting out until issue reported in <rdar://problem/30589360> is debugged.
+UNITTEST_GROUP(CNameRecordTests) // Commenting out until issue reported in <rdar://problem/30589360> is debugged.
 UNITTEST_GROUP(LocalOnlyTimeoutTests)
 UNITTEST_FOOTER
 

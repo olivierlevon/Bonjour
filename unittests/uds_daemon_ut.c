@@ -1,4 +1,5 @@
 #include "DNSCommon.h"                  // Defines general DNS utility routines
+#include "uds_daemon.h"
 
 mDNSexport mStatus handle_client_request_ut(void *req)
 {

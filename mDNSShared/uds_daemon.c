@@ -4778,7 +4778,7 @@ rerror:
     req->ts = t_error;
 }
 
-mDNSlocal mStatus handle_client_request(request_state *req)
+mStatus handle_client_request(request_state *req)
 {
     mStatus err = mStatus_NoError;
     switch(req->hdr.op)
@@ -5448,7 +5448,7 @@ mDNSlocal char *RecordTypeName(mDNSu8 rtype)
     }
 }
 
-mDNSlocal int LogEtcHosts(mDNS *const m)
+int LogEtcHosts(mDNS *const m)
 {
     mDNSBool showheader = mDNStrue;
     const AuthRecord *ar;
@@ -5613,7 +5613,7 @@ mDNSlocal void LogAuthRecords(const mDNSs32 now, AuthRecord *ResourceRecords, in
     if (showheader) LogMsgNoIdent("<None>");
 }
 
-mDNSlocal void PrintOneCacheRecord(const CacheRecord *cr, mDNSu32 slot, const mDNSu32 remain, const char *ifname, mDNSu32 *CacheUsed)
+void PrintOneCacheRecord(const CacheRecord *cr, mDNSu32 slot, const mDNSu32 remain, const char *ifname, mDNSu32 *CacheUsed)
 {
     LogMsgNoIdent("%3d %s%8d %-7s%s %-6s%s",
                   slot,
@@ -5627,7 +5627,7 @@ mDNSlocal void PrintOneCacheRecord(const CacheRecord *cr, mDNSu32 slot, const mD
     (*CacheUsed)++;
 }
 
-mDNSlocal void PrintCachedRecords(const CacheRecord *cr, mDNSu32 slot, const mDNSu32 remain, const char *ifname, mDNSu32 *CacheUsed)
+void PrintCachedRecords(const CacheRecord *cr, mDNSu32 slot, const mDNSu32 remain, const char *ifname, mDNSu32 *CacheUsed)
 {
     CacheRecord *nsec;
     CacheRecord *soa;

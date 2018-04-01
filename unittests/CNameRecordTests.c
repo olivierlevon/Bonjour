@@ -117,7 +117,7 @@ UNITTEST_HEADER(StartClientQueryRequest)
 	// Verify the query fields were set as expected
 	q = &req->u.queryrecord.q;
     UNITTEST_ASSERT(q != mDNSNULL);
-    UNITTEST_ASSERT(q == m->Questions);
+    UNITTEST_ASSERT(q == m->Questions); // a sleep-proxy question may be already here due to interfaceInfo.NetWake flag
     UNITTEST_ASSERT(q == m->NewQuestions);
     UNITTEST_ASSERT(q->SuppressUnusable == mDNSfalse);
     UNITTEST_ASSERT(q->ReturnIntermed == mDNStrue);

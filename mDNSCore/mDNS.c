@@ -417,7 +417,7 @@ mDNSexport mDNSBool mDNS_AddressIsLocalSubnet(mDNS *const m, const mDNSInterface
     return(mDNSfalse);
 }
 
-mDNSlocal NetworkInterfaceInfo *FirstInterfaceForID(mDNS *const m, const mDNSInterfaceID InterfaceID)
+NetworkInterfaceInfo *FirstInterfaceForID(mDNS *const m, const mDNSInterfaceID InterfaceID)
 {
     NetworkInterfaceInfo *intf = m->HostInterfaces;
     while (intf && intf->InterfaceID != InterfaceID) intf = intf->next;
@@ -14336,7 +14336,7 @@ mDNSexport void mDNS_GrowCache(mDNS *const m, CacheEntity *storage, mDNSu32 numr
     mDNS_Unlock(m);
 }
 
-mDNSlocal mStatus mDNS_InitStorage(mDNS *const m, mDNS_PlatformSupport *const p,
+mStatus mDNS_InitStorage(mDNS *const m, mDNS_PlatformSupport *const p,
                                    CacheEntity *rrcachestorage, mDNSu32 rrcachesize,
                                    mDNSBool AdvertiseLocalAddresses, mDNSCallback *Callback, void *Context)
 {

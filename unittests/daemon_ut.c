@@ -1,4 +1,5 @@
 #include "DNSCommon.h"
+#include "DebugServices.h"
 
 mDNSexport void init_logging_ut(void)
 {
@@ -30,6 +31,18 @@ mDNSexport void init_logging_ut(void)
 	LogOperation("Quiet compiler warnings for rrcachestorage= %p, "
 		   "NoMulticastAdvertisements= %p",
 		   rrcachestorage, NoMulticastAdvertisements);
+#else
+
+	mDNS_DebugMode = mDNStrue;
+  
+	mDNS_LoggingEnabled       = 1;
+	mDNS_PacketLoggingEnabled = 1;
+	mDNS_McastLoggingEnabled  = 1;
+	mDNS_McastTracingEnabled  = 1; 
+
+	debug_initialize( kDebugOutputTypeMetaConsole );
+
+	debug_set_property( kDebugPropertyTagPrintLevelMin, kDebugLevelChatty);
 
 #endif // APPLE_OSX_mDNSResponder
 }

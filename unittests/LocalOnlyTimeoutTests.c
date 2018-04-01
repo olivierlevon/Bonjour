@@ -8,6 +8,37 @@ mDNSlocal int RestartLocalOnlyClientQueryRequest(void);
 mDNSlocal int FinalizeUnitTest(void);
 mDNSlocal mStatus InitEtcHostsRecords();
 
+#ifdef _WIN32
+mDNSexport mDNSu32	strlcpy(void *inDst, const void *inSrc, mDNSu32 inSize)
+{
+	const char *		src = (const char *)inSrc;
+
+	if (inSize > 0)
+	{
+		size_t		n;
+		char *		dst = (char *)inDst;
+
+		for (n = inSize - 1; n > 0; --n)
+		{
+			if ((*dst++ = *src++) == '\0')
+			{
+				// Null terminator encountered, so exit.
+				goto exit;
+			}
+		}
+		*dst = '\0';
+	}
+
+	while (*src++ != '\0')
+	{
+		// Stop at null terminator.
+	}
+
+exit:
+	return((mDNSu32)(src - (const char *)inSrc) - 1);
+}
+#endif
+
 // This unit test's variables
 static request_state* client_request_message;
 static UDPSocket* local_socket;

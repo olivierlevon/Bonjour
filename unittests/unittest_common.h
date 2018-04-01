@@ -1,13 +1,22 @@
 #ifndef UNITTEST_COMMON_H
 #define UNITTEST_COMMON_H
 
+#include <stdio.h>
+#include <stdlib.h>
 #include "dns_sd.h"
 #include "uds_daemon.h"
 #include "uDNS.h"
 #include "dnssd_ipc.h"
+#if defined(_WIN32)
+#include <windows.h>
+#include <winsock2.h>
+#include <Ws2tcpip.h>
+#include <iphlpapi.h>
+#else
 #include <netdb.h>                  // for getaddrinfo
 #include <net/if.h>
 #include <pthread.h>
+#endif
 
 // Primary interface info that is used when simulating the receive of the response packet
 extern mDNSInterfaceID primary_interfaceID;

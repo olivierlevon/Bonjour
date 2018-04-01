@@ -1,7 +1,11 @@
 #include "unittest_common.h"
 #include "dns_sd.h"
 #include "mDNSEmbeddedAPI.h"
+#if defined(_WIN32)
+#include "mDNSwin32.h"
+#else
 #include "mDNSMacOSX.h"
+#endif
 
 static mDNS_PlatformSupport PlatformStorage;
 #define RR_CACHE_SIZE ((32*1024) / sizeof(CacheRecord))
@@ -95,7 +99,7 @@ mDNSexport void receive_response(const request_state* req, DNSMessage *msg, size
 	mDNSIPPort srcport, dstport;
 	const mDNSu8 * end;
 	DNSQuestion *q = (DNSQuestion *)&req->u.queryrecord.q;
-	UInt8* data = (UInt8*)msg;
+	mDNSu8* data = (mDNSu8*)msg;
 
 	// Used same values for DNS server as specified during init of unit test
 	srcaddr.type				= mDNSAddrType_IPv4;
@@ -109,7 +113,11 @@ mDNSexport void receive_response(const request_state* req, DNSMessage *msg, size
 	end = (const mDNSu8 *)msg + msgSize;
 
 	// Set socket info that mDNSCoreReceive uses to verify socket context
+#if defined(_WIN32)
+	q->LocalSocket->port.NotAnInteger = swap16((mDNSu16)client_resp_dst_port);
+#else
 	q->LocalSocket->ss.port.NotAnInteger = swap16((mDNSu16)client_resp_dst_port);
+#endif
 	q->TargetQID.b[0] = data[0];
 	q->TargetQID.b[1] = data[1];
 

@@ -17,12 +17,17 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#if !defined(_WIN32)
 #include <unistd.h>
+#endif
 #include <assert.h>
 #include <signal.h>
 #include "unittest_common.h"
 
+#if !defined(_WIN32)
 #include <MacTypes.h>
+#endif
+
 #ifndef _UNITTEST_H_
 #define _UNITTEST_H_
 
@@ -58,6 +63,39 @@ int _unittest_assert_i(const int condition, const int i, const char * const cond
 void _unittest_print_list(__test_item* __i);
 #define UNITTEST_FOOTER       goto __unittest_footer__; __unittest_footer__: printf("\n"); fflush(NULL); _unittest_print_list(__i); return __success; }
 
+#if defined(_WIN32)
+//                              signal(SIGPIPE, SIG_IGN); 
+#define UNITTEST_MAIN     int main (int argc, char** argv) \
+                          { \
+                              (void)(argv); \
+							  WSADATA data; \
+                              FILE* fp; \
+							  int ret = 0; \
+							   \
+							  WSAStartup(WINSOCK_VERSION, &data); \
+                              unlink("unittest_success"); \
+                              if (!run_tests()) \
+                              { \
+                                  printf("unit test FAILED\n"); \
+                                  ret = -1; \
+                              } \
+							  else \
+                              { \
+								fp = fopen("unittest_success", "w"); \
+								if (!fp) \
+									ret = -2; \
+								else \
+								{ \
+									fprintf(fp, "unit test %s\n", "SUCCEEDED"); \
+									fclose(fp); \
+								} \
+								printf("unit test SUCCESS\n"); \
+                              } \
+							  WSACleanup(); \
+                              return ret; \
+                          }
+//read(STDIN_FILENO, &c, 1); 
+#else
 #define UNITTEST_MAIN     int main (int argc, char** argv) \
                           { \
                               (void)(argv); \
@@ -82,6 +120,7 @@ void _unittest_print_list(__test_item* __i);
                               } \
                               return 0; \
                           }
+#endif
 #define UNITTEST_SENDDNSMESSAGE mStatus mDNSSendDNSMessage(mDNS *const m, DNSMessage *const msg, mDNSu8 *end,  \
 	mDNSInterfaceID InterfaceID, UDPSocket *src, const mDNSAddr *dst,  \
 	mDNSIPPort dstport, TCPSocket *sock, DomainAuthInfo *authInfo,  \
