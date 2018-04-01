@@ -156,6 +156,7 @@ mDNSlocal mDNSBool			IsPointToPoint( IP_ADAPTER_UNICAST_ADDRESS * addr );
 mDNSlocal mStatus			StringToAddress( mDNSAddr * ip, LPSTR string );
 mDNSlocal mStatus			RegQueryString( HKEY key, LPCSTR param, LPSTR * string, DWORD * stringLen, DWORD * enabled );
 mDNSlocal struct ifaddrs*	myGetIfAddrs(int refresh);
+void myFreeIfAddrs( void );
 mDNSlocal OSStatus			TCHARtoUTF8( const TCHAR *inString, char *inBuffer, size_t inBufferSize );
 mDNSlocal OSStatus			WindowsLatin1toUTF8( const char *inString, char *inBuffer, size_t inBufferSize );
 mDNSlocal void CALLBACK		TCPSocketNotification( SOCKET sock, LPWSANETWORKEVENTS event, void *context );
@@ -2605,6 +2606,8 @@ mStatus	TearDownInterfaceList( mDNS * const inMDNS )
 		TearDownInterface( inMDNS, ifd );
 	}
 	inMDNS->p->interfaceCount = 0;
+
+	myFreeIfAddrs();
 	
 	dlog( kDebugLevelTrace, DEBUG_NAME "tearing down interface list done\n" );
 	return( mStatus_NoError );
@@ -4204,23 +4207,36 @@ exit:
 //	myGetIfAddrs
 //===========================================================================================================================
 
+static struct ifaddrs *myifa = NULL;
+
 mDNSlocal struct ifaddrs*
 myGetIfAddrs(int refresh)
 {
-	static struct ifaddrs *ifa = NULL;
-	
-	if (refresh && ifa)
+	if (refresh && myifa)
 	{
-		freeifaddrs(ifa);
-		ifa = NULL;
+		freeifaddrs(myifa);
+		myifa = NULL;
 	}
 	
-	if (ifa == NULL)
+	if (myifa == NULL)
 	{
-		getifaddrs(&ifa);
+		getifaddrs(&myifa);
 	}
 	
-	return ifa;
+	return myifa;
+}
+
+//===========================================================================================================================
+//	myFreeIfAddrs
+//===========================================================================================================================
+
+void myFreeIfAddrs( void )
+{
+	if (myifa)
+	{
+		freeifaddrs(myifa);
+		myifa = NULL;
+	}
 }
 
 //===========================================================================================================================
