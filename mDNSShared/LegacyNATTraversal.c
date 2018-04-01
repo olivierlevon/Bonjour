@@ -381,8 +381,31 @@ mDNSlocal void handleLNTPortMappingResponse(tcpLNTInfo *tcpInfo)
 mDNSlocal void DisposeInfoFromUnmapList(mDNS *m, tcpLNTInfo *tcpInfo)
 {
     tcpLNTInfo **ptr = &m->tcpInfoUnmapList;
-    while (*ptr && *ptr != tcpInfo) ptr = &(*ptr)->next;
-    if (*ptr) { *ptr = (*ptr)->next; mDNSPlatformMemFree(tcpInfo); }    // If we found it, cut it from our list and free the memory
+    while (*ptr && *ptr != tcpInfo) 
+		ptr = &(*ptr)->next;
+    if (*ptr)  // If we found it, cut it from our list and free the memory
+	{
+		*ptr = (*ptr)->next;
+		
+		// clean up port mapping requests and allocations
+		if (tcpInfo->sock)
+		{ 
+			mDNSPlatformTCPCloseConnection(tcpInfo->sock);
+			tcpInfo->sock = mDNSNULL; 
+		}
+		if (tcpInfo->Request)
+		{ 
+			mDNSPlatformMemFree(tcpInfo->Request);
+			tcpInfo->Request = mDNSNULL; 
+		}
+		if (tcpInfo->Reply) 
+		{
+			mDNSPlatformMemFree(tcpInfo->Reply);
+			tcpInfo->Reply = mDNSNULL; 
+		}
+		
+		mDNSPlatformMemFree(tcpInfo);
+	}    
 }
 
 mDNSlocal void tcpConnectionCallback(TCPSocket *sock, void *context, mDNSBool ConnectionEstablished, mStatus err)
@@ -697,7 +720,13 @@ mDNSexport mStatus LNT_UnmapPort(mDNS *m, NATTraversalInfo *const n)
     mStatus err;
 
     // If no NAT gateway to talk to, no need to do all this work for nothing
-    if (mDNSIPPortIsZero(m->UPnPSOAPPort) || !m->UPnPSOAPURL || !m->UPnPSOAPAddressString) return mStatus_NoError;
+    if (mDNSIPPortIsZero(m->UPnPSOAPPort) || !m->UPnPSOAPURL || !m->UPnPSOAPAddressString) 
+	{
+		if (n->tcpInfo.sock   ) { mDNSPlatformTCPCloseConnection(n->tcpInfo.sock); n->tcpInfo.sock    = mDNSNULL; }
+		if (n->tcpInfo.Request) { mDNSPlatformMemFree(n->tcpInfo.Request);         n->tcpInfo.Request = mDNSNULL; }
+		if (n->tcpInfo.Reply  ) { mDNSPlatformMemFree(n->tcpInfo.Reply);           n->tcpInfo.Reply   = mDNSNULL; }
+		return mStatus_NoError;
+	}
 
     mDNS_snprintf(externalPort, sizeof(externalPort), "%u", mDNSVal16(mDNSIPPortIsZero(n->RequestedPort) ? n->IntPort : n->RequestedPort));
 
@@ -740,6 +769,7 @@ mDNSexport mStatus LNT_GetExternalAddress(mDNS *m)
 
 mDNSlocal mStatus GetDeviceDescription(mDNS *m, tcpLNTInfo *info)
 {
+	mStatus err;
     // Device description format -
     //  - device description URL
     //  - host/port
@@ -760,7 +790,13 @@ mDNSlocal mStatus GetDeviceDescription(mDNS *m, tcpLNTInfo *info)
     else if ((info->Request = mDNSPlatformMemAllocate(LNT_MAXBUFSIZE)) == mDNSNULL) { LogInfo("can't allocate send buffer for discovery"); return (mStatus_NoMemoryErr); }
     info->requestLen = mDNS_snprintf((char*)info->Request, LNT_MAXBUFSIZE, szSSDPMsgDescribeDeviceFMT, m->UPnPRouterURL, m->UPnPRouterAddressString);
     LogInfo("Describe Device: [%s]", info->Request);
-    return MakeTCPConnection(m, info, &m->Router, m->UPnPRouterPort, LNTDiscoveryOp);
+	err = MakeTCPConnection(m, info, &m->Router, m->UPnPRouterPort, LNTDiscoveryOp);
+	if (err)
+	{
+		mDNSPlatformMemFree(info->Request);
+		info->Request = mDNSNULL; 
+	}
+    return err;
 }
 
 // This function parses the response to our SSDP discovery message. Basically, we look to make sure this is a response
@@ -902,6 +938,27 @@ mDNSexport void LNT_ClearState(mDNS *const m)
     if (m->tcpAddrInfo.sock)   { mDNSPlatformTCPCloseConnection(m->tcpAddrInfo.sock);   m->tcpAddrInfo.sock   = mDNSNULL; }
     if (m->tcpDeviceInfo.sock) { mDNSPlatformTCPCloseConnection(m->tcpDeviceInfo.sock); m->tcpDeviceInfo.sock = mDNSNULL; }
     m->UPnPSOAPPort = m->UPnPRouterPort = zeroIPPort;   // Reset UPnP ports
+    if (m->tcpDeviceInfo.Request)
+	{
+		mDNSPlatformMemFree(m->tcpDeviceInfo.Request);
+		m->tcpDeviceInfo.Request = mDNSNULL; 
+	}
+    if (m->tcpDeviceInfo.Reply)
+	{
+		mDNSPlatformMemFree(m->tcpDeviceInfo.Reply);
+		m->tcpDeviceInfo.Reply = mDNSNULL; 
+	}
+	
+    if (m->tcpAddrInfo.Request)
+	{
+		mDNSPlatformMemFree(m->tcpAddrInfo.Request);
+		m->tcpAddrInfo.Request = mDNSNULL; 
+	}
+    if (m->tcpAddrInfo.Reply)
+	{
+		mDNSPlatformMemFree(m->tcpAddrInfo.Reply);
+		m->tcpAddrInfo.Reply = mDNSNULL; 
+	}
 }
 
 #endif /* _LEGACY_NAT_TRAVERSAL_ */
