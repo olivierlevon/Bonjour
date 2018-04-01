@@ -191,7 +191,7 @@ mDNSlocal void _cdecl		SendMulticastWakeupPacket( void *arg );
 //===========================================================================================================================
 
 mDNSlocal mDNS_PlatformSupport	gMDNSPlatformSupport;
-mDNSs32							mDNSPlatformOneSecond	= 0;
+mDNSs32							mDNSPlatformOneSecond	= 1000; // Use milliseconds as the quantum of time
 mDNSlocal UDPSocket		*		gUDPSockets				= NULL;
 mDNSlocal int					gUDPNumSockets			= 0;
 
@@ -302,7 +302,6 @@ mDNSexport mStatus	mDNSPlatformInit( mDNS * const inMDNS )
 	inMDNS->p->checkFileSharesTimer = CreateWaitableTimer( NULL, FALSE, NULL );
 	require_action( inMDNS->p->checkFileSharesTimer, exit, err = mStatus_UnknownErr );
 	inMDNS->p->checkFileSharesTimeout		= 10;		// Retry time for CheckFileShares() in seconds
-	mDNSPlatformOneSecond 					= 1000;		// Use milliseconds as the quantum of time
 	
 	// Startup WinSock 2.2 or later.
 	
