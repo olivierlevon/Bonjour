@@ -4182,7 +4182,7 @@ decimal:    if (!F.havePrecision)
                         }
                     }
                     if (F.altForm && !F.precision)
-                        i = mDNS_snprintf(mDNS_VACB, sizeof(mDNS_VACB), "«ZERO ADDRESS»");
+                        i = mDNS_snprintf(mDNS_VACB, sizeof(mDNS_VACB), "<<ZERO ADDRESS>>");
                     else switch (F.precision)
                         {
                         case  4: i = mDNS_snprintf(mDNS_VACB, sizeof(mDNS_VACB), "%d.%d.%d.%d",

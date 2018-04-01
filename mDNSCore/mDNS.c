@@ -9224,7 +9224,7 @@ mDNSlocal void mDNSCoreReceiveResponse(mDNS *const m,
             // approach of just detecting these broken routers and completely disabling IPv4
             // link-local communication on interfaces where a broken router is detected.
             // OS X and iOS set the IFEF_ARPLL interface flag on interfaces
-            // that are deemed “safe” for IPv4 link-local communication;
+            // that are deemed "safe" for IPv4 link-local communication;
             // the flag is cleared on interfaces where a broken router is detected.
 
             // OS X and iOS will not even try to communicate with an IPv4
@@ -14570,7 +14570,7 @@ mDNSexport void mDNS_ConfigChanged(mDNS *const m)
         ConstructSleepProxyServerName(m, &newname);
         if (!SameDomainLabelCS(name.c, newname.c))
         {
-            LogSPS("Renaming SPS from “%#s” to “%#s”", name.c, newname.c);
+            LogSPS("Renaming SPS from \"%#s\" to \"%#s\"", name.c, newname.c);
             // When SleepProxyServerCallback gets the mStatus_MemFree message,
             // it will reregister the service under the new name
             m->SPSState = 2;

@@ -2408,7 +2408,7 @@ struct mDNS_struct
     mDNSs32 ProbeFailTime;
     mDNSu32 NumFailedProbes;
     mDNSs32 SuppressProbes;
-    Platform_t mDNS_plat;               // Why is this here in the “only required for mDNS Responder” section? -- SC
+    Platform_t mDNS_plat;               // Why is this here in the "only required for mDNS Responder" section? -- SC
 
     // Unicast-specific data
     mDNSs32 NextuDNSEvent;                  // uDNS next event
