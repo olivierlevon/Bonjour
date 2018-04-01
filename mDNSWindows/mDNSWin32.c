@@ -4638,7 +4638,7 @@ CheckFileShares( mDNS * const m )
 	DWORD			entriesRead = 0;
 	DWORD			totalEntries = 0;
 	DWORD			resume = 0;
-	mDNSBool		advertise = mDNSfalse;
+	DWORD			advertise = mDNSfalse;
 	mDNSBool		fileSharing = mDNSfalse;
 	mDNSBool		printSharing = mDNSfalse;
 	HKEY			key = NULL;
@@ -4656,7 +4656,7 @@ CheckFileShares( mDNS * const m )
 
 	if ( !err )
 	{
-		DWORD dwSize = sizeof( DWORD );
+		DWORD dwSize = sizeof( advertise );
 		RegQueryValueEx( key, L"Advertise", NULL, NULL, (LPBYTE) &advertise, &dwSize );
 	}
 
