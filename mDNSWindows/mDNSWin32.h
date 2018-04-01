@@ -15,14 +15,11 @@
  * limitations under the License.
  */
 
-#ifndef	__MDNS_WIN32__
-#define	__MDNS_WIN32__
+#pragma once
 
 #include	"CommonServices.h"
 
-#if( !defined( _WIN32_WCE ) )
-	#include	<mswsock.h>
-#endif
+#include	<mswsock.h>
 
 #include	"mDNSEmbeddedAPI.h"
 #include	"uDNS.h"
@@ -53,7 +50,6 @@ struct UDPSocket_struct
 											// dstAddr from WSARecvMsg we use this value instead.
 	SOCKET						fd;
 	LPFN_WSARECVMSG				recvMsgPtr;
-	DNSMessage					packet;
 	struct mDNSInterfaceData	*ifd;
 	UDPSocket					*next;
 	mDNS						*m;
@@ -147,15 +143,12 @@ extern void		TCPIPConfigDidChange( mDNS * const inMDNS );
 extern void		DynDNSConfigDidChange( mDNS * const inMDNS );
 extern void		FileSharingDidChange( mDNS * const inMDNS );
 extern void		FirewallDidChange( mDNS * const inMDNS );
-extern mStatus  TCPAddSocket( mDNS * const inMDNS, TCPSocket *sock );
 extern mStatus	SetupInterfaceList( mDNS * const inMDNS );
 extern mStatus	TearDownInterfaceList( mDNS * const inMDNS );
 extern BOOL		IsWOMPEnabled();
-extern void     DispatchSocketEvents( mDNS * const inMDNS );
 
 
 #ifdef	__cplusplus
 	}
 #endif
 
-#endif	// __MDNS_WIN32__
