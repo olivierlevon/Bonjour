@@ -902,6 +902,7 @@ mDNSlocal mStatus mDNSNetMonitor(void)
     mDNSPollRegisterEvent( gStopEvent, StopNotification, NULL );
     if (!SetConsoleCtrlHandler(ConsoleControlHandler, TRUE)) return mStatus_UnknownErr;
     gRunning = mDNStrue; while (gRunning) mDNSPoll( INFINITE );
+    TearDownInterfaceList(&mDNSStorage);
     if (!SetConsoleCtrlHandler(ConsoleControlHandler, FALSE)) return mStatus_UnknownErr;
     CloseHandle(gStopEvent);
 #else
