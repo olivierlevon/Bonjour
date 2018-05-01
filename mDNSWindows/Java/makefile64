@@ -1,6 +1,6 @@
 # -*- tab-width: 4 -*-
 #
-# Copyright (c) 2002-2004 Apple Computer, Inc. All rights reserved.
+# Copyright (c) 2002-2018 Apple Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,10 +24,11 @@
 # 'nmake clean' or 'nmake clean DEBUG=1' to delete prod/debug objects & targets
 #
 # To run nmake, you may need to set up your PATH correctly, using a script 
-# such as: "\Program Files\Microsoft Visual Studio .NET\Vc7\bin\vcvars32.bat"
+# such as: 
+# "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat"
 # 
 # The default location of the JDK is \javasdk. You can override this on the
-# command line (e.g. 'nmake JDK=\j2dk1.4.2_03').
+# command line (e.g. nmake JDK="C:\Program Files\Java\jdk1.8.0_172").
 
 ############################################################################
 
@@ -36,14 +37,14 @@ SHAREDDIR = ..\..\mDNSShared
 
 JDK = "$(JAVA_HOME)"
 
-CC = cl /NOLOGO
+CC = cl /nologo
 RC = rc /NOLOGO
 LD = ld /NOLOGO
 CP = copy
 RM = del /Q
 RMDIR = rmdir /S /Q
 JAVAC = $(JDK)\bin\javac
-JAVAH = $(JDK)\bin\javac -h
+JAVADOC = $(JDK)\bin\javadoc
 JAR = $(JDK)\bin\jar
 CFLAGS_COMMON = -LD -DAUTO_CALLBACKS=0 -I. -I..\.. \
 	-I$(COREDIR) -I$(SHAREDDIR) -I$(JDK)\include -I$(JDK)\include\win32
@@ -70,12 +71,10 @@ JAVACFLAGS = $(CFLAGS) $(JAVACFLAGS_OS)
 #############################################################################
 
 #postbuild
-all: setup Java 
+all: Java JavaDoc 
 
 # 'setup' sets up the build directory structure the way we want
 setup:
-	@if not exist objects		mkdir objects
-	@if not exist build			mkdir build
 	@if not exist $(OBJDIR)		mkdir $(OBJDIR)
 	@if not exist $(BUILDDIR)	mkdir $(BUILDDIR)
 
@@ -133,13 +132,13 @@ $(BUILDDIR)\jdns_sd.dll: $(JAVASRC)\JNISupport.c $(OBJDIR)\DNSSD.java.h $(OBJDIR
 	$(JAVAC) -d $(OBJDIR) -classpath $(OBJDIR) $<
 
 $(OBJDIR)\DNSSD.java.h: $(OBJDIR)\com\apple\dnssd\DNSSD.class
-	$(JAVAH) -classpath $(OBJDIR) -o $@ \
-		com.apple.dnssd.AppleBrowser \
-		com.apple.dnssd.AppleResolver \
-		com.apple.dnssd.AppleRegistration \
-		com.apple.dnssd.AppleQuery \
-		com.apple.dnssd.AppleService 
+	$(JAVAC) -h $(OBJDIR) -classpath $(OBJDIR) $(JAVASRC)\DNSSD.java
 
 $(OBJDIR)\jdns_sd.RES: jdns_sd.rc
 	$(RC) /fo $@ $?
 
+
+# The following target builds documentation for the Java wrappers.
+
+JavaDoc: Java setup
+	$(JAVADOC) $(JAVASRC)\*.java -classpath $(OBJDIR) -d $(BUILDDIR) -public
