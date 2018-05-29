@@ -2343,7 +2343,7 @@ DEBUG_LOCAL DWORD GetScopeId( DWORD ifIndex )
 			ipv6IfIndex	= 0;
 		}
 
-		// Skip psuedo and tunnel interfaces.
+		// Skip pseudo and tunnel interfaces.
 		
 		if ( ( ipv6IfIndex == 1 ) || ( iaa->IfType == IF_TYPE_TUNNEL ) )
 		{
