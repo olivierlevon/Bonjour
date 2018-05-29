@@ -2155,9 +2155,12 @@ DEBUG_LOCAL OSStatus HostsFileNext( HostsFile * self, HostsFileInfo ** hInfo )
 
 			if ( i >= ( numAliases - 1 ) )
 			{
+				char** h_aliases;
+				
 				numAliases = numAliases * 2;
-				(*hInfo)->m_host.h_aliases = (char**) realloc( (*hInfo)->m_host.h_aliases, numAliases * sizeof( char** ) );
-				require_action( (*hInfo)->m_host.h_aliases, exit, err = kNoMemoryErr );
+				h_aliases = (char**) realloc( (*hInfo)->m_host.h_aliases, numAliases * sizeof( char** ) );
+				require_action( h_aliases, exit, err = kNoMemoryErr );
+				(*hInfo)->m_host.h_aliases = h_aliases;
 			}
 
 			len = strlen( tok ) + 1;
