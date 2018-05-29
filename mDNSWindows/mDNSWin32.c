@@ -644,6 +644,10 @@ mDNSexport int	mDNSPlatformMemCmp( const void *inDst, const void *inSrc, mDNSu32
 	return( memcmp( inSrc, inDst, inSize ) );
 }
 
+//===========================================================================================================================
+//	
+//===========================================================================================================================
+
 mDNSexport void mDNSPlatformQsort(void *base, int nel, int width, int (*compar)(const void *, const void *))
 {
 	(void)base;
@@ -653,31 +657,49 @@ mDNSexport void mDNSPlatformQsort(void *base, int nel, int width, int (*compar)(
 }
 
 // DNSSEC stub functions
+
+//===========================================================================================================================
+//	
+//===========================================================================================================================
+
 mDNSexport void VerifySignature(mDNS *const m, DNSSECVerifier *dv, DNSQuestion *q)
-	{
+{
 	(void)m;
 	(void)dv;
 	(void)q;
-	}
+}
+
+//===========================================================================================================================
+//	
+//===========================================================================================================================
 
 mDNSexport mDNSBool AddNSECSForCacheRecord(mDNS *const m, CacheRecord *crlist, CacheRecord *negcr, mDNSu8 rcode)
-	{
+{
 	(void)m;
 	(void)crlist;
 	(void)negcr;
 	(void)rcode;
 	return mDNSfalse;
-	}
+}
+
+//===========================================================================================================================
+//	
+//===========================================================================================================================
 
 mDNSexport void BumpDNSSECStats(mDNS *const m, DNSSECStatsAction action, DNSSECStatsType type, mDNSu32 value)
-    {
+{
     (void)m;
     (void)action;
     (void)type;
     (void)value;
-    }
+}
 
 // Proxy stub functions
+
+//===========================================================================================================================
+//	
+//===========================================================================================================================
+
 mDNSexport mDNSu8 *DNSProxySetAttributes(DNSQuestion *q, DNSMessageHeader *h, DNSMessage *msg, mDNSu8 *ptr, mDNSu8 *limit)
 {
     (void) q;
@@ -689,12 +711,20 @@ mDNSexport mDNSu8 *DNSProxySetAttributes(DNSQuestion *q, DNSMessageHeader *h, DN
     return ptr;
 }
 
+//===========================================================================================================================
+//	
+//===========================================================================================================================
+
 mDNSexport void DNSProxyInit(mDNS *const m, mDNSu32 IpIfArr[], mDNSu32 OpIf)
 {
     (void) m;
     (void) IpIfArr;
     (void) OpIf;
 }
+
+//===========================================================================================================================
+//	
+//===========================================================================================================================
 
 mDNSexport void DNSProxyTerminate(mDNS *const m)
 {
@@ -943,7 +973,6 @@ mDNSexport mDNSu32	mDNSPlatformInterfaceIndexfromInterfaceID( mDNS * const inMDN
 TCPSocket *
 mDNSPlatformTCPSocket
 	(
-	
 	TCPSocketFlags		flags,
 	mDNSIPPort			*	port, 
 	mDNSBool			useBackgroundTrafficClass
@@ -1079,7 +1108,7 @@ exit:
 //===========================================================================================================================
 
 mDNSexport TCPSocket *mDNSPlatformTCPAccept( TCPSocketFlags flags, int fd )
-	{
+{
 	TCPSocket	*	sock = NULL;
 	mStatus							err = mStatus_NoError;
 
@@ -1102,7 +1131,7 @@ exit:
 	}
 
 	return sock;
-	}
+}
 
 //===========================================================================================================================
 //	mDNSPlatformTCPCloseConnection
@@ -1203,8 +1232,7 @@ mDNSexport int mDNSPlatformTCPGetFD(TCPSocket *sock )
 //	TCPSocketNotification
 //===========================================================================================================================
 
-mDNSlocal void CALLBACK
-TCPSocketNotification( SOCKET sock, LPWSANETWORKEVENTS event, void *context )
+mDNSlocal void CALLBACK TCPSocketNotification( SOCKET sock, LPWSANETWORKEVENTS event, void *context )
 {
 	TCPSocket				*tcpSock = ( TCPSocket* ) context;
 	TCPConnectionCallback	callback;
@@ -1321,6 +1349,7 @@ exit:
 //===========================================================================================================================
 //	mDNSPlatformUDPClose
 //===========================================================================================================================
+
 #ifdef UNIT_TEST
 UNITTEST_UDPCLOSE
 #else	
@@ -1442,10 +1471,18 @@ exit:
 	return( err );
 }
 
+//===========================================================================================================================
+//	mDNSPlatformUpdateProxyList
+//===========================================================================================================================
+
 mDNSexport void mDNSPlatformUpdateProxyList(const mDNSInterfaceID InterfaceID)
 {
 	DEBUG_UNUSED( InterfaceID );
 }
+
+//===========================================================================================================================
+//	mDNSPlatformSetAllowSleep
+//===========================================================================================================================
 
 mDNSexport void mDNSPlatformSetAllowSleep(mDNSBool allowSleep, const char *reason)
 {
@@ -1454,7 +1491,7 @@ mDNSexport void mDNSPlatformSetAllowSleep(mDNSBool allowSleep, const char *reaso
 }
 
 //===========================================================================================================================
-//	mDNSPlatformSendRawPacket
+//	mDNSPlatformSendWakeupPacket
 //===========================================================================================================================
 
 mDNSexport void mDNSPlatformSendWakeupPacket(mDNSInterfaceID InterfaceID, char *ethaddr, char *ipaddr, int iteration)
@@ -1515,6 +1552,10 @@ exit:
 	return;
 }
 
+//===========================================================================================================================
+//	mDNSPlatformValidRecordForInterface
+//===========================================================================================================================
+
 mDNSexport mDNSBool mDNSPlatformValidRecordForInterface(const AuthRecord *rr, mDNSInterfaceID InterfaceID)
 {
 	DEBUG_UNUSED( rr );
@@ -1523,6 +1564,10 @@ mDNSexport mDNSBool mDNSPlatformValidRecordForInterface(const AuthRecord *rr, mD
 	return mDNStrue;
 }
  
+//===========================================================================================================================
+//	mDNSPlatformValidQuestionForInterface
+//===========================================================================================================================
+
 mDNSexport mDNSBool mDNSPlatformValidQuestionForInterface(DNSQuestion *q, const NetworkInterfaceInfo *intf)
 {
 	DEBUG_UNUSED( q );
@@ -1531,19 +1576,31 @@ mDNSexport mDNSBool mDNSPlatformValidQuestionForInterface(DNSQuestion *q, const 
 	return mDNStrue;
 }
  
+//===========================================================================================================================
+//	mDNSPlatformSendRawPacket
+//===========================================================================================================================
+
 mDNSexport void mDNSPlatformSendRawPacket(const void *const msg, const mDNSu8 *const end, mDNSInterfaceID InterfaceID)
-	{
+{
 	DEBUG_UNUSED( msg );
 	DEBUG_UNUSED( end );
 	DEBUG_UNUSED( InterfaceID );
-	}
+}
+
+//===========================================================================================================================
+//	mDNSPlatformFormatTime
+//===========================================================================================================================
 
 // Used for debugging purposes. For now, just set the buffer to zero
 mDNSexport void mDNSPlatformFormatTime(unsigned long te, mDNSu8 *buf, int bufsize)
-	{
+{
 	DEBUG_UNUSED( te );
 	if (bufsize) buf[0] = 0;
-	}
+}
+
+//===========================================================================================================================
+//	mDNSPlatformSetLocalAddressCacheEntry
+//===========================================================================================================================
 
 mDNSexport void mDNSPlatformSetLocalAddressCacheEntry(const mDNSAddr *const tpa, const mDNSEthAddr *const tha, mDNSInterfaceID InterfaceID)
 {
@@ -1552,27 +1609,43 @@ mDNSexport void mDNSPlatformSetLocalAddressCacheEntry(const mDNSAddr *const tpa,
 	DEBUG_UNUSED( InterfaceID );
 }
 
+//===========================================================================================================================
+//	mDNSPlatformReceiveRawPacket
+//===========================================================================================================================
+
 mDNSexport void mDNSPlatformReceiveRawPacket(const void *const msg, const mDNSu8 *const end, mDNSInterfaceID InterfaceID)
-	{
+{
 	DEBUG_UNUSED( msg );
 	DEBUG_UNUSED( end );
 	DEBUG_UNUSED( InterfaceID );
-	}
+}
+
+//===========================================================================================================================
+//	mDNSPlatformSetLocalARP
+//===========================================================================================================================
 
 mDNSexport void mDNSPlatformSetLocalARP( const mDNSv4Addr * const tpa, const mDNSEthAddr * const tha, mDNSInterfaceID InterfaceID )
-	{
+{
 	DEBUG_UNUSED( tpa );
 	DEBUG_UNUSED( tha );
 	DEBUG_UNUSED( InterfaceID );
-	}
+}
+
+//===========================================================================================================================
+//	mDNSPlatformWriteDebugMsg
+//===========================================================================================================================
 
 mDNSexport void mDNSPlatformWriteDebugMsg(const char *msg)
-	{
+{
 	dlog( kDebugLevelInfo, "%s\n", msg );
-	}
+}
+
+//===========================================================================================================================
+//	mDNSPlatformWriteLogMsg
+//===========================================================================================================================
 
 mDNSexport void mDNSPlatformWriteLogMsg( const char * ident, const char * msg, mDNSLogLevel_t loglevel )
-	{
+{
 	extern mDNS mDNSStorage;
 	int type;
 	
@@ -1598,20 +1671,23 @@ mDNSexport void mDNSPlatformWriteLogMsg( const char * ident, const char * msg, m
 #endif
 
 	dlog( kDebugLevelInfo, "%s\n", msg );
-	}
+}
+
+//===========================================================================================================================
+//	mDNSPlatformSourceAddrForDest
+//===========================================================================================================================
 
 mDNSexport void mDNSPlatformSourceAddrForDest( mDNSAddr * const src, const mDNSAddr * const dst )
-	{
+{
 	DEBUG_UNUSED( src );
 	DEBUG_UNUSED( dst );
-	}
+}
 
 //===========================================================================================================================
 //	mDNSPlatformTLSSetupCerts
 //===========================================================================================================================
 
-mDNSexport mStatus
-mDNSPlatformTLSSetupCerts(void)
+mDNSexport mStatus mDNSPlatformTLSSetupCerts(void)
 {
 	return mStatus_UnsupportedErr;
 }
@@ -1620,8 +1696,7 @@ mDNSPlatformTLSSetupCerts(void)
 //	mDNSPlatformTLSTearDownCerts
 //===========================================================================================================================
 
-mDNSexport void
-mDNSPlatformTLSTearDownCerts(void)
+mDNSexport void mDNSPlatformTLSTearDownCerts(void)
 {
 }
 
@@ -1663,8 +1738,7 @@ mDNSexport mDNSBool mDNSPlatformSetDNSConfig(mDNSBool setservers, mDNSBool setse
 //	mDNSPlatformDynDNSHostNameStatusChanged
 //===========================================================================================================================
 
-mDNSexport void
-mDNSPlatformDynDNSHostNameStatusChanged(const domainname *const dname, const mStatus status)
+mDNSexport void mDNSPlatformDynDNSHostNameStatusChanged(const domainname *const dname, const mStatus status)
 {
 	char		uname[MAX_ESCAPED_DOMAIN_NAME];
 	BYTE		bStatus;
@@ -1710,8 +1784,7 @@ exit:
 // This routine needs to be called whenever the system secrets database changes.
 // We call it from DynDNSConfigDidChange and mDNSPlatformInit
 
-void
-SetDomainSecrets( mDNS * const m )
+void SetDomainSecrets( mDNS * const m )
 {
 	DomainAuthInfo *ptr;
 	domainname		fqdn;
@@ -1751,8 +1824,7 @@ SetDomainSecrets( mDNS * const m )
 mDNSlocal void SetDomainFromDHCP( void );
 mDNSlocal void SetReverseMapSearchDomainList( void );
 
-mDNSlocal void
-SetSearchDomainList( void )
+mDNSlocal void SetSearchDomainList( void )
 {
 	char			*	searchList	= NULL;
 	DWORD				searchListLen;
@@ -1800,8 +1872,7 @@ exit:
 //	SetReverseMapSearchDomainList
 //===========================================================================================================================
 
-mDNSlocal void
-SetReverseMapSearchDomainList( void )
+mDNSlocal void SetReverseMapSearchDomainList( void )
 {
 	struct ifaddrs	*	ifa;
 
@@ -1835,8 +1906,7 @@ SetReverseMapSearchDomainList( void )
 //	SetDNSServers
 //===========================================================================================================================
 
-mDNSlocal void
-SetDNSServers( mDNS *const m )
+mDNSlocal void SetDNSServers( mDNS *const m )
 {
 	PIP_PER_ADAPTER_INFO	pAdapterInfo	=	NULL;
 	FIXED_INFO			*	fixedInfo	= NULL;
@@ -1927,8 +1997,7 @@ exit:
 //	SetDomainFromDHCP
 //===========================================================================================================================
 
-mDNSlocal void
-SetDomainFromDHCP( void )
+mDNSlocal void SetDomainFromDHCP( void )
 {
 	int					i			= 0;
 	IP_ADAPTER_INFO *	pAdapterInfo;
@@ -2019,8 +2088,7 @@ exit:
 //	mDNSPlatformGetPrimaryInterface
 //===========================================================================================================================
 
-mDNSexport mStatus
-mDNSPlatformGetPrimaryInterface(mDNSAddr * v4, mDNSAddr * v6, mDNSAddr * router )
+mDNSexport mStatus mDNSPlatformGetPrimaryInterface(mDNSAddr * v4, mDNSAddr * v6, mDNSAddr * router )
 {
 	IP_ADAPTER_INFO *	pAdapterInfo;
 	IP_ADAPTER_INFO *	pAdapter;
@@ -2088,6 +2156,10 @@ exit:
 	return err;
 }
 
+//===========================================================================================================================
+//	mDNSPlatformSendKeepalive
+//===========================================================================================================================
+
 mDNSexport void mDNSPlatformSendKeepalive(mDNSAddr *sadd, mDNSAddr *dadd, mDNSIPPort *lport, mDNSIPPort *rport, mDNSu32 seq, mDNSu32 ack, mDNSu16 win)
 {
 	(void) sadd; 	// Unused
@@ -2099,12 +2171,20 @@ mDNSexport void mDNSPlatformSendKeepalive(mDNSAddr *sadd, mDNSAddr *dadd, mDNSIP
 	(void) win;		// Unused
 }
 
+//===========================================================================================================================
+//	mDNSPlatformGetRemoteMacAddr
+//===========================================================================================================================
+
 mDNSexport mStatus mDNSPlatformGetRemoteMacAddr(mDNSAddr *raddr)
 {
 	(void) raddr;	// Unused
 
 	return mStatus_UnsupportedErr;
 }
+
+//===========================================================================================================================
+//	mDNSPlatformStoreSPSMACAddr
+//===========================================================================================================================
 
 mDNSexport  mStatus    mDNSPlatformStoreSPSMACAddr(mDNSAddr *spsaddr, char *ifname)
 {
@@ -2114,10 +2194,18 @@ mDNSexport  mStatus    mDNSPlatformStoreSPSMACAddr(mDNSAddr *spsaddr, char *ifna
 	return mStatus_UnsupportedErr;
 }
 
+//===========================================================================================================================
+//	mDNSPlatformClearSPSData
+//===========================================================================================================================
+
 mDNSexport  mStatus    mDNSPlatformClearSPSData(void)
 {
 	return mStatus_UnsupportedErr;
 }
+
+//===========================================================================================================================
+//	mDNSPlatformStoreOwnerOptRecord
+//===========================================================================================================================
 
 mDNSexport mStatus mDNSPlatformStoreOwnerOptRecord(char *ifname, DNSMessage *msg, int length)
 {
@@ -2126,6 +2214,10 @@ mDNSexport mStatus mDNSPlatformStoreOwnerOptRecord(char *ifname, DNSMessage *msg
     (void) length;  // Unused
 	return mStatus_UnsupportedErr;
 }
+
+//===========================================================================================================================
+//	mDNSPlatformRetrieveTCPInfo
+//===========================================================================================================================
 
 mDNSexport mStatus mDNSPlatformRetrieveTCPInfo(mDNSAddr *laddr, mDNSIPPort *lport, mDNSAddr *raddr, mDNSIPPort *rport, mDNSTCPInfo *mti)
 {
@@ -2138,22 +2230,34 @@ mDNSexport mStatus mDNSPlatformRetrieveTCPInfo(mDNSAddr *laddr, mDNSIPPort *lpor
 	return mStatus_UnsupportedErr;
 }
 
+//===========================================================================================================================
+//	mDNSPlatformSetSocktOpt
+//===========================================================================================================================
+
 #ifdef UNIT_TEST
 UNITTEST_SETSOCKOPT
 #else
 mDNSexport void mDNSPlatformSetSocktOpt(void *sock, mDNSTransport_Type transType, mDNSAddr_Type addrType, const DNSQuestion *q)
-    {
+{
     (void) sock;
     (void) transType;
     (void) addrType;
     (void) q;
-    }
+}
 #endif // UNIT_TEST
 
+//===========================================================================================================================
+//	mDNSPlatformGetPID
+//===========================================================================================================================
+
 mDNSexport mDNSs32 mDNSPlatformGetPID()
-    {
+{
     return 0;
-    }
+}
+
+//===========================================================================================================================
+//	mDNSPlatformGetUDPPort
+//===========================================================================================================================
 
 mDNSexport mDNSu16 mDNSPlatformGetUDPPort(UDPSocket *sock)
 {
@@ -2161,6 +2265,10 @@ mDNSexport mDNSu16 mDNSPlatformGetUDPPort(UDPSocket *sock)
  
 	return (mDNSu16)-1;
 }
+
+//===========================================================================================================================
+//	mDNSPlatformInterfaceIsD2D
+//===========================================================================================================================
 
 mDNSexport mDNSBool mDNSPlatformInterfaceIsD2D(mDNSInterfaceID InterfaceID)
 {
@@ -2854,6 +2962,10 @@ mDNSlocal mStatus	TearDownInterface( mDNS * const inMDNS, mDNSInterfaceData *inI
 	return( mStatus_NoError );
 }
 
+//===========================================================================================================================
+//	FreeInterface
+//===========================================================================================================================
+
 mDNSlocal void CALLBACK FreeInterface( mDNSInterfaceData *inIFD )
 {
 	free( inIFD );
@@ -3041,7 +3153,7 @@ exit:
 }
 
 //===========================================================================================================================
-//	SetupSocket
+//	SockAddrToMDNSAddr
 //===========================================================================================================================
 
 mDNSlocal mStatus	SockAddrToMDNSAddr( const struct sockaddr * const inSA, mDNSAddr *outIP, mDNSIPPort *outPort )
@@ -3097,8 +3209,7 @@ mDNSlocal mStatus	SockAddrToMDNSAddr( const struct sockaddr * const inSA, mDNSAd
 //	UDPSocketNotification
 //===========================================================================================================================
 
-mDNSlocal void CALLBACK
-UDPSocketNotification( SOCKET sock, LPWSANETWORKEVENTS event, void *context )
+mDNSlocal void CALLBACK UDPSocketNotification( SOCKET sock, LPWSANETWORKEVENTS event, void *context )
 {
 	UDPSocket				*udpSock = ( UDPSocket* ) context;
 	WSAMSG					wmsg;
@@ -3284,6 +3395,7 @@ exit:
 //===========================================================================================================================
 //	InterfaceListDidChange
 //===========================================================================================================================
+
 void InterfaceListDidChange( mDNS * const inMDNS )
 {
 	mStatus err;
@@ -3314,6 +3426,7 @@ void InterfaceListDidChange( mDNS * const inMDNS )
 //===========================================================================================================================
 //	ComputerDescriptionDidChange
 //===========================================================================================================================
+
 void ComputerDescriptionDidChange( mDNS * const inMDNS )
 {	
 	dlog( kDebugLevelInfo, DEBUG_NAME "computer description has changed\n" );
@@ -3326,6 +3439,7 @@ void ComputerDescriptionDidChange( mDNS * const inMDNS )
 //===========================================================================================================================
 //	TCPIPConfigDidChange
 //===========================================================================================================================
+
 void TCPIPConfigDidChange( mDNS * const inMDNS )
 {
 	mStatus		err;
@@ -3340,6 +3454,7 @@ void TCPIPConfigDidChange( mDNS * const inMDNS )
 //===========================================================================================================================
 //	DynDNSConfigDidChange
 //===========================================================================================================================
+
 void DynDNSConfigDidChange( mDNS * const inMDNS )
 {
 	mStatus		err;
@@ -3356,6 +3471,7 @@ void DynDNSConfigDidChange( mDNS * const inMDNS )
 //===========================================================================================================================
 //	FileSharingDidChange
 //===========================================================================================================================
+
 void FileSharingDidChange( mDNS * const inMDNS )
 {	
 	dlog( kDebugLevelInfo, DEBUG_NAME "File shares has changed\n" );
@@ -3367,6 +3483,7 @@ void FileSharingDidChange( mDNS * const inMDNS )
 //===========================================================================================================================
 //	FilewallDidChange
 //===========================================================================================================================
+
 void FirewallDidChange( mDNS * const inMDNS )
 {	
 	dlog( kDebugLevelInfo, DEBUG_NAME "Firewall has changed\n" );
@@ -3966,8 +4083,7 @@ mDNSlocal void	freeifaddrs( struct ifaddrs *inIFAs )
 //	GetPrimaryInterface
 //===========================================================================================================================
 
-mDNSlocal DWORD
-GetPrimaryInterface()
+mDNSlocal DWORD GetPrimaryInterface()
 {
 	PMIB_IPFORWARDTABLE	pIpForwardTable	= NULL;
 	DWORD				dwSize			= 0;
@@ -4024,8 +4140,7 @@ exit:
 //	AddressToIndexAndMask
 //===========================================================================================================================
 
-mDNSlocal mStatus
-AddressToIndexAndMask( struct sockaddr * addr, uint32_t * ifIndex, struct sockaddr * mask  )
+mDNSlocal mStatus AddressToIndexAndMask( struct sockaddr * addr, uint32_t * ifIndex, struct sockaddr * mask  )
 {
 	// Before calling AddIPAddress we use GetIpAddrTable to get
 	// an adapter to which we can add the IP.
@@ -4155,8 +4270,7 @@ exit:
 //	RegQueryString
 //===========================================================================================================================
 
-mDNSlocal mStatus
-RegQueryString( HKEY key, LPCSTR valueName, LPSTR * string, DWORD * stringLen, DWORD * enabled )
+mDNSlocal mStatus RegQueryString( HKEY key, LPCSTR valueName, LPSTR * string, DWORD * stringLen, DWORD * enabled )
 {
 	DWORD	type;
 	int		i;
@@ -4214,7 +4328,6 @@ mDNSlocal mStatus StringToAddress( mDNSAddr * ip, LPSTR string )
 	dwSize			= sizeof( sa6 );
 
 	err = WSAStringToAddressA( string, AF_INET6, NULL, (struct sockaddr*) &sa6, &dwSize );
-
 	if ( err == mStatus_NoError )
 	{
 		err = SetupAddr( ip, (struct sockaddr*) &sa6 );
@@ -4244,8 +4357,7 @@ exit:
 
 static struct ifaddrs *myifa = NULL;
 
-mDNSlocal struct ifaddrs*
-myGetIfAddrs(int refresh)
+mDNSlocal struct ifaddrs* myGetIfAddrs(int refresh)
 {
 	if (refresh && myifa)
 	{
@@ -4278,8 +4390,7 @@ void myFreeIfAddrs( void )
 //	TCHARtoUTF8
 //===========================================================================================================================
 
-mDNSlocal OSStatus
-TCHARtoUTF8( const TCHAR *inString, char *inBuffer, size_t inBufferSize )
+mDNSlocal OSStatus TCHARtoUTF8( const TCHAR *inString, char *inBuffer, size_t inBufferSize )
 {
 #if( defined( UNICODE ) || defined( _UNICODE ) )
 	OSStatus		err;
@@ -4300,8 +4411,7 @@ exit:
 //	WindowsLatin1toUTF8
 //===========================================================================================================================
 
-mDNSlocal OSStatus
-WindowsLatin1toUTF8( const char *inString, char *inBuffer, size_t inBufferSize )
+mDNSlocal OSStatus WindowsLatin1toUTF8( const char *inString, char *inBuffer, size_t inBufferSize )
 {
 	OSStatus		err;
 	WCHAR *			utf16;
@@ -4337,8 +4447,7 @@ exit:
 //	TCPCloseSocket
 //===========================================================================================================================
 
-mDNSlocal void
-TCPCloseSocket( TCPSocket * sock )
+mDNSlocal void TCPCloseSocket( TCPSocket * sock )
 {
 	dlog( kDebugLevelChatty, DEBUG_NAME "closing TCPSocket 0x%x:%d\n", sock, sock->fd );
 
@@ -4353,8 +4462,7 @@ TCPCloseSocket( TCPSocket * sock )
 //  UDPCloseSocket
 //===========================================================================================================================
 
-mDNSlocal void
-UDPCloseSocket( UDPSocket * sock )
+mDNSlocal void UDPCloseSocket( UDPSocket * sock )
 {
 	dlog( kDebugLevelChatty, DEBUG_NAME "closing UDPSocket %d\n", sock->fd );
 
@@ -4394,6 +4502,10 @@ mDNSlocal mStatus SetupAddr(mDNSAddr *ip, const struct sockaddr *const sa)
 	LogMsg("SetupAddr invalid sa_family %d", sa->sa_family);
 	return(mStatus_Invalid);
 	}
+
+//===========================================================================================================================
+//	GetDDNSFQDN
+//===========================================================================================================================
 
 mDNSlocal void GetDDNSFQDN( domainname *const fqdn )
 {
@@ -4437,6 +4549,10 @@ exit:
 		name = NULL;
 	}
 }
+
+//===========================================================================================================================
+//	GetDDNSDomains
+//===========================================================================================================================
 
 #ifdef UNICODE
 mDNSlocal void GetDDNSDomains( DNameListElem ** domains, LPCWSTR lpSubKey )
@@ -4521,6 +4637,10 @@ exit:
 	}
 }
 
+//===========================================================================================================================
+//	SetDomainSecret
+//===========================================================================================================================
+
 mDNSlocal void SetDomainSecret( mDNS * const m, const domainname * inDomain )
 {
 	char					domainUTF8[ 256 ];
@@ -4567,8 +4687,11 @@ exit:
 	return;
 }
 
-mDNSlocal VOID CALLBACK
-CheckFileSharesProc( LPVOID arg, DWORD dwTimerLowValue, DWORD dwTimerHighValue )
+//===========================================================================================================================
+//	CheckFileSharesProc
+//===========================================================================================================================
+
+mDNSlocal VOID CALLBACK CheckFileSharesProc( LPVOID arg, DWORD dwTimerLowValue, DWORD dwTimerHighValue )
 {
 	mDNS * const m = ( mDNS * const ) arg;
 
@@ -4578,8 +4701,11 @@ CheckFileSharesProc( LPVOID arg, DWORD dwTimerLowValue, DWORD dwTimerHighValue )
 	CheckFileShares( m );
 }
 
-mDNSlocal unsigned __stdcall 
-SMBRegistrationThread( void * arg )
+//===========================================================================================================================
+//	SMBRegistrationThread
+//===========================================================================================================================
+
+mDNSlocal unsigned __stdcall SMBRegistrationThread( void * arg )
 {
 	mDNS * const m = ( mDNS * const ) arg;
 	DNSServiceRef sref = NULL;
@@ -4666,8 +4792,11 @@ exit:
 	return 0;
 }
 
-mDNSlocal void
-CheckFileShares( mDNS * const m )
+//===========================================================================================================================
+//	CheckFileShares
+//===========================================================================================================================
+
+mDNSlocal void CheckFileShares( mDNS * const m )
 {
 	PSHARE_INFO_1	bufPtr = ( PSHARE_INFO_1 ) NULL;
 	DWORD			entriesRead = 0;
@@ -4819,8 +4948,11 @@ exit:
 	}
 }
 
-BOOL
-IsWOMPEnabled( mDNS * const m )
+//===========================================================================================================================
+//	IsWOMPEnabled
+//===========================================================================================================================
+
+BOOL IsWOMPEnabled( mDNS * const m )
 {
 	BOOL enabled;
 
@@ -4840,8 +4972,11 @@ IsWOMPEnabled( mDNS * const m )
 	return enabled;
 }
 
-mDNSlocal mDNSu8
-IsWOMPEnabledForAdapter( const char * adapterName )
+//===========================================================================================================================
+//	IsWOMPEnabledForAdapter
+//===========================================================================================================================
+
+mDNSlocal mDNSu8 IsWOMPEnabledForAdapter( const char * adapterName )
 {
 	char						fileName[80];
 	NDIS_OID					oid;
@@ -4889,8 +5024,11 @@ exit:
 	return ( mDNSu8 ) ok;
 }
 
-mDNSlocal void
-SendWakeupPacket( mDNS * const inMDNS, LPSOCKADDR addr, INT addrlen, const char * buf, INT buflen, INT numTries, INT msecSleep )
+//===========================================================================================================================
+//	SendWakeupPacket
+//===========================================================================================================================
+
+mDNSlocal void SendWakeupPacket( mDNS * const inMDNS, LPSOCKADDR addr, INT addrlen, const char * buf, INT buflen, INT numTries, INT msecSleep )
 {
 	mDNSBool	repeat = ( numTries == 1 ) ? mDNStrue : mDNSfalse;
 	SOCKET		sock;
@@ -4935,8 +5073,11 @@ exit:
 	}
 } 
 
-mDNSlocal void _cdecl
-SendMulticastWakeupPacket( void *arg )
+//===========================================================================================================================
+//	SendMulticastWakeupPacket
+//===========================================================================================================================
+
+mDNSlocal void _cdecl SendMulticastWakeupPacket( void *arg )
 {
 	MulticastWakeupStruct *info = ( MulticastWakeupStruct* ) arg;
 	
@@ -4948,6 +5089,7 @@ SendMulticastWakeupPacket( void *arg )
 
 	_endthread();
 }
+
 
 #if COMPILER_LIKES_PRAGMA_MARK
 #pragma mark -
@@ -5065,6 +5207,10 @@ exit:
 }
 #endif
 
+//===========================================================================================================================
+//	FreeEtcHosts
+//===========================================================================================================================
+
 mDNSexport void FreeEtcHosts(mDNS *const m, AuthRecord *const rr, mStatus result)
 {
 	verbosedebugf("%s rr %p result %d %m", __FUNCTION__, rr, result, result);
@@ -5076,6 +5222,10 @@ mDNSexport void FreeEtcHosts(mDNS *const m, AuthRecord *const rr, mStatus result
         freeL("etchosts", rr);
     }
 }
+
+//===========================================================================================================================
+//	mDNSWin32CreateEtcHostsEntry
+//===========================================================================================================================
 
 // Returns true on success and false on failure
 
@@ -5212,6 +5362,10 @@ mDNSBool mDNSWin32CreateEtcHostsEntry(mDNS *const m, const domainname *domain, c
     return mDNStrue;
 }
 
+//===========================================================================================================================
+//	EtcHostsParseOneName
+//===========================================================================================================================
+
 mDNSlocal int EtcHostsParseOneName(int start, int length, char *buffer, char **name)
 {
     int i;
@@ -5241,6 +5395,10 @@ mDNSlocal int EtcHostsParseOneName(int start, int length, char *buffer, char **n
     }
     return -1;
 }
+
+//===========================================================================================================================
+//	mDNSWin32ParseEtcHostsLine
+//===========================================================================================================================
 
 mDNSlocal void mDNSWin32ParseEtcHostsLine(mDNS *const m, char *buffer, ssize_t length, AuthHash *auth)
 {
@@ -5415,6 +5573,10 @@ mDNSlocal void mDNSWin32ParseEtcHostsLine(mDNS *const m, char *buffer, ssize_t l
     freeaddrinfo(gairesults);
 }
 
+//===========================================================================================================================
+//	mDNSWin32ParseEtcHosts
+//===========================================================================================================================
+
 mDNSlocal void mDNSWin32ParseEtcHosts(mDNS *const m, int fd, AuthHash *auth)
 {
     mDNSBool good;
@@ -5483,6 +5645,10 @@ mDNSlocal void mDNSWin32ParseEtcHosts(mDNS *const m, int fd, AuthHash *auth)
     }
     fclose(fp);
 }
+
+//===========================================================================================================================
+//	mDNSWin32GetEtcHostsFD
+//===========================================================================================================================
 
 mDNSlocal int mDNSWin32GetEtcHostsFD(mDNS *const m)
 {
@@ -5625,6 +5791,10 @@ mDNSlocal int mDNSWin32GetEtcHostsFD(mDNS *const m)
 #endif
 }
 
+//===========================================================================================================================
+//	FlushAllCacheRecords
+//===========================================================================================================================
+
 // When /etc/hosts is modified, flush all the cache records as there may be local
 // authoritative answers now
 mDNSlocal void FlushAllCacheRecords(mDNS *const m)
@@ -5650,6 +5820,10 @@ mDNSlocal void FlushAllCacheRecords(mDNS *const m)
         }
     }
 }
+
+//===========================================================================================================================
+//	EtcHostsAddNewEntries
+//===========================================================================================================================
 
 // Add new entries to the core. If justCheck is set, this function does not add, just returns true
 mDNSlocal mDNSBool EtcHostsAddNewEntries(mDNS *const m, AuthHash *newhosts, mDNSBool justCheck)
@@ -5716,6 +5890,10 @@ mDNSlocal mDNSBool EtcHostsAddNewEntries(mDNS *const m, AuthHash *newhosts, mDNS
         }
     return mDNSfalse;
 }
+
+//===========================================================================================================================
+//	EtcHostsDeleteOldEntries
+//===========================================================================================================================
 
 // Delete entries from the core that are no longer needed. If justCheck is set, this function
 // does not delete, just returns true
@@ -5791,6 +5969,10 @@ mDNSlocal mDNSBool EtcHostsDeleteOldEntries(mDNS *const m, AuthHash *newhosts, m
     return mDNSfalse;
 }
 
+//===========================================================================================================================
+//	UpdateEtcHosts
+//===========================================================================================================================
+
 void UpdateEtcHosts(mDNS *const m, void *context) //Callback
 {
     AuthHash *newhosts = (AuthHash *)context;
@@ -5804,6 +5986,10 @@ void UpdateEtcHosts(mDNS *const m, void *context) //Callback
     // Add the new entries to the core if not already present in the core
     EtcHostsAddNewEntries(m, newhosts, mDNSfalse);
 }
+
+//===========================================================================================================================
+//	FreeNewHosts
+//===========================================================================================================================
 
 mDNSlocal void FreeNewHosts(AuthHash *newhosts)
 {
@@ -5825,6 +6011,10 @@ mDNSlocal void FreeNewHosts(AuthHash *newhosts)
             freeL("AuthGroups", ag);
         }
 }
+
+//===========================================================================================================================
+//	mDNSWin32UpdateEtcHosts
+//===========================================================================================================================
 
 mDNSlocal void mDNSWin32UpdateEtcHosts(mDNS *const m)
 {
@@ -5905,6 +6095,10 @@ mDNSlocal void mDNSWin32UpdateEtcHosts(mDNS *const m)
 	_close(fd);
 }
 
+//===========================================================================================================================
+//	mDNSWin32CleanupEtcHosts
+//===========================================================================================================================
+
 mDNSlocal void mDNSWin32CleanupEtcHosts(mDNS *const m)
 {
 	ARListElem *rem;
@@ -5925,7 +6119,7 @@ mDNSlocal void mDNSWin32CleanupEtcHosts(mDNS *const m)
 
 #else
 //===========================================================================================================================
-//	FreeEtcHostsCallback
+//	FreeEtcHosts
 //===========================================================================================================================
 
 mDNSexport void FreeEtcHosts(mDNS *const m, AuthRecord *const rr, mStatus result)

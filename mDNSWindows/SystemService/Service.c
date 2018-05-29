@@ -92,6 +92,7 @@ static CacheEntity gRRCache[RR_CACHE_SIZE];
 //===========================================================================================================================
 //	Prototypes
 //===========================================================================================================================
+
 static void				Usage( void );
 static BOOL WINAPI		ConsoleControlHandler( DWORD inControlEvent );
 static OSStatus			InstallService( LPCTSTR inName, LPCTSTR inDisplayName, LPCTSTR inDescription, LPCTSTR inPath );
@@ -464,8 +465,6 @@ exit:
 	return( err );
 }
 
-
-
 //===========================================================================================================================
 //	SetServiceParameters
 //===========================================================================================================================
@@ -495,8 +494,6 @@ exit:
 	return( err );
 }
 
-
-
 //===========================================================================================================================
 //	GetServiceParameters
 //===========================================================================================================================
@@ -525,7 +522,6 @@ exit:
 
 	return( err );
 }
-
 
 //===========================================================================================================================
 //	CheckFirewall
@@ -650,8 +646,6 @@ exit:
 
 	return( err );
 }
-
-
 
 //===========================================================================================================================
 //	SetServiceInfo
@@ -932,7 +926,6 @@ exit:
 	}
 	return( err );
 }
-
 
 //===========================================================================================================================
 //	ServiceControlHandler
@@ -1259,7 +1252,6 @@ static OSStatus	ServiceSpecificRun( int argc, LPTSTR argv[] )
 	return ( err );
 }
 
-
 //===========================================================================================================================
 //	ServiceSpecificStop
 //===========================================================================================================================
@@ -1305,7 +1297,6 @@ static void	ServiceSpecificFinalize( int argc, LPTSTR argv[] )
 	}
 }
 
-
 //===========================================================================================================================
 //	SetupServiceEvents
 //===========================================================================================================================
@@ -1330,7 +1321,6 @@ exit:
 	return err;
 }
 
-
 //===========================================================================================================================
 //	TearDownServiceNotifications
 //===========================================================================================================================
@@ -1345,7 +1335,6 @@ mDNSlocal mStatus	TearDownServiceEvents()
 
 	return mStatus_NoError;
 }
-
 
 //===========================================================================================================================
 //	SetupNotifications
@@ -1664,9 +1653,11 @@ mDNSlocal mStatus	TearDownNotifications()
 	return( mStatus_NoError );
 }
 
+//===========================================================================================================================
+//	StopNotification
+//===========================================================================================================================
 
-mDNSlocal void CALLBACK
-StopNotification( HANDLE event, void *context )
+mDNSlocal void CALLBACK StopNotification( HANDLE event, void *context )
 {
 	DEBUG_UNUSED( event );
 	DEBUG_UNUSED( context );
@@ -1676,9 +1667,11 @@ StopNotification( HANDLE event, void *context )
 	mDNS_StartExit( &gMDNSRecord );
 }
 
+//===========================================================================================================================
+//	PowerSuspendNotification
+//===========================================================================================================================
 
-mDNSlocal void CALLBACK
-PowerSuspendNotification( HANDLE event, void * context )
+mDNSlocal void CALLBACK PowerSuspendNotification( HANDLE event, void * context )
 {
 	LARGE_INTEGER	timeout;
 	BOOL			ok;
@@ -1707,9 +1700,11 @@ PowerSuspendNotification( HANDLE event, void * context )
 	}
 }
 
+//===========================================================================================================================
+//	PowerResumeNotification
+//===========================================================================================================================
 
-mDNSlocal void CALLBACK
-PowerResumeNotification( HANDLE event, void * context )
+mDNSlocal void CALLBACK PowerResumeNotification( HANDLE event, void * context )
 {
 	DEBUG_UNUSED( event );
 	DEBUG_UNUSED( context );
@@ -1729,10 +1724,11 @@ PowerResumeNotification( HANDLE event, void * context )
 	mDNSCoreMachineSleep(&gMDNSRecord, FALSE);
 }
 
+//===========================================================================================================================
+//	InterfaceListNotification
+//===========================================================================================================================
 
-
-mDNSlocal void CALLBACK
-InterfaceListNotification( SOCKET socket, LPWSANETWORKEVENTS event, void *context )
+mDNSlocal void CALLBACK InterfaceListNotification( SOCKET socket, LPWSANETWORKEVENTS event, void *context )
 {
 	int		inBuffer;
 	int		outBuffer;
@@ -1767,9 +1763,11 @@ InterfaceListNotification( SOCKET socket, LPWSANETWORKEVENTS event, void *contex
 	}
 }
 
+//===========================================================================================================================
+//	ComputerDescriptionNotification
+//===========================================================================================================================
 
-mDNSlocal void CALLBACK
-ComputerDescriptionNotification( HANDLE event, void *context )
+mDNSlocal void CALLBACK ComputerDescriptionNotification( HANDLE event, void *context )
 {
 	// The computer description might have changed
 					
@@ -1787,9 +1785,11 @@ ComputerDescriptionNotification( HANDLE event, void *context )
 	}
 }
 
+//===========================================================================================================================
+//	TCPChangedNotification
+//===========================================================================================================================
 
-mDNSlocal void CALLBACK
-TCPChangedNotification( HANDLE event, void *context )
+mDNSlocal void CALLBACK TCPChangedNotification( HANDLE event, void *context )
 {
 	// The TCP/IP might have changed
 
@@ -1808,9 +1808,11 @@ TCPChangedNotification( HANDLE event, void *context )
 	}
 }
 
+//===========================================================================================================================
+//	DDNSChangedNotification
+//===========================================================================================================================
 
-mDNSlocal void CALLBACK
-DDNSChangedNotification( HANDLE event, void *context )
+mDNSlocal void CALLBACK DDNSChangedNotification( HANDLE event, void *context )
 {
 	// The DynDNS config might have changed
 
@@ -1829,9 +1831,11 @@ DDNSChangedNotification( HANDLE event, void *context )
 	}
 }
 
+//===========================================================================================================================
+//	FileSharingChangedNotification
+//===========================================================================================================================
 
-mDNSlocal void CALLBACK
-FileSharingChangedNotification( HANDLE event, void *context )
+mDNSlocal void CALLBACK FileSharingChangedNotification( HANDLE event, void *context )
 {
 	// File sharing changed
 
@@ -1849,9 +1853,11 @@ FileSharingChangedNotification( HANDLE event, void *context )
 	}
 }
 
+//===========================================================================================================================
+//	FirewallChangedNotification
+//===========================================================================================================================
 
-mDNSlocal void CALLBACK
-FirewallChangedNotification( HANDLE event, void *context )
+mDNSlocal void CALLBACK FirewallChangedNotification( HANDLE event, void *context )
 {
 	// Firewall configuration changed
 
@@ -1869,9 +1875,11 @@ FirewallChangedNotification( HANDLE event, void *context )
 	}
 }
 
+//===========================================================================================================================
+//	AdvertisedServicesChangedNotification
+//===========================================================================================================================
 
-mDNSlocal void CALLBACK
-AdvertisedServicesChangedNotification( HANDLE event, void *context )
+mDNSlocal void CALLBACK AdvertisedServicesChangedNotification( HANDLE event, void *context )
 {
 	// Ultimately we'll want to manage multiple services, but right now the only service
 	// we'll be managing is SMB.
@@ -1890,9 +1898,11 @@ AdvertisedServicesChangedNotification( HANDLE event, void *context )
 	}
 }
 
+//===========================================================================================================================
+//	SPSWakeupNotification
+//===========================================================================================================================
 
-mDNSlocal void CALLBACK
-SPSWakeupNotification( HANDLE event, void *context )
+mDNSlocal void CALLBACK SPSWakeupNotification( HANDLE event, void *context )
 {
 	LARGE_INTEGER timeout;
 
@@ -1907,9 +1917,11 @@ SPSWakeupNotification( HANDLE event, void *context )
 	SetWaitableTimer( gSPSSleepEvent, &timeout, 0, NULL, NULL, TRUE );
 }
 
+//===========================================================================================================================
+//	SPSSleepNotification
+//===========================================================================================================================
 
-mDNSlocal void CALLBACK
-SPSSleepNotification( HANDLE event, void *context )
+mDNSlocal void CALLBACK SPSSleepNotification( HANDLE event, void *context )
 {
 	DEBUG_UNUSED( event );
 	DEBUG_UNUSED( context );
@@ -1924,25 +1936,21 @@ SPSSleepNotification( HANDLE event, void *context )
 	SetSuspendState( FALSE, FALSE, FALSE );
 }
 
-
 //===========================================================================================================================
 //	CoreCallback
 //===========================================================================================================================
 
-static void
-CoreCallback(mDNS * const inMDNS, mStatus status)
+static void CoreCallback(mDNS * const inMDNS, mStatus status)
 {
 	(void) status;
 	(void) inMDNS;
 }
 
-
 //===========================================================================================================================
 //	UDSAcceptNotification
 //===========================================================================================================================
 
-mDNSlocal void CALLBACK
-UDSAcceptNotification( SOCKET sock, LPWSANETWORKEVENTS event, void *context )
+mDNSlocal void CALLBACK UDSAcceptNotification( SOCKET sock, LPWSANETWORKEVENTS event, void *context )
 {
 	( void ) sock;
 	( void ) event;
@@ -1954,13 +1962,11 @@ UDSAcceptNotification( SOCKET sock, LPWSANETWORKEVENTS event, void *context )
 	}
 }
 
-
 //===========================================================================================================================
 //	UDSReadNotification
 //===========================================================================================================================
 
-mDNSlocal void CALLBACK
-UDSReadNotification( SOCKET sock, LPWSANETWORKEVENTS event, void *context )
+mDNSlocal void CALLBACK UDSReadNotification( SOCKET sock, LPWSANETWORKEVENTS event, void *context )
 {
 	TCPSocket *tcpSock = ( TCPSocket* ) context;
 
@@ -1973,13 +1979,11 @@ UDSReadNotification( SOCKET sock, LPWSANETWORKEVENTS event, void *context )
 	}
 }
 
-
 //===========================================================================================================================
 //	udsSupportAddFDToEventLoop
 //===========================================================================================================================
 
-mStatus
-udsSupportAddFDToEventLoop( SocketRef fd, udsEventCallback callback, void *context, void **platform_data)
+mStatus udsSupportAddFDToEventLoop( SocketRef fd, udsEventCallback callback, void *context, void **platform_data)
 {
 	mStatus err = mStatus_NoError;
 
@@ -2019,9 +2023,11 @@ exit:
 	return err;
 }
 
+//===========================================================================================================================
+//	udsSupportReadFD
+//===========================================================================================================================
 
-int
-udsSupportReadFD( SocketRef fd, char *buf, int len, int flags, void *platform_data )
+int udsSupportReadFD( SocketRef fd, char *buf, int len, int flags, void *platform_data )
 {
 	TCPSocket	*	sock;
 	mDNSBool		closed;
@@ -2053,9 +2059,11 @@ exit:
 	return ret;
 }
 
+//===========================================================================================================================
+//	udsSupportRemoveFDFromEventLoop
+//===========================================================================================================================
 
-mStatus
-udsSupportRemoveFDFromEventLoop( SocketRef fd, void *platform_data)		// Note: This also CLOSES the socket
+mStatus udsSupportRemoveFDFromEventLoop( SocketRef fd, void *platform_data)		// Note: This also CLOSES the socket
 {
 	mStatus err = kNoErr;
 
@@ -2074,6 +2082,9 @@ udsSupportRemoveFDFromEventLoop( SocketRef fd, void *platform_data)		// Note: Th
 	return err;
 }
 
+//===========================================================================================================================
+//	RecordUpdatedNiceLabel
+//===========================================================================================================================
 
 mDNSexport void RecordUpdatedNiceLabel(mDNSs32 delay)
 {
@@ -2081,13 +2092,11 @@ mDNSexport void RecordUpdatedNiceLabel(mDNSs32 delay)
 	// No-op, for now
 }
 
-
 //===========================================================================================================================
 //	SystemWakeForNetworkAccess
 //===========================================================================================================================
 
-mDNSu8
-SystemWakeForNetworkAccess( LARGE_INTEGER * timeout )
+mDNSu8 SystemWakeForNetworkAccess( LARGE_INTEGER * timeout )
 {
 	HKEY					key = NULL;
 	DWORD					dwSize;
@@ -2164,6 +2173,4 @@ exit:
 
 	return ok;
 }
-
-
 
