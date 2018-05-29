@@ -227,6 +227,10 @@ static AuthRecord *lpbkv6 = mDNSNULL;
 #pragma mark == Platform Support ==
 #endif
 
+//===========================================================================================================================
+//	CleanupPTRRecord
+//===========================================================================================================================
+
 mDNSlocal void CleanupPTRRecord(mDNS *const m, AuthRecord *rr) 
 {
 	mStatus err;
@@ -239,6 +243,10 @@ mDNSlocal void CleanupPTRRecord(mDNS *const m, AuthRecord *rr)
 		verbosedebugf("%s  %d %m", __FUNCTION__, err, err);
 	}
 }
+
+//===========================================================================================================================
+//	CleanupLocalHostRecords
+//===========================================================================================================================
 
 mDNSlocal void CleanupLocalHostRecords(mDNS *const m)
 {
@@ -564,7 +572,7 @@ mDNSexport int	mDNSPlatformMemCmp( const void *inDst, const void *inSrc, mDNSu32
 }
 
 //===========================================================================================================================
-//	
+//	mDNSPlatformQsort
 //===========================================================================================================================
 
 mDNSexport void mDNSPlatformQsort(void *base, int nel, int width, int (*compar)(const void *, const void *))
@@ -578,7 +586,7 @@ mDNSexport void mDNSPlatformQsort(void *base, int nel, int width, int (*compar)(
 // DNSSEC stub functions
 
 //===========================================================================================================================
-//	
+//	VerifySignature
 //===========================================================================================================================
 
 mDNSexport void VerifySignature(mDNS *const m, DNSSECVerifier *dv, DNSQuestion *q)
@@ -589,7 +597,7 @@ mDNSexport void VerifySignature(mDNS *const m, DNSSECVerifier *dv, DNSQuestion *
 }
 
 //===========================================================================================================================
-//	
+//	AddNSECSForCacheRecord
 //===========================================================================================================================
 
 mDNSexport mDNSBool AddNSECSForCacheRecord(mDNS *const m, CacheRecord *crlist, CacheRecord *negcr, mDNSu8 rcode)
@@ -602,7 +610,7 @@ mDNSexport mDNSBool AddNSECSForCacheRecord(mDNS *const m, CacheRecord *crlist, C
 }
 
 //===========================================================================================================================
-//	
+//	BumpDNSSECStats
 //===========================================================================================================================
 
 mDNSexport void BumpDNSSECStats(mDNS *const m, DNSSECStatsAction action, DNSSECStatsType type, mDNSu32 value)
@@ -616,7 +624,7 @@ mDNSexport void BumpDNSSECStats(mDNS *const m, DNSSECStatsAction action, DNSSECS
 // Proxy stub functions
 
 //===========================================================================================================================
-//	
+//	DNSProxySetAttributes
 //===========================================================================================================================
 
 mDNSexport mDNSu8 *DNSProxySetAttributes(DNSQuestion *q, DNSMessageHeader *h, DNSMessage *msg, mDNSu8 *ptr, mDNSu8 *limit)
@@ -631,7 +639,7 @@ mDNSexport mDNSu8 *DNSProxySetAttributes(DNSQuestion *q, DNSMessageHeader *h, DN
 }
 
 //===========================================================================================================================
-//	
+//	DNSProxyInit
 //===========================================================================================================================
 
 mDNSexport void DNSProxyInit(mDNS *const m, mDNSu32 IpIfArr[], mDNSu32 OpIf)
@@ -642,7 +650,7 @@ mDNSexport void DNSProxyInit(mDNS *const m, mDNSu32 IpIfArr[], mDNSu32 OpIf)
 }
 
 //===========================================================================================================================
-//	
+//	DNSProxyTerminate
 //===========================================================================================================================
 
 mDNSexport void DNSProxyTerminate(mDNS *const m)
