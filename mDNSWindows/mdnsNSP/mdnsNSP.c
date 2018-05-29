@@ -1325,7 +1325,6 @@ DEBUG_LOCAL void
 	LPCWSTR			s;
 	LPWSTR			q;
 	DWORD			n;
-	DWORD			i;
 	
 #if ( DEBUG )
 	size_t			debugSize;
@@ -1405,6 +1404,7 @@ DEBUG_LOCAL void
 
 	if ( n > 0 )
 	{
+		DWORD i;
 		check( inQuerySet->lpafpProtocols );
 		
 		outQuerySet->lpafpProtocols = (LPAFPROTOCOLS) dst;
