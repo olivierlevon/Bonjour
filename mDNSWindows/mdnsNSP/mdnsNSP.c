@@ -94,13 +94,6 @@ typedef struct HostsFileInfo
 //===========================================================================================================================
 //	Prototypes
 //===========================================================================================================================
-
-// DLL Exports
-
-BOOL WINAPI		DllMain( HINSTANCE inInstance, DWORD inReason, LPVOID inReserved );
-STDAPI			DllRegisterServer( void );
-STDAPI			DllRegisterServer( void );
-
 	
 // NSP SPIs
 
