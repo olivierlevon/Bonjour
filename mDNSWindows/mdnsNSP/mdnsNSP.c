@@ -1286,7 +1286,7 @@ DEBUG_LOCAL OSStatus
 	check( inQuerySet );
 	check( outQuerySet );
 	
-	size  = QueryCopyQuerySetSize( inRef, inQuerySet, inQuerySetFlags );
+	size = QueryCopyQuerySetSize( inRef, inQuerySet, inQuerySetFlags );
 	qs = (WSAQUERYSETW *) calloc( 1, size );
 	require_action( qs, exit, err = WSA_NOT_ENOUGH_MEMORY  );
 	
@@ -2298,7 +2298,8 @@ DEBUG_LOCAL DWORD GetScopeId( DWORD ifIndex )
 		require_action( iaaList, exit, err = ERROR_NOT_ENOUGH_MEMORY );
 		
 		err = GetAdaptersAddresses( AF_UNSPEC, flags, NULL, iaaList, &iaaListSize );
-		if ( err == ERROR_SUCCESS ) break;
+		if ( err == ERROR_SUCCESS )
+			break;
 		
 		free( iaaList );
 		iaaList = NULL;
