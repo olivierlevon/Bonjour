@@ -1983,7 +1983,7 @@ mDNSlocal void CALLBACK UDSReadNotification( SOCKET sock, LPWSANETWORKEVENTS eve
 //	udsSupportAddFDToEventLoop
 //===========================================================================================================================
 
-mStatus udsSupportAddFDToEventLoop( SocketRef fd, udsEventCallback callback, void *context, void **platform_data)
+mDNSexport mStatus udsSupportAddFDToEventLoop( dnssd_sock_t fd, udsEventCallback callback, void *context, void **platform_data)
 {
 	mStatus err = mStatus_NoError;
 
@@ -2027,7 +2027,7 @@ exit:
 //	udsSupportReadFD
 //===========================================================================================================================
 
-int udsSupportReadFD( SocketRef fd, char *buf, int len, int flags, void *platform_data )
+mDNSexport int udsSupportReadFD( dnssd_sock_t fd, char *buf, int len, int flags, void *platform_data )
 {
 	TCPSocket	*	sock;
 	mDNSBool		closed;
@@ -2063,7 +2063,7 @@ exit:
 //	udsSupportRemoveFDFromEventLoop
 //===========================================================================================================================
 
-mStatus udsSupportRemoveFDFromEventLoop( SocketRef fd, void *platform_data)		// Note: This also CLOSES the socket
+mDNSexport mStatus udsSupportRemoveFDFromEventLoop( dnssd_sock_t fd, void *platform_data)		// Note: This also CLOSES the socket
 {
 	mStatus err = kNoErr;
 
