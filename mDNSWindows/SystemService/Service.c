@@ -2065,7 +2065,7 @@ exit:
 
 mDNSexport mStatus udsSupportRemoveFDFromEventLoop( dnssd_sock_t fd, void *platform_data)		// Note: This also CLOSES the socket
 {
-	mStatus err = kNoErr;
+	mStatus err = mStatus_NoError;
 
 	mDNSPollUnregisterSocket( fd );
 
