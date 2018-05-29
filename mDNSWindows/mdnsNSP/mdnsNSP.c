@@ -221,17 +221,6 @@ DEBUG_LOCAL CRITICAL_SECTION		gLock;
 DEBUG_LOCAL bool					gLockInitialized 	= false;
 DEBUG_LOCAL QueryRef				gQueryList	 		= NULL;
 DEBUG_LOCAL HostsFileInfo		*	gHostsFileInfo		= NULL;
-typedef DWORD
-	( WINAPI * GetAdaptersAddressesFunctionPtr )( 
-			ULONG 					inFamily, 
-			DWORD 					inFlags, 
-			PVOID 					inReserved, 
-			PIP_ADAPTER_ADDRESSES 	inAdapter, 
-			PULONG					outBufferSize );
-
-DEBUG_LOCAL HMODULE								gIPHelperLibraryInstance			= NULL;
-DEBUG_LOCAL GetAdaptersAddressesFunctionPtr		gGetAdaptersAddressesFunctionPtr	= NULL;
-
 
 
 #if 0
@@ -380,18 +369,6 @@ int WSPAPI	NSPStartup( LPGUID inProviderID, LPNSP_ROUTINE outRoutines )
 	outRoutines->NSPInstallServiceClass	= NSPInstallServiceClass;
 	outRoutines->NSPRemoveServiceClass	= NSPRemoveServiceClass;
 	outRoutines->NSPGetServiceClassInfo	= NSPGetServiceClassInfo;
-	
-	// See if we can get the address for the GetAdaptersAddresses() API.  This is only in XP, but we want our
-	// code to run on older versions of Windows
-
-	if ( !gIPHelperLibraryInstance )
-	{
-		gIPHelperLibraryInstance = LoadLibrary( TEXT( "Iphlpapi" ) );
-		if ( gIPHelperLibraryInstance )
-		{
-			gGetAdaptersAddressesFunctionPtr = (GetAdaptersAddressesFunctionPtr) GetProcAddress( gIPHelperLibraryInstance, "GetAdaptersAddresses" );
-		}
-	}
 
 	err = NO_ERROR;
 	
@@ -446,15 +423,6 @@ int	WSPAPI	NSPCleanup( LPGUID inProviderID )
 	{
 		gLockInitialized = false;
 		DeleteCriticalSection( &gLock );
-	}
-
-	if ( gIPHelperLibraryInstance )
-	{
-		BOOL ok;
-				
-		ok = FreeLibrary( gIPHelperLibraryInstance );
-		check_translated_errno( ok, GetLastError(), kUnknownErr );
-		gIPHelperLibraryInstance = NULL;
 	}
 	
 exit:
@@ -2314,8 +2282,6 @@ DEBUG_LOCAL DWORD GetScopeId( DWORD ifIndex )
 	head	= NULL;
 	next	= &head;
 	iaaList	= NULL;
-	
-	require( gGetAdaptersAddressesFunctionPtr, exit );
 
 	// Get the list of interfaces. The first call gets the size and the second call gets the actual data.
 	// This loops to handle the case where the interface changes in the window after getting the size, but before the
@@ -2326,14 +2292,14 @@ DEBUG_LOCAL DWORD GetScopeId( DWORD ifIndex )
 	for ( ; ; )
 	{
 		iaaListSize = 0;
-		err = gGetAdaptersAddressesFunctionPtr( AF_UNSPEC, flags, NULL, NULL, &iaaListSize );
+		err = GetAdaptersAddresses( AF_UNSPEC, flags, NULL, NULL, &iaaListSize );
 		check( err == ERROR_BUFFER_OVERFLOW );
 		check( iaaListSize >= sizeof( IP_ADAPTER_ADDRESSES ) );
 		
 		iaaList = (IP_ADAPTER_ADDRESSES *) malloc( iaaListSize );
 		require_action( iaaList, exit, err = ERROR_NOT_ENOUGH_MEMORY );
 		
-		err = gGetAdaptersAddressesFunctionPtr( AF_UNSPEC, flags, NULL, iaaList, &iaaListSize );
+		err = GetAdaptersAddresses( AF_UNSPEC, flags, NULL, iaaList, &iaaListSize );
 		if ( err == ERROR_SUCCESS ) break;
 		
 		free( iaaList );
