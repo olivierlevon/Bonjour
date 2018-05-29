@@ -233,8 +233,7 @@ DEBUG_LOCAL HostsFileInfo		*	gHostsFileInfo		= NULL;
 
 BOOL APIENTRY	DllMain( HINSTANCE inInstance, DWORD inReason, LPVOID inReserved )
 {
-	DEBUG_USE_ONLY( inInstance );
-	DEBUG_UNUSED( inReserved );
+	(void) inReserved;
 
 	switch( inReason )
 	{
