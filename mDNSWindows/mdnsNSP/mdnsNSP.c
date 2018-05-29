@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 4 -*-
  *
- * Copyright (c) 2003-2004 Apple Computer, Inc. All rights reserved.
+ * Copyright (c) 2003-2018 Apple Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,6 @@
 #include	<guiddef.h>
 #include	<ws2spi.h>
 #include	<shlwapi.h>
-
-
 
 #include	"dns_sd.h"
 
@@ -196,7 +194,7 @@ DEBUG_LOCAL void
 
 DEBUG_LOCAL size_t	QueryCopyQuerySetSize( QueryRef inRef, const WSAQUERYSETW *inQuerySet, DWORD inQuerySetFlags );
 
-#if( DEBUG )
+#if ( DEBUG )
 	void	DebugDumpQuerySet( DebugLevel inLevel, const WSAQUERYSETW *inQuerySet );
 	
 	#define	dlog_query_set( LEVEL, SET )		DebugDumpQuerySet( LEVEL, SET )
@@ -295,7 +293,6 @@ BOOL APIENTRY	DllMain( HINSTANCE inInstance, DWORD inReason, LPVOID inReserved )
 	return( TRUE );
 }
 
-
 //===========================================================================================================================
 //	DllRegisterServer
 //===========================================================================================================================
@@ -356,7 +353,6 @@ exit:
 	return err;
 }
 
-
 //===========================================================================================================================
 //	NSPStartup
 //
@@ -372,7 +368,7 @@ int WSPAPI	NSPStartup( LPGUID inProviderID, LPNSP_ROUTINE outRoutines )
 	
 	// Only initialize if this is the first time NSPStartup is called. 
 	
-	if( InterlockedIncrement( &gRefCount ) != 1 )
+	if ( InterlockedIncrement( &gRefCount ) != 1 )
 	{
 		err = NO_ERROR;
 		goto exit;
@@ -403,7 +399,7 @@ int WSPAPI	NSPStartup( LPGUID inProviderID, LPNSP_ROUTINE outRoutines )
 	if ( !gIPHelperLibraryInstance )
 	{
 		gIPHelperLibraryInstance = LoadLibrary( TEXT( "Iphlpapi" ) );
-		if( gIPHelperLibraryInstance )
+		if ( gIPHelperLibraryInstance )
 		{
 			gGetAdaptersAddressesFunctionPtr = (GetAdaptersAddressesFunctionPtr) GetProcAddress( gIPHelperLibraryInstance, "GetAdaptersAddresses" );
 		}
@@ -413,7 +409,7 @@ int WSPAPI	NSPStartup( LPGUID inProviderID, LPNSP_ROUTINE outRoutines )
 	
 exit:
 	dlog( kDebugLevelTrace, "%s end   (ticks=%d)\n", __ROUTINE__, GetTickCount() );
-	if( err != NO_ERROR )
+	if ( err != NO_ERROR )
 	{
 		NSPCleanup( inProviderID );
 		SetLastError( (DWORD) err );
@@ -437,34 +433,34 @@ int	WSPAPI	NSPCleanup( LPGUID inProviderID )
 	
 	// Only initialize if this is the first time NSPStartup is called.
 	
-	if( InterlockedDecrement( &gRefCount ) != 0 )
+	if ( InterlockedDecrement( &gRefCount ) != 0 )
 	{
 		goto exit;
 	}
 	
 	// Stop any outstanding queries.
 	
-	if( gLockInitialized )
+	if ( gLockInitialized )
 	{
 		NSPLock();
 	}
-	while( gQueryList )
+	while ( gQueryList )
 	{
 		check_string( gQueryList->refCount == 1, "NSPCleanup with outstanding queries!" );
 		QueryRelease( gQueryList );
 	}
-	if( gLockInitialized )
+	if ( gLockInitialized )
 	{
 		NSPUnlock();
 	}
 	
-	if( gLockInitialized )
+	if ( gLockInitialized )
 	{
 		gLockInitialized = false;
 		DeleteCriticalSection( &gLock );
 	}
 
-	if( gIPHelperLibraryInstance )
+	if ( gIPHelperLibraryInstance )
 	{
 		BOOL ok;
 				
@@ -528,14 +524,14 @@ DEBUG_LOCAL int WSPAPI
 	require_action_quiet( ( type == NS_DNS ) || ( type == NS_ALL ), exit, err = WSASERVICE_NOT_FOUND );
 	
 	n = inQuerySet->dwNumberOfProtocols;
-	if( n > 0 )
+	if ( n > 0 )
 	{
 		require_action( inQuerySet->lpafpProtocols, exit, err = WSAEINVAL );
-		for( i = 0; i < n; ++i )
+		for ( i = 0; i < n; ++i )
 		{
 			family = inQuerySet->lpafpProtocols[ i ].iAddressFamily;
 			protocol = inQuerySet->lpafpProtocols[ i ].iProtocol;
-			if( ( family == AF_INET ) && ( ( protocol == IPPROTO_UDP ) || ( protocol == IPPROTO_TCP ) ) )
+			if ( ( family == AF_INET ) && ( ( protocol == IPPROTO_UDP ) || ( protocol == IPPROTO_TCP ) ) )
 			{
 				break;
 			}
@@ -549,7 +545,8 @@ DEBUG_LOCAL int WSPAPI
 	// manually does the wchar_t strlen and stricmp to avoid needing any special wchar_t versions of the 
 	// libraries. It is probably faster to do the inline compare than invoke functions to do it anyway.
 	
-	for( p = name; *p; ++p ) {}		// Find end of string
+	for ( p = name; *p; ++p ) 
+		{}		// Find end of string
 	size = (size_t)( p - name );
 	require_action_quiet( size > sizeof_string( ".local" ), exit, err = WSASERVICE_NOT_FOUND );
 	
@@ -623,7 +620,7 @@ DEBUG_LOCAL int WSPAPI
 	
 exit:
 	dlog( kDebugLevelTrace, "%s end   (ticks=%d)\n", __ROUTINE__, GetTickCount() );
-	if( err != NO_ERROR )
+	if ( err != NO_ERROR )
 	{
 		SetLastError( (DWORD) err );
 		return( SOCKET_ERROR );
@@ -735,13 +732,13 @@ DEBUG_LOCAL int WSPAPI
 	obj->addr6Valid = false;
 
 exit:
-	if( obj )
+	if ( obj )
 	{
 		QueryRelease( obj );
 	}
 	NSPUnlock();
 	dlog( kDebugLevelTrace, "%s end   (ticks=%d)\n", __ROUTINE__, GetTickCount() );
-	if( err != NO_ERROR )
+	if ( err != NO_ERROR )
 	{
 		SetLastError( (DWORD) err );
 		return( SOCKET_ERROR );
@@ -772,7 +769,7 @@ DEBUG_LOCAL int WSPAPI	NSPLookupServiceEnd( HANDLE inLookup )
 	
 exit:
 	dlog( kDebugLevelTrace, "%s end   (ticks=%d)\n", __ROUTINE__, GetTickCount() );
-	if( err != NO_ERROR )
+	if ( err != NO_ERROR )
 	{
 		SetLastError( (DWORD) err );
 		return( SOCKET_ERROR );
@@ -916,7 +913,8 @@ DEBUG_LOCAL OSStatus	QueryCreate( const WSAQUERYSETW *inQuerySet, DWORD inQueryS
 	
 	obj->refCount = 1;
 	
-	for( p = &gQueryList; *p; p = &( *p )->next ) {}	// Find the end of the list.
+	for ( p = &gQueryList; *p; p = &( *p )->next )
+		{}	// Find the end of the list.
 	*p = obj;
 	
 	// Set up cancel event
@@ -1013,7 +1011,7 @@ DEBUG_LOCAL OSStatus	QueryCreate( const WSAQUERYSETW *inQuerySet, DWORD inQueryS
 	err 	= NO_ERROR;
 
 exit:
-	if( obj )
+	if ( obj )
 	{
 		QueryRelease( obj );
 	}
@@ -1031,9 +1029,9 @@ DEBUG_LOCAL OSStatus	QueryRetain( QueryRef inRef )
 	OSStatus		err;
 	QueryRef		obj;
 	
-	for( obj = gQueryList; obj; obj = obj->next )
+	for ( obj = gQueryList; obj; obj = obj->next )
 	{
-		if( obj == inRef )
+		if ( obj == inRef )
 		{
 			break;
 		}
@@ -1061,9 +1059,9 @@ DEBUG_LOCAL OSStatus	QueryRelease( QueryRef inRef )
 		
 	// Find the item in the list.
 	
-	for( p = &gQueryList; *p; p = &( *p )->next )
+	for ( p = &gQueryList; *p; p = &( *p )->next )
 	{
-		if( *p == inRef )
+		if ( *p == inRef )
 		{
 			break;
 		}
@@ -1072,7 +1070,7 @@ DEBUG_LOCAL OSStatus	QueryRelease( QueryRef inRef )
 	
 	// Signal a cancel to unblock any threads waiting for results.
 	
-	if( inRef->cancelEvent )
+	if ( inRef->cancelEvent )
 	{
 		ok = SetEvent( inRef->cancelEvent );
 		check_translated_errno( ok, GetLastError(), WSAEINVAL );
@@ -1080,7 +1078,7 @@ DEBUG_LOCAL OSStatus	QueryRelease( QueryRef inRef )
 	
 	// Stop the query.
 	
-	if( inRef->resolver4 )
+	if ( inRef->resolver4 )
 	{
 		__try
 		{
@@ -1108,7 +1106,7 @@ DEBUG_LOCAL OSStatus	QueryRelease( QueryRef inRef )
 	
 	// Decrement the refCount. Fully release if it drops to 0. If still referenced, just exit.
 	
-	if( --inRef->refCount != 0 )
+	if ( --inRef->refCount != 0 )
 	{
 		err = NO_ERROR;
 		goto exit;
@@ -1117,22 +1115,22 @@ DEBUG_LOCAL OSStatus	QueryRelease( QueryRef inRef )
 	
 	// Release resources.
 	
-	if( inRef->cancelEvent )
+	if ( inRef->cancelEvent )
 	{
 		ok = CloseHandle( inRef->cancelEvent );
 		check_translated_errno( ok, GetLastError(), WSAEINVAL );
 	}
-	if( inRef->data4Event )
+	if ( inRef->data4Event )
 	{
 		ok = CloseHandle( inRef->data4Event );
 		check_translated_errno( ok, GetLastError(), WSAEINVAL );
 	}
-	if( inRef->data6Event )
+	if ( inRef->data6Event )
 	{
 		ok = CloseHandle( inRef->data6Event );
 		check_translated_errno( ok, GetLastError(), WSAEINVAL );
 	}
-	if( inRef->querySet )
+	if ( inRef->querySet )
 	{
 		free( inRef->querySet );
 	}
@@ -1184,11 +1182,11 @@ DEBUG_LOCAL void CALLBACK_COMPAT
 		
 	// Copy the name if needed.
 	
-	if( obj->name[ 0 ] == '\0' )
+	if ( obj->name[ 0 ] == '\0' )
 	{
 		src = inName;
 		dst = obj->name;
-		while( *src != '\0' )
+		while ( *src != '\0' )
 		{
 			*dst++ = *src++;
 		}
@@ -1224,11 +1222,6 @@ DEBUG_LOCAL void CALLBACK_COMPAT
 exit:
 	NSPUnlock();
 }
-
-#if 0
-#pragma mark -
-#endif
-
 
 //===========================================================================================================================
 //	QueryRecordCallback6
@@ -1271,11 +1264,11 @@ DEBUG_LOCAL void CALLBACK_COMPAT
 
 	// Copy the name if needed.
 	
-	if( obj->name[ 0 ] == '\0' )
+	if ( obj->name[ 0 ] == '\0' )
 	{
 		src = inName;
 		dst = obj->name;
-		while( *src != '\0' )
+		while ( *src != '\0' )
 		{
 			*dst++ = *src++;
 		}
@@ -1318,7 +1311,6 @@ exit:
 	NSPUnlock();
 }
 
-
 //===========================================================================================================================
 //	QueryCopyQuerySet
 //
@@ -1347,7 +1339,7 @@ DEBUG_LOCAL OSStatus
 	QueryCopyQuerySetTo( inRef, inQuerySet, inQuerySetFlags, qs );
 	
 	*outQuerySet = qs;
-	if( outSize )
+	if ( outSize )
 	{
 		*outSize = size;
 	}
@@ -1355,14 +1347,12 @@ DEBUG_LOCAL OSStatus
 	err = NO_ERROR;
 	
 exit:
-	if( qs )
+	if ( qs )
 	{
 		free( qs );
 	}
 	return( err );	
 }
-
-
 
 //===========================================================================================================================
 //	QueryCopyQuerySetTo
@@ -1383,7 +1373,7 @@ DEBUG_LOCAL void
 	DWORD			n;
 	DWORD			i;
 	
-#if( DEBUG )
+#if ( DEBUG )
 	size_t			debugSize;
 	
 	debugSize = QueryCopyQuerySetSize( inRef, inQuerySet, inQuerySetFlags );
@@ -1399,14 +1389,15 @@ DEBUG_LOCAL void
 	*outQuerySet = *inQuerySet;
 	dst += sizeof( *inQuerySet );
 	
-	if( inQuerySetFlags & LUP_RETURN_NAME )
+	if ( inQuerySetFlags & LUP_RETURN_NAME )
 	{
 		s = inQuerySet->lpszServiceInstanceName;
-		if( s )
+		if ( s )
 		{
 			outQuerySet->lpszServiceInstanceName = (LPWSTR) dst;
 			q = (LPWSTR) dst;
-			while( ( *q++ = *s++ ) != 0 ) {}
+			while ( ( *q++ = *s++ ) != 0 ) 
+				{}
 			dst = (uint8_t *) q;
 		}
 	}
@@ -1415,14 +1406,14 @@ DEBUG_LOCAL void
 		outQuerySet->lpszServiceInstanceName = NULL;
 	}
 	
-	if( inQuerySet->lpServiceClassId )
+	if ( inQuerySet->lpServiceClassId )
 	{
 		outQuerySet->lpServiceClassId  = (LPGUID) dst;
 		*outQuerySet->lpServiceClassId = *inQuerySet->lpServiceClassId;
 		dst += sizeof( *inQuerySet->lpServiceClassId );
 	}
 	
-	if( inQuerySet->lpVersion )
+	if ( inQuerySet->lpVersion )
 	{
 		outQuerySet->lpVersion  = (LPWSAVERSION) dst;
 		*outQuerySet->lpVersion = *inQuerySet->lpVersion;
@@ -1430,15 +1421,16 @@ DEBUG_LOCAL void
 	}
 	
 	s = inQuerySet->lpszComment;
-	if( s )
+	if ( s )
 	{
 		outQuerySet->lpszComment = (LPWSTR) dst;
 		q = (LPWSTR) dst;
-		while( ( *q++ = *s++ ) != 0 ) {}
+		while ( ( *q++ = *s++ ) != 0 ) 
+			{}
 		dst = (uint8_t *) q;
 	}
 	
-	if( inQuerySet->lpNSProviderId )
+	if ( inQuerySet->lpNSProviderId )
 	{
 		outQuerySet->lpNSProviderId  = (LPGUID) dst;
 		*outQuerySet->lpNSProviderId = *inQuerySet->lpNSProviderId;
@@ -1446,22 +1438,23 @@ DEBUG_LOCAL void
 	}
 	
 	s = inQuerySet->lpszContext;
-	if( s )
+	if ( s )
 	{
 		outQuerySet->lpszContext = (LPWSTR) dst;
 		q = (LPWSTR) dst;
-		while( ( *q++ = *s++ ) != 0 ) {}
+		while ( ( *q++ = *s++ ) != 0 ) 
+			{}
 		dst = (uint8_t *) q;
 	}
 		
 	n = inQuerySet->dwNumberOfProtocols;
 
-	if( n > 0 )
+	if ( n > 0 )
 	{
 		check( inQuerySet->lpafpProtocols );
 		
 		outQuerySet->lpafpProtocols = (LPAFPROTOCOLS) dst;
-		for( i = 0; i < n; ++i )
+		for ( i = 0; i < n; ++i )
 		{
 			outQuerySet->lpafpProtocols[ i ] = inQuerySet->lpafpProtocols[ i ];
 			dst += sizeof( *inQuerySet->lpafpProtocols );
@@ -1469,17 +1462,18 @@ DEBUG_LOCAL void
 	}
 		
 	s = inQuerySet->lpszQueryString;
-	if( s )
+	if ( s )
 	{
 		outQuerySet->lpszQueryString = (LPWSTR) dst;
 		q = (LPWSTR) dst;
-		while( ( *q++ = *s++ ) != 0 ) {}
+		while ( ( *q++ = *s++ ) != 0 ) 
+			{}
 		dst = (uint8_t *) q;
 	}
 	
 	// Copy the address(es).
 	
-	if( ( inQuerySetFlags & LUP_RETURN_ADDR ) && ( inRef->numValidAddrs > 0 ) )
+	if ( ( inQuerySetFlags & LUP_RETURN_ADDR ) && ( inRef->numValidAddrs > 0 ) )
 	{
 		struct sockaddr_in	*	addr4;
 		struct sockaddr_in6	*	addr6;
@@ -1537,7 +1531,7 @@ DEBUG_LOCAL void
 	
 	// Copy the hostent blob.
 	
-	if( ( inQuerySetFlags & LUP_RETURN_BLOB ) && inRef->addr4Valid )
+	if ( ( inQuerySetFlags & LUP_RETURN_BLOB ) && inRef->addr4Valid )
 	{
 		uint8_t *				base;
 		struct hostent *		he;
@@ -1598,63 +1592,67 @@ DEBUG_LOCAL size_t	QueryCopyQuerySetSize( QueryRef inRef, const WSAQUERYSETW *in
 	
 	size = sizeof( *inQuerySet );
 	
-	if( inQuerySetFlags & LUP_RETURN_NAME )
+	if ( inQuerySetFlags & LUP_RETURN_NAME )
 	{
 		s = inQuerySet->lpszServiceInstanceName;
-		if( s )
+		if ( s )
 		{
-			for( p = s; *p; ++p ) {}
+			for ( p = s; *p; ++p ) 
+				{}
 			size += (size_t)( ( ( p - s ) + 1 ) * sizeof( *p ) );
 		}
 	}
 	
-	if( inQuerySet->lpServiceClassId )
+	if ( inQuerySet->lpServiceClassId )
 	{
 		size += sizeof( *inQuerySet->lpServiceClassId );
 	}
 	
-	if( inQuerySet->lpVersion )
+	if ( inQuerySet->lpVersion )
 	{
 		size += sizeof( *inQuerySet->lpVersion );
 	}
 	
 	s = inQuerySet->lpszComment;
-	if( s )
+	if ( s )
 	{
-		for( p = s; *p; ++p ) {}
+		for ( p = s; *p; ++p )
+			{}
 		size += (size_t)( ( ( p - s ) + 1 ) * sizeof( *p ) );
 	}
 	
-	if( inQuerySet->lpNSProviderId )
+	if ( inQuerySet->lpNSProviderId )
 	{
 		size += sizeof( *inQuerySet->lpNSProviderId );
 	}
 	
 	s = inQuerySet->lpszContext;
-	if( s )
+	if ( s )
 	{
-		for( p = s; *p; ++p ) {}
+		for ( p = s; *p; ++p )
+			{}
 		size += (size_t)( ( ( p - s ) + 1 ) * sizeof( *p ) );
 	}
 	
 	size += ( inQuerySet->dwNumberOfProtocols * sizeof( *inQuerySet->lpafpProtocols ) );
 	
 	s = inQuerySet->lpszQueryString;
-	if( s )
+	if ( s )
 	{
-		for( p = s; *p; ++p ) {}
+		for ( p = s; *p; ++p )
+			{}
 		size += (size_t)( ( ( p - s ) + 1 ) * sizeof( *p ) );
 	}
 	
 	// Calculate the size of the address(es).
 	
-	if( ( inQuerySetFlags & LUP_RETURN_ADDR ) && inRef->addr4Valid )
+	if ( ( inQuerySetFlags & LUP_RETURN_ADDR ) && inRef->addr4Valid )
 	{
 		size += sizeof( *inQuerySet->lpcsaBuffer );
 		size += sizeof( struct sockaddr_in );
 	}
 
-	if( ( inQuerySetFlags & LUP_RETURN_ADDR ) && inRef->addr6Valid )
+	if ( ( inQuerySetFlags & LUP_RETURN_ADDR ) && inRef->addr6Valid )
 	{
 		size += sizeof( *inQuerySet->lpcsaBuffer );
 		size += sizeof( struct sockaddr_in6 );
@@ -1662,7 +1660,7 @@ DEBUG_LOCAL size_t	QueryCopyQuerySetSize( QueryRef inRef, const WSAQUERYSETW *in
 	
 	// Calculate the size of the hostent blob.
 	
-	if( ( inQuerySetFlags & LUP_RETURN_BLOB ) && inRef->addr4Valid )
+	if ( ( inQuerySetFlags & LUP_RETURN_BLOB ) && inRef->addr4Valid )
 	{
 		size += sizeof( *inQuerySet->lpBlob );	// Blob ptr/size structure
 		size += sizeof( struct hostent );		// Old-style hostent structure
@@ -1679,7 +1677,7 @@ DEBUG_LOCAL size_t	QueryCopyQuerySetSize( QueryRef inRef, const WSAQUERYSETW *in
 #pragma mark -
 #endif
 
-#if( DEBUG )
+#if ( DEBUG )
 //===========================================================================================================================
 //	DebugDumpQuerySet
 //===========================================================================================================================
@@ -1702,7 +1700,7 @@ void	DebugDumpQuerySet( DebugLevel inLevel, const WSAQUERYSETW *inQuerySet )
 		
 	dlog( inLevel, "QuerySet:\n" );
 	dlog( inLevel, "    dwSize:                  %d (expected %d)\n", inQuerySet->dwSize, sizeof( *inQuerySet ) );
-	if( inQuerySet->lpszServiceInstanceName )
+	if ( inQuerySet->lpszServiceInstanceName )
 	{
 		dlog( inLevel, "    lpszServiceInstanceName: %S\n", inQuerySet->lpszServiceInstanceName );
 	}
@@ -1710,7 +1708,7 @@ void	DebugDumpQuerySet( DebugLevel inLevel, const WSAQUERYSETW *inQuerySet )
 	{
 		dlog( inLevel, "    lpszServiceInstanceName: <null>\n" );
 	}
-	if( inQuerySet->lpServiceClassId )
+	if ( inQuerySet->lpServiceClassId )
 	{
 		dlog( inLevel, "    lpServiceClassId:        %U\n", inQuerySet->lpServiceClassId );
 	}
@@ -1718,7 +1716,7 @@ void	DebugDumpQuerySet( DebugLevel inLevel, const WSAQUERYSETW *inQuerySet )
 	{
 		dlog( inLevel, "    lpServiceClassId:        <null>\n" );
 	}
-	if( inQuerySet->lpVersion )
+	if ( inQuerySet->lpVersion )
 	{
 		dlog( inLevel, "    lpVersion:\n" );
 		dlog( inLevel, "        dwVersion:               %d\n", inQuerySet->lpVersion->dwVersion );
@@ -1728,7 +1726,7 @@ void	DebugDumpQuerySet( DebugLevel inLevel, const WSAQUERYSETW *inQuerySet )
 	{
 		dlog( inLevel, "    lpVersion:               <null>\n" );
 	}
-	if( inQuerySet->lpszComment )
+	if ( inQuerySet->lpszComment )
 	{
 		dlog( inLevel, "    lpszComment:             %S\n", inQuerySet->lpszComment );
 	}
@@ -1738,7 +1736,7 @@ void	DebugDumpQuerySet( DebugLevel inLevel, const WSAQUERYSETW *inQuerySet )
 	}
 	dlog( inLevel, "    dwNameSpace:             %d %s\n", inQuerySet->dwNameSpace, 
 		DebugNameSpaceToString( inQuerySet->dwNameSpace ) );
-	if( inQuerySet->lpNSProviderId )
+	if ( inQuerySet->lpNSProviderId )
 	{
 		dlog( inLevel, "    lpNSProviderId:          %U\n", inQuerySet->lpNSProviderId );
 	}
@@ -1746,7 +1744,7 @@ void	DebugDumpQuerySet( DebugLevel inLevel, const WSAQUERYSETW *inQuerySet )
 	{
 		dlog( inLevel, "    lpNSProviderId:          <null>\n" );
 	}
-	if( inQuerySet->lpszContext )
+	if ( inQuerySet->lpszContext )
 	{
 		dlog( inLevel, "    lpszContext:             %S\n", inQuerySet->lpszContext );
 	}
@@ -1756,9 +1754,9 @@ void	DebugDumpQuerySet( DebugLevel inLevel, const WSAQUERYSETW *inQuerySet )
 	}
 	dlog( inLevel, "    dwNumberOfProtocols:     %d\n", inQuerySet->dwNumberOfProtocols );
 	dlog( inLevel, "    lpafpProtocols:          %s\n", inQuerySet->lpafpProtocols ? "" : "<null>" );
-	for( i = 0; i < inQuerySet->dwNumberOfProtocols; ++i )
+	for ( i = 0; i < inQuerySet->dwNumberOfProtocols; ++i )
 	{
-		if( i != 0 )
+		if ( i != 0 )
 		{
 			dlog( inLevel, "\n" );
 		}
@@ -1767,7 +1765,7 @@ void	DebugDumpQuerySet( DebugLevel inLevel, const WSAQUERYSETW *inQuerySet )
 		dlog( inLevel, "        iProtocol:               %d %s\n", inQuerySet->lpafpProtocols[ i ].iProtocol, 
 			DebugSocketProtocolToString( inQuerySet->lpafpProtocols[ i ].iProtocol ) );
 	}
-	if( inQuerySet->lpszQueryString )
+	if ( inQuerySet->lpszQueryString )
 	{
 		dlog( inLevel, "    lpszQueryString:         %S\n", inQuerySet->lpszQueryString );
 	}
@@ -1777,13 +1775,13 @@ void	DebugDumpQuerySet( DebugLevel inLevel, const WSAQUERYSETW *inQuerySet )
 	}
 	dlog( inLevel, "    dwNumberOfCsAddrs:       %d\n", inQuerySet->dwNumberOfCsAddrs );
 	dlog( inLevel, "    lpcsaBuffer:             %s\n", inQuerySet->lpcsaBuffer ? "" : "<null>" );
-	for( i = 0; i < inQuerySet->dwNumberOfCsAddrs; ++i )
+	for ( i = 0; i < inQuerySet->dwNumberOfCsAddrs; ++i )
 	{
-		if( i != 0 )
+		if ( i != 0 )
 		{
 			dlog( inLevel, "\n" );
 		}
-		if( inQuerySet->lpcsaBuffer[ i ].LocalAddr.lpSockaddr && 
+		if ( inQuerySet->lpcsaBuffer[ i ].LocalAddr.lpSockaddr && 
 			( inQuerySet->lpcsaBuffer[ i ].LocalAddr.iSockaddrLength > 0 ) )
 		{
 			dlog( inLevel, "        LocalAddr:               %##a\n", 
@@ -1793,7 +1791,7 @@ void	DebugDumpQuerySet( DebugLevel inLevel, const WSAQUERYSETW *inQuerySet )
 		{
 			dlog( inLevel, "        LocalAddr:               <null/empty>\n" );
 		}
-		if( inQuerySet->lpcsaBuffer[ i ].RemoteAddr.lpSockaddr && 
+		if ( inQuerySet->lpcsaBuffer[ i ].RemoteAddr.lpSockaddr && 
 			( inQuerySet->lpcsaBuffer[ i ].RemoteAddr.iSockaddrLength > 0 ) )
 		{
 			dlog( inLevel, "        RemoteAddr:              %##a\n", 
@@ -1810,7 +1808,7 @@ void	DebugDumpQuerySet( DebugLevel inLevel, const WSAQUERYSETW *inQuerySet )
 	
 	// Blob portion of the QuerySet.
 	
-	if( inQuerySet->lpBlob )
+	if ( inQuerySet->lpBlob )
 	{
 		dlog( inLevel, "    lpBlob:\n" );
 		dlog( inLevel, "        cbSize:                  %ld\n", inQuerySet->lpBlob->cbSize );
@@ -1826,13 +1824,11 @@ void	DebugDumpQuerySet( DebugLevel inLevel, const WSAQUERYSETW *inQuerySet )
 }
 #endif
 
-
 //===========================================================================================================================
 //	InHostsTable
 //===========================================================================================================================
 
-DEBUG_LOCAL BOOL
-InHostsTable( const char * name )
+DEBUG_LOCAL BOOL InHostsTable( const char * name )
 {
 	HostsFileInfo	*	node;
 	BOOL				ret = FALSE;
@@ -1881,13 +1877,11 @@ exit:
 	return ret;
 }
 
-
 //===========================================================================================================================
 //	IsLocalName
 //===========================================================================================================================
 
-DEBUG_LOCAL BOOL
-IsLocalName( HostsFileInfo * node )
+DEBUG_LOCAL BOOL IsLocalName( HostsFileInfo * node )
 {
 	BOOL ret = TRUE;
 
@@ -1913,13 +1907,11 @@ exit:
 	return ret;
 }
 
-
 //===========================================================================================================================
 //	IsSameName
 //===========================================================================================================================
 
-DEBUG_LOCAL BOOL
-IsSameName( HostsFileInfo * node, const char * name )
+DEBUG_LOCAL BOOL IsSameName( HostsFileInfo * node, const char * name )
 {
 	BOOL ret = TRUE;
 
@@ -1946,13 +1938,11 @@ exit:
 	return ret;
 }
 
-
 //===========================================================================================================================
 //	HostsFileOpen
 //===========================================================================================================================
 
-DEBUG_LOCAL OSStatus
-HostsFileOpen( HostsFile ** self, const char * fname )
+DEBUG_LOCAL OSStatus HostsFileOpen( HostsFile ** self, const char * fname )
 {
 	OSStatus err = kNoErr;
 
@@ -1980,13 +1970,11 @@ exit:
 	return err;
 }
 
-
 //===========================================================================================================================
 //	HostsFileClose
 //===========================================================================================================================
 
-DEBUG_LOCAL OSStatus
-HostsFileClose( HostsFile * self )
+DEBUG_LOCAL OSStatus HostsFileClose( HostsFile * self )
 {
 	check( self );
 
@@ -2007,13 +1995,11 @@ HostsFileClose( HostsFile * self )
 	return kNoErr;
 } 
 
-
 //===========================================================================================================================
 //	HostsFileInfoFree
 //===========================================================================================================================
 
-DEBUG_LOCAL void
-HostsFileInfoFree( HostsFileInfo * info )
+DEBUG_LOCAL void HostsFileInfoFree( HostsFileInfo * info )
 {
 	while ( info )
 	{
@@ -2055,13 +2041,11 @@ HostsFileInfoFree( HostsFileInfo * info )
 	}
 }
 
-
 //===========================================================================================================================
 //	HostsFileNext
 //===========================================================================================================================
 
-DEBUG_LOCAL OSStatus
-HostsFileNext( HostsFile * self, HostsFileInfo ** hInfo )
+DEBUG_LOCAL OSStatus HostsFileNext( HostsFile * self, HostsFileInfo ** hInfo )
 {
 	struct sockaddr_in6	addr_6;
 	struct sockaddr_in	addr_4;
@@ -2250,14 +2234,12 @@ exit:
 	return err;
 }
 
-
 #ifdef ENABLE_REVERSE_LOOKUP
 //===========================================================================================================================
 //	IsReverseLookup
 //===========================================================================================================================
 
-DEBUG_LOCAL OSStatus
-IsReverseLookup( LPCWSTR name, size_t size )
+DEBUG_LOCAL OSStatus IsReverseLookup( LPCWSTR name, size_t size )
 {
 	LPCWSTR		p;
 	OSStatus	err = kNoErr;
@@ -2329,8 +2311,7 @@ exit:
 //	GetScopeId
 //===========================================================================================================================
 
-DEBUG_LOCAL DWORD
-GetScopeId( DWORD ifIndex )
+DEBUG_LOCAL DWORD GetScopeId( DWORD ifIndex )
 {
 	DWORD						err;
 	int							i;
@@ -2354,7 +2335,7 @@ GetScopeId( DWORD ifIndex )
 	
 	flags = GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST | GAA_FLAG_SKIP_DNS_SERVER | GAA_FLAG_SKIP_FRIENDLY_NAME;
 	i = 0;
-	for( ;; )
+	for ( ; ; )
 	{
 		iaaListSize = 0;
 		err = gGetAdaptersAddressesFunctionPtr( AF_UNSPEC, flags, NULL, NULL, &iaaListSize );
@@ -2365,7 +2346,7 @@ GetScopeId( DWORD ifIndex )
 		require_action( iaaList, exit, err = ERROR_NOT_ENOUGH_MEMORY );
 		
 		err = gGetAdaptersAddressesFunctionPtr( AF_UNSPEC, flags, NULL, iaaList, &iaaListSize );
-		if( err == ERROR_SUCCESS ) break;
+		if ( err == ERROR_SUCCESS ) break;
 		
 		free( iaaList );
 		iaaList = NULL;
@@ -2374,7 +2355,7 @@ GetScopeId( DWORD ifIndex )
 		dlog( kDebugLevelWarning, "%s: retrying GetAdaptersAddresses after %d failure(s) (%d %m)\n", __ROUTINE__, i, err, err );
 	}
 	
-	for( iaa = iaaList; iaa; iaa = iaa->Next )
+	for ( iaa = iaaList; iaa; iaa = iaa->Next )
 	{
 		DWORD ipv6IfIndex;
 
@@ -2410,7 +2391,7 @@ GetScopeId( DWORD ifIndex )
 
 		// Skip psuedo and tunnel interfaces.
 		
-		if( ( ipv6IfIndex == 1 ) || ( iaa->IfType == IF_TYPE_TUNNEL ) )
+		if ( ( ipv6IfIndex == 1 ) || ( iaa->IfType == IF_TYPE_TUNNEL ) )
 		{
 			continue;
 		}
@@ -2424,7 +2405,7 @@ GetScopeId( DWORD ifIndex )
 
 exit:
 
-	if( iaaList )
+	if ( iaaList )
 	{
 		free( iaaList );
 	}
