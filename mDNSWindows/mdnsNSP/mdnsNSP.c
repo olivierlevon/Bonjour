@@ -531,13 +531,13 @@ DEBUG_LOCAL int WSPAPI
 	{
 		const char	*	replyDomain;
 		char			translated[ kDNSServiceMaxDomainName ];
-		int				n;
+		int				nb;
 		int				labels		= 0;
 		const char	*	label[MAX_LABELS];
 		char			text[64];
 
-		n = WideCharToMultiByte( CP_UTF8, 0, name, -1, translated, sizeof( translated ), NULL, NULL );
-		require_action( n > 0, exit, err = WSASERVICE_NOT_FOUND );
+		nb = WideCharToMultiByte( CP_UTF8, 0, name, -1, translated, sizeof( translated ), NULL, NULL );
+		require_action( nb > 0, exit, err = WSASERVICE_NOT_FOUND );
 
 		// <rdar://problem/4050633>
 
