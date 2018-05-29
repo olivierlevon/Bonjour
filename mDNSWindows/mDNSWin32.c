@@ -1591,8 +1591,10 @@ mDNSexport void mDNSPlatformWriteLogMsg( const char * ident, const char * msg, m
 			fflush(stderr);
 			}
 
+#ifndef UNIT_TEST
 	if (mDNSStorage.p->reportStatusFunc)
 		mDNSStorage.p->reportStatusFunc( type, msg );
+#endif
 
 	dlog( kDebugLevelInfo, "%s\n", msg );
 	}
@@ -5407,7 +5409,7 @@ mDNSlocal void mDNSWin32ParseEtcHostsLine(mDNS *const m, char *buffer, ssize_t l
             AssignDomainName(&name1d, &name2d);
         }
         // Added all the CNAMEs if any, add the "A/AAAA" record
-        mDNSWin32CreateEtcHostsEntry(m, &first, gairesults->ai_addr, mDNSNULL, ifname, auth); //m, //OLE code ret
+        mDNSWin32CreateEtcHostsEntry(m, &first, gairesults->ai_addr, mDNSNULL, ifname, auth);
     }
     freeaddrinfo(gairesults);
 }
@@ -5781,7 +5783,7 @@ mDNSlocal mDNSBool EtcHostsDeleteOldEntries(mDNS *const m, AuthHash *newhosts, m
                     }
                     LogInfo("EtcHostsDeleteOldEntries: Deleting %s", ARDisplayString(m, rr));
                     err = mDNS_Deregister_internal(m, rr, mDNS_Dereg_normal);
-					verbosedebugf("%s  %d %m", __FUNCTION__, err, err); //OLE si err???
+					verbosedebugf("%s  %d %m", __FUNCTION__, err, err);
 					
                 }
             }
@@ -5832,7 +5834,7 @@ mDNSlocal void mDNSWin32UpdateEtcHosts(mDNS *const m)
 	
     // As we will be modifying the core, we can only have one thread running at
     // any point in time.
-	mDNS_Lock(m);
+//	mDNS_Lock(m); 
 
     mDNSPlatformMemZero(&newhosts, sizeof(AuthHash));
 
