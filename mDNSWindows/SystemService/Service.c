@@ -125,9 +125,7 @@ static void CALLBACK	InterfaceListNotification( SOCKET socket, LPWSANETWORKEVENT
 static void CALLBACK	ComputerDescriptionNotification( HANDLE event, void *context );
 static void CALLBACK	TCPChangedNotification( HANDLE event, void *context );
 static void CALLBACK	DDNSChangedNotification( HANDLE event, void *context );
-static void CALLBACK	FileSharingChangedNotification( HANDLE event, void *context );
 static void CALLBACK	FirewallChangedNotification( HANDLE event, void *context );
-static void CALLBACK	AdvertisedServicesChangedNotification( HANDLE event, void *context );
 static void CALLBACK	SPSWakeupNotification( HANDLE event, void *context );
 static void	CALLBACK	SPSSleepNotification( HANDLE event, void *context );
 static void CALLBACK	UDSAcceptNotification( SOCKET sock, LPWSANETWORKEVENTS event, void *context );
@@ -173,12 +171,8 @@ DEBUG_LOCAL HKEY						gTcpipKey					= NULL;
 DEBUG_LOCAL HANDLE						gTcpipChangedEvent			= NULL;	// TCP/IP config changed
 DEBUG_LOCAL HKEY						gDdnsKey					= NULL;
 DEBUG_LOCAL HANDLE						gDdnsChangedEvent			= NULL;	// DynDNS config changed
-DEBUG_LOCAL HKEY						gFileSharingKey				= NULL;
-DEBUG_LOCAL HANDLE						gFileSharingChangedEvent	= NULL;	// File Sharing changed
 DEBUG_LOCAL HKEY						gFirewallKey				= NULL;
 DEBUG_LOCAL HANDLE						gFirewallChangedEvent		= NULL;	// Firewall changed
-DEBUG_LOCAL HKEY						gAdvertisedServicesKey		= NULL;
-DEBUG_LOCAL HANDLE						gAdvertisedServicesChangedEvent	= NULL; // Advertised services changed
 DEBUG_LOCAL SERVICE_STATUS				gServiceStatus;
 DEBUG_LOCAL SERVICE_STATUS_HANDLE		gServiceStatusHandle 	= NULL;
 DEBUG_LOCAL HANDLE						gServiceEventSource		= NULL;
@@ -1141,28 +1135,31 @@ static void	ServiceStop( void )
 
 static OSStatus	ServiceSpecificInitialize( int argc, LPTSTR argv[] )
 {
-	OSStatus err;
+	OSStatus err = kNoErr;
+	mStatus status = mStatus_NoError;
+	int ret = 0;
 	
 	DEBUG_UNUSED( argc );
 	DEBUG_UNUSED( argv );
 	
-	mDNSPlatformMemZero( &gMDNSRecord, sizeof gMDNSRecord);
-	mDNSPlatformMemZero( &gPlatformStorage, sizeof gPlatformStorage);
+	mDNSPlatformMemZero( &gMDNSRecord, sizeof( gMDNSRecord ) );
+	mDNSPlatformMemZero( &gPlatformStorage, sizeof( gPlatformStorage ) );
 
 	gPlatformStorage.reportStatusFunc = ReportStatus;
 
-	err = mDNS_Init( &gMDNSRecord, &gPlatformStorage, gRRCache, RR_CACHE_SIZE, mDNS_Init_AdvertiseLocalAddresses, CoreCallback, mDNS_Init_NoInitCallbackContext); 
-	require_noerr( err, exit);
+	status = mDNS_Init( &gMDNSRecord, &gPlatformStorage, gRRCache, RR_CACHE_SIZE, mDNS_Init_AdvertiseLocalAddresses, CoreCallback, mDNS_Init_NoInitCallbackContext); 
+	require_noerr( status, exit);
 
-	err = SetupNotifications();
-	check_noerr( err );
+	status = SetupNotifications();
+	check_noerr( status );
 
-	err = udsserver_init(mDNSNULL, 0);
-	require_noerr( err, exit);
+	ret = udsserver_init(mDNSNULL, 0);
+	require_noerr( ret, exit);
 
 exit:
-	if ( err != kNoErr )
+	if ( ( status != mStatus_NoError ) || ( ret != 0) )
 	{
+		err = kUnknownErr;
 		ServiceSpecificFinalize( argc, argv );
 	}
 	return( err );
@@ -1441,30 +1438,6 @@ mDNSlocal mStatus	SetupNotifications()
 	err = mDNSPollRegisterEvent( gDdnsChangedEvent, DDNSChangedNotification, NULL );
 	require_noerr( err, exit );
 
-	// This will catch all changes to file sharing
-
-	gFileSharingChangedEvent = CreateEvent( NULL, FALSE, FALSE, NULL );
-	err = translate_errno( gFileSharingChangedEvent, (mStatus) GetLastError(), kUnknownErr );
-	require_noerr( err, exit );
-
-	err = RegCreateKey( HKEY_LOCAL_MACHINE, TEXT("SYSTEM\\CurrentControlSet\\Services\\lanmanserver\\Shares"), &gFileSharingKey );
-	
-	// Just to make sure that initialization doesn't fail on some old OS
-	// that doesn't have this key, we'll only add the notification if
-	// the key exists.
-
-	if ( !err )
-	{
-		err = RegNotifyChangeKeyValue( gFileSharingKey, TRUE, REG_NOTIFY_CHANGE_NAME|REG_NOTIFY_CHANGE_LAST_SET, gFileSharingChangedEvent, TRUE);
-		require_noerr( err, exit );
-		err = mDNSPollRegisterEvent( gFileSharingChangedEvent, FileSharingChangedNotification, NULL );
-		require_noerr( err, exit );
-	}
-	else
-	{
-		err = mStatus_NoError;
-	}
-
 	// This will catch changes to the Windows firewall
 
 	gFirewallChangedEvent = CreateEvent( NULL, FALSE, FALSE, NULL );
@@ -1488,18 +1461,6 @@ mDNSlocal mStatus	SetupNotifications()
 	{
 		err = mStatus_NoError;
 	}
-
-	// This will catch all changes to advertised services configuration
-
-	gAdvertisedServicesChangedEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
-	err = translate_errno( gAdvertisedServicesChangedEvent, (mStatus) GetLastError(), kUnknownErr );
-	require_noerr( err, exit );
-	err = RegCreateKey( HKEY_LOCAL_MACHINE, kServiceParametersNode TEXT("\\Services"), &gAdvertisedServicesKey );
-	require_noerr( err, exit );
-	err = RegNotifyChangeKeyValue( gAdvertisedServicesKey, TRUE, REG_NOTIFY_CHANGE_NAME|REG_NOTIFY_CHANGE_LAST_SET, gAdvertisedServicesChangedEvent, TRUE);
-	require_noerr( err, exit );
-	err = mDNSPollRegisterEvent( gAdvertisedServicesChangedEvent, AdvertisedServicesChangedNotification, NULL );
-	require_noerr( err, exit );
 
 	// SPSWakeup timer
 
@@ -1572,19 +1533,6 @@ mDNSlocal mStatus	TearDownNotifications()
 		gDdnsKey = NULL;
 	}
 
-	if ( gFileSharingChangedEvent != NULL )
-	{
-		mDNSPollUnregisterEvent( gFileSharingChangedEvent );
-		CloseHandle( gFileSharingChangedEvent );
-		gFileSharingChangedEvent = NULL;
-	}
-
-	if ( gFileSharingKey != NULL )
-	{
-		RegCloseKey( gFileSharingKey );
-		gFileSharingKey = NULL;
-	}
-
 	if ( gFirewallChangedEvent != NULL )
 	{
 		mDNSPollUnregisterEvent( gFirewallChangedEvent );
@@ -1596,19 +1544,6 @@ mDNSlocal mStatus	TearDownNotifications()
 	{
 		RegCloseKey( gFirewallKey );
 		gFirewallKey = NULL;
-	}
-
-	if ( gAdvertisedServicesChangedEvent != NULL )
-	{
-		mDNSPollUnregisterEvent( gAdvertisedServicesChangedEvent );
-		CloseHandle( gAdvertisedServicesChangedEvent );
-		gAdvertisedServicesChangedEvent = NULL;
-	}
-
-	if ( gAdvertisedServicesKey != NULL )
-	{
-		RegCloseKey( gAdvertisedServicesKey );
-		gAdvertisedServicesKey = NULL;
 	}
 
 	if ( gSPSWakeupEvent )
@@ -1832,28 +1767,6 @@ mDNSlocal void CALLBACK DDNSChangedNotification( HANDLE event, void *context )
 }
 
 //===========================================================================================================================
-//	FileSharingChangedNotification
-//===========================================================================================================================
-
-mDNSlocal void CALLBACK FileSharingChangedNotification( HANDLE event, void *context )
-{
-	// File sharing changed
-
-	DEBUG_UNUSED( event );
-	DEBUG_UNUSED( context );
-
-	FileSharingDidChange( &gMDNSRecord );
-
-	// and reset the event handler
-
-	if ((gFileSharingKey != NULL) && (gFileSharingChangedEvent))
-	{
-		int err = RegNotifyChangeKeyValue(gFileSharingKey, TRUE, REG_NOTIFY_CHANGE_NAME|REG_NOTIFY_CHANGE_LAST_SET, gFileSharingChangedEvent, TRUE);
-		check_noerr( err );
-	}
-}
-
-//===========================================================================================================================
 //	FirewallChangedNotification
 //===========================================================================================================================
 
@@ -1871,29 +1784,6 @@ mDNSlocal void CALLBACK FirewallChangedNotification( HANDLE event, void *context
 	if ((gFirewallKey != NULL) && (gFirewallChangedEvent))
 	{
 		int err = RegNotifyChangeKeyValue(gFirewallKey, TRUE, REG_NOTIFY_CHANGE_NAME|REG_NOTIFY_CHANGE_LAST_SET, gFirewallChangedEvent, TRUE);
-		check_noerr( err );
-	}
-}
-
-//===========================================================================================================================
-//	AdvertisedServicesChangedNotification
-//===========================================================================================================================
-
-mDNSlocal void CALLBACK AdvertisedServicesChangedNotification( HANDLE event, void *context )
-{
-	// Ultimately we'll want to manage multiple services, but right now the only service
-	// we'll be managing is SMB.
-
-	DEBUG_UNUSED( event );
-	DEBUG_UNUSED( context );
-
-	FileSharingDidChange( &gMDNSRecord );
-
-	// and reset the event handler
-
-	if ( ( gAdvertisedServicesKey != NULL ) && ( gAdvertisedServicesChangedEvent ) )
-	{
-		int err = RegNotifyChangeKeyValue(gAdvertisedServicesKey, TRUE, REG_NOTIFY_CHANGE_NAME|REG_NOTIFY_CHANGE_LAST_SET, gAdvertisedServicesChangedEvent, TRUE);
 		check_noerr( err );
 	}
 }

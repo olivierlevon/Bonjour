@@ -182,9 +182,6 @@ mDNSlocal void				GetDDNSDomains( DNameListElem ** domains, LPCSTR lpSubKey );
 #endif
 mDNSlocal void				SetDomainSecrets( mDNS * const inMDNS );
 mDNSlocal void				SetDomainSecret( mDNS * const m, const domainname * inDomain );
-mDNSlocal VOID CALLBACK		CheckFileSharesProc( LPVOID arg, DWORD dwTimerLowValue, DWORD dwTimerHighValue );
-mDNSlocal void				CheckFileShares( mDNS * const inMDNS );
-mDNSlocal void				SMBCallback(mDNS *const m, ServiceRecordSet *const srs, mStatus result);
 mDNSlocal mDNSu8			IsWOMPEnabledForAdapter( const char * adapterName );
 mDNSlocal void				SendWakeupPacket( mDNS * const inMDNS, LPSOCKADDR addr, INT addrlen, const char * buf, INT buflen, INT numTries, INT msecSleep );
 mDNSlocal void _cdecl		SendMulticastWakeupPacket( void *arg );
@@ -221,38 +218,6 @@ mDNSlocal int					gUDPNumSockets			= 0;
 	mDNSlocal GetAdaptersAddressesFunctionPtr		gGetAdaptersAddressesFunctionPtr	= NULL;
 
 #endif
-
-typedef DNSServiceErrorType ( DNSSD_API *DNSServiceRegisterFunc )
-    (
-    DNSServiceRef                       *sdRef,
-    DNSServiceFlags                     flags,
-    uint32_t                            interfaceIndex,
-    const char                          *name,         /* may be NULL */
-    const char                          *regtype,
-    const char                          *domain,       /* may be NULL */
-    const char                          *host,         /* may be NULL */
-    uint16_t                            port,
-    uint16_t                            txtLen,
-    const void                          *txtRecord,    /* may be NULL */
-    DNSServiceRegisterReply             callBack,      /* may be NULL */
-    void                                *context       /* may be NULL */
-    );
-
-
-typedef void ( DNSSD_API *DNSServiceRefDeallocateFunc )( DNSServiceRef sdRef );
-
-mDNSlocal HMODULE					gDNSSDLibrary				= NULL;
-mDNSlocal DNSServiceRegisterFunc	gDNSServiceRegister			= NULL;
-mDNSlocal DNSServiceRefDeallocateFunc gDNSServiceRefDeallocate	= NULL;
-mDNSlocal HANDLE					gSMBThread					= NULL;
-mDNSlocal HANDLE					gSMBThreadRegisterEvent		= NULL;
-mDNSlocal HANDLE					gSMBThreadDeregisterEvent	= NULL;
-mDNSlocal HANDLE					gSMBThreadStopEvent			= NULL;
-mDNSlocal HANDLE					gSMBThreadQuitEvent			= NULL;
-
-#define	kSMBStopEvent				( WAIT_OBJECT_0 + 0 )
-#define	kSMBRegisterEvent			( WAIT_OBJECT_0 + 1 )
-#define kSMBDeregisterEvent			( WAIT_OBJECT_0 + 2 )
 
 static AuthRecord *lpbkv4 = mDNSNULL;
 static AuthRecord *lpbkv6 = mDNSNULL;
@@ -452,52 +417,6 @@ mDNSexport void	mDNSPlatformClose( mDNS * const inMDNS )
 #ifdef ETCHOSTS_ENABLED	
     mDNSWin32CleanupEtcHosts(inMDNS);
 #endif
-
-	if ( gSMBThread != NULL )
-	{
-		dlog( kDebugLevelTrace, DEBUG_NAME "tearing down smb registration thread\n" );
-		SetEvent( gSMBThreadStopEvent );
-		
-		if ( WaitForSingleObject( gSMBThreadQuitEvent, 5 * 1000 ) == WAIT_OBJECT_0 )
-		{
-			if ( gSMBThreadQuitEvent )
-			{
-				CloseHandle( gSMBThreadQuitEvent );
-				gSMBThreadQuitEvent = NULL;
-			}
-
-			if ( gSMBThreadStopEvent )
-			{
-				CloseHandle( gSMBThreadStopEvent );
-				gSMBThreadStopEvent = NULL;
-			}
-
-			if ( gSMBThreadDeregisterEvent )
-			{
-				CloseHandle( gSMBThreadDeregisterEvent );
-				gSMBThreadDeregisterEvent = NULL;
-			}
-
-			if ( gSMBThreadRegisterEvent )
-			{
-				CloseHandle( gSMBThreadRegisterEvent );
-				gSMBThreadRegisterEvent = NULL;
-			}
-
-			if ( gDNSSDLibrary )
-			{
-				FreeLibrary( gDNSSDLibrary );
-				gDNSSDLibrary = NULL;
-			}	
-		}
-		else
-		{
-			LogMsg( "Unable to stop SMBThread" );
-		}
-
-		inMDNS->p->smbFileSharing = mDNSfalse;
-		inMDNS->p->smbPrintSharing = mDNSfalse;
-	}
 
 	// Tear everything down in reverse order to how it was set up.
 	
@@ -2712,8 +2631,6 @@ mStatus	SetupInterfaceList( mDNS * const inMDNS )
 		++inMDNS->p->interfaceCount;
 	}
 
-	CheckFileShares( inMDNS );
-
 exit:
 	if ( err )
 	{
@@ -3469,18 +3386,6 @@ void DynDNSConfigDidChange( mDNS * const inMDNS )
 }
 
 //===========================================================================================================================
-//	FileSharingDidChange
-//===========================================================================================================================
-
-void FileSharingDidChange( mDNS * const inMDNS )
-{	
-	dlog( kDebugLevelInfo, DEBUG_NAME "File shares has changed\n" );
-	check( inMDNS );
-
-	CheckFileShares( inMDNS );
-}
-
-//===========================================================================================================================
 //	FilewallDidChange
 //===========================================================================================================================
 
@@ -3488,8 +3393,6 @@ void FirewallDidChange( mDNS * const inMDNS )
 {	
 	dlog( kDebugLevelInfo, DEBUG_NAME "Firewall has changed\n" );
 	check( inMDNS );
-
-	CheckFileShares( inMDNS );
 }
 
 #if 0
@@ -4685,267 +4588,6 @@ mDNSlocal void SetDomainSecret( mDNS * const m, const domainname * inDomain )
 exit:
 
 	return;
-}
-
-//===========================================================================================================================
-//	CheckFileSharesProc
-//===========================================================================================================================
-
-mDNSlocal VOID CALLBACK CheckFileSharesProc( LPVOID arg, DWORD dwTimerLowValue, DWORD dwTimerHighValue )
-{
-	mDNS * const m = ( mDNS * const ) arg;
-
-	( void ) dwTimerLowValue;
-	( void ) dwTimerHighValue;
-
-	CheckFileShares( m );
-}
-
-//===========================================================================================================================
-//	SMBRegistrationThread
-//===========================================================================================================================
-
-mDNSlocal unsigned __stdcall SMBRegistrationThread( void * arg )
-{
-	mDNS * const m = ( mDNS * const ) arg;
-	DNSServiceRef sref = NULL;
-	HANDLE		handles[ 3 ];
-	mDNSu8		txtBuf[ 256 ];
-	mDNSu8	*	txtPtr;
-	size_t		keyLen;
-	size_t		valLen;
-	mDNSIPPort	port = { { SMBPortAsNumber >> 8, SMBPortAsNumber & 0xFF } };
-	DNSServiceErrorType err;
-
-	DEBUG_UNUSED( arg );
-
-	handles[ 0 ] = gSMBThreadStopEvent;
-	handles[ 1 ] = gSMBThreadRegisterEvent;
-	handles[ 2 ] = gSMBThreadDeregisterEvent;
-
-	memset( txtBuf, 0, sizeof( txtBuf )  );
-	txtPtr = txtBuf;
-	keyLen = strlen( "netbios=" );
-	valLen = strlen( m->p->nbname );
-	require_action( valLen < 32, exit, err = kUnknownErr );	// This should never happen, but check to avoid further memory corruption
-	*txtPtr++ = ( mDNSu8 ) ( keyLen + valLen );
-	memcpy( txtPtr, "netbios=", keyLen );
-	txtPtr += keyLen;
-	if ( valLen ) { memcpy( txtPtr, m->p->nbname, valLen ); txtPtr += ( mDNSu8 ) valLen; }
-	keyLen = strlen( "domain=" );
-	valLen = strlen( m->p->nbdomain );
-	require_action( valLen < 32, exit, err = kUnknownErr );	// This should never happen, but check to avoid further memory corruption
-	*txtPtr++ = ( mDNSu8 )( keyLen + valLen );
-	memcpy( txtPtr, "domain=", keyLen );
-	txtPtr += keyLen;
-	if ( valLen ) { memcpy( txtPtr, m->p->nbdomain, valLen ); txtPtr += valLen; }
-	
-	for ( ;; )
-	{
-		DWORD ret;
-
-		ret = WaitForMultipleObjects( 3, handles, FALSE, INFINITE );
-
-		if ( ret != WAIT_FAILED )
-		{
-			if ( ret == kSMBStopEvent )
-			{
-				break;
-			}
-			else if ( ret == kSMBRegisterEvent )
-			{
-				err = gDNSServiceRegister( &sref, 0, 0, NULL, "_smb._tcp,_file", NULL, NULL, ( uint16_t ) port.NotAnInteger, ( mDNSu16 )( txtPtr - txtBuf ), txtBuf, NULL, NULL );
-
-				if ( err )
-				{
-					LogMsg( "SMBRegistrationThread: DNSServiceRegister returned %d\n", err );
-					sref = NULL;
-					break;
-				}
-			}
-			else if ( ret == kSMBDeregisterEvent )
-			{
-				if ( sref )
-				{
-					gDNSServiceRefDeallocate( sref );
-					sref = NULL;
-				}
-			}
-		}
-		else
-		{
-			LogMsg( "SMBRegistrationThread:  WaitForMultipleObjects returned %d\n", GetLastError() );
-			break;
-		}
-	}
-
-exit:
-
-	if ( sref != NULL )
-	{
-		gDNSServiceRefDeallocate( sref );
-		sref = NULL;
-	}
-
-	SetEvent( gSMBThreadQuitEvent );
-	_endthreadex( 0 );
-	return 0;
-}
-
-//===========================================================================================================================
-//	CheckFileShares
-//===========================================================================================================================
-
-mDNSlocal void CheckFileShares( mDNS * const m )
-{
-	PSHARE_INFO_1	bufPtr = ( PSHARE_INFO_1 ) NULL;
-	DWORD			entriesRead = 0;
-	DWORD			totalEntries = 0;
-	DWORD			resume = 0;
-	DWORD			advertise = mDNSfalse;
-	mDNSBool		fileSharing = mDNSfalse;
-	mDNSBool		printSharing = mDNSfalse;
-	HKEY			key = NULL;
-	BOOL			retry = FALSE;
-	NET_API_STATUS  res;
-	mStatus			err;
-
-	check( m );
-
-	// Only do this if we're not shutting down
-
-	require_action_quiet( m->AdvertiseLocalAddresses && !m->ShutdownTime, exit, err = mStatus_NoError );
-
-	err = RegCreateKey( HKEY_LOCAL_MACHINE, kServiceParametersNode L"\\Services\\SMB", &key );
-
-	if ( !err )
-	{
-		DWORD dwSize = sizeof( advertise );
-		RegQueryValueEx( key, L"Advertise", NULL, NULL, (LPBYTE) &advertise, &dwSize );
-	}
-
-	if ( advertise && mDNSIsFileAndPrintSharingEnabled( &retry ) )
-	{
-		dlog( kDebugLevelTrace, DEBUG_NAME "Sharing is enabled\n" );
-
-		res = NetShareEnum( NULL, 1, ( LPBYTE* )&bufPtr, MAX_PREFERRED_LENGTH, &entriesRead, &totalEntries, &resume );
-
-		if ( ( res == ERROR_SUCCESS ) || ( res == ERROR_MORE_DATA ) )
-		{
-			PSHARE_INFO_1 p = bufPtr;
-			DWORD i;
-
-			for ( i = 0; i < entriesRead; i++ ) 
-			{
-				// We are only interested if the user is sharing anything other 
-				// than the built-in "print$" source
-
-				if ( ( p->shi1_type == STYPE_DISKTREE ) && ( wcscmp( p->shi1_netname, TEXT( "print$" ) ) != 0 ) )
-				{
-					fileSharing = mDNStrue;
-				}
-				else if ( p->shi1_type == STYPE_PRINTQ )
-				{
-					printSharing = mDNStrue;
-				}
-
-				p++;
-			}
-
-			NetApiBufferFree( bufPtr );
-			bufPtr = NULL;
-			retry = FALSE;
-		}
-		else if ( res == NERR_ServerNotStarted )
-		{
-			retry = TRUE;
-		}
-	}
-	
-	if ( retry )
-	{
-		__int64			qwTimeout;
-		LARGE_INTEGER   liTimeout;
-
-		qwTimeout = -m->p->checkFileSharesTimeout * 10000000;
-		liTimeout.LowPart  = ( DWORD )( qwTimeout & 0xFFFFFFFF );
-		liTimeout.HighPart = ( LONG )( qwTimeout >> 32 );
-
-		SetWaitableTimer( m->p->checkFileSharesTimer, &liTimeout, 0, CheckFileSharesProc, m, FALSE );
-	}
-
-	if ( !m->p->smbFileSharing && fileSharing )
-	{
-		if ( !gSMBThread )
-		{
-			if ( !gDNSSDLibrary )
-			{
-				gDNSSDLibrary = LoadLibrary( TEXT( "dnssd.dll" ) );
-				require_action( gDNSSDLibrary, exit, err = GetLastError() );
-			}
-
-			if ( !gDNSServiceRegister )
-			{
-				gDNSServiceRegister = ( DNSServiceRegisterFunc ) GetProcAddress( gDNSSDLibrary, "DNSServiceRegister" );
-				require_action( gDNSServiceRegister, exit, err = GetLastError() );
-			}
-
-			if ( !gDNSServiceRefDeallocate )
-			{
-				gDNSServiceRefDeallocate = ( DNSServiceRefDeallocateFunc ) GetProcAddress( gDNSSDLibrary, "DNSServiceRefDeallocate" );
-				require_action( gDNSServiceRefDeallocate, exit, err = GetLastError() );
-			}
-
-			if ( !gSMBThreadRegisterEvent )
-			{
-				gSMBThreadRegisterEvent = CreateEvent( NULL, FALSE, FALSE, NULL );
-				require_action( gSMBThreadRegisterEvent != NULL, exit, err = GetLastError() );
-			}
-
-			if ( !gSMBThreadDeregisterEvent )
-			{
-				gSMBThreadDeregisterEvent = CreateEvent( NULL, FALSE, FALSE, NULL );
-				require_action( gSMBThreadDeregisterEvent != NULL, exit, err = GetLastError() );
-			}
-
-			if ( !gSMBThreadStopEvent )
-			{
-				gSMBThreadStopEvent = CreateEvent( NULL, FALSE, FALSE, NULL );
-				require_action( gSMBThreadStopEvent != NULL, exit, err = GetLastError() );
-			}
-
-			if ( !gSMBThreadQuitEvent )
-			{
-				gSMBThreadQuitEvent = CreateEvent( NULL, FALSE, FALSE, NULL );
-				require_action( gSMBThreadQuitEvent != NULL, exit, err = GetLastError() );
-			}
-
-			gSMBThread = ( HANDLE ) _beginthreadex( NULL, 0, SMBRegistrationThread, m, 0, NULL );
-			require_action( gSMBThread != NULL, exit, err = GetLastError() );
-		}
-
-		SetEvent( gSMBThreadRegisterEvent );
-
-		m->p->smbFileSharing = mDNStrue;
-	}
-	else if ( m->p->smbFileSharing && !fileSharing )
-	{
-		dlog( kDebugLevelTrace, DEBUG_NAME "deregistering smb type\n" );
-
-		if ( gSMBThreadDeregisterEvent != NULL )
-		{
-			SetEvent( gSMBThreadDeregisterEvent );
-		}
-
-		m->p->smbFileSharing = mDNSfalse;
-	}
-
-exit:
-
-	if ( key )
-	{
-		RegCloseKey( key );
-	}
 }
 
 //===========================================================================================================================
