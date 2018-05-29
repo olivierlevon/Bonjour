@@ -3685,7 +3685,7 @@ mDNSlocal int	getifaddrs_ipv6( struct ifaddrs **outAddrs )
 					sa4->sin_family = AF_INET;
 					sa4->sin_addr.s_addr = ipv4Netmask.sin_addr.s_addr;
 
-					dlog( kDebugLevelInfo, DEBUG_NAME "%s: IPv4 mask = %s\n", __ROUTINE__, inet_ntoa( sa4->sin_addr ) );
+					//dlog( kDebugLevelInfo, DEBUG_NAME "%s: IPv4 mask = %s\n", __ROUTINE__, inet_ntoa( sa4->sin_addr ) );
 					ifa->ifa_netmask = (struct sockaddr *) sa4;
 					break;
 				}
@@ -3756,7 +3756,7 @@ mDNSlocal int	getifaddrs_ipv6( struct ifaddrs **outAddrs )
 					}
 
 					WSAAddressToStringA( ( LPSOCKADDR ) sa6, sizeof( struct sockaddr_in6 ), NULL, buf, &buflen );
-					dlog( kDebugLevelInfo, DEBUG_NAME "%s: IPv6 mask = %s\n", __ROUTINE__, buf );				
+					//dlog( kDebugLevelInfo, DEBUG_NAME "%s: IPv6 mask = %s\n", __ROUTINE__, buf );				
 
 					break;
 				}
