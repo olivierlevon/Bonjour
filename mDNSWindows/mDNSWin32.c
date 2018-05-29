@@ -4440,7 +4440,7 @@ exit:
 #ifdef UNICODE
 mDNSlocal void GetDDNSDomains( DNameListElem ** domains, LPCWSTR lpSubKey )
 #else
-mDNSlocal void GetDDNSConfig( DNameListElem ** domains, LPCSTR lpSubKey )
+mDNSlocal void GetDDNSDomains( DNameListElem ** domains, LPCSTR lpSubKey )
 #endif
 {
 	char		subKeyName[kRegistryMaxKeyLength + 1];
