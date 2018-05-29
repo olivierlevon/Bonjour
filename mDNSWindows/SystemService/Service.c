@@ -219,46 +219,46 @@ int	Main( int argc, LPTSTR argv[] )
 	
 	for( i = 1; i < argc; ++i )
 	{
-		if( StrCmp( argv[ i ], TEXT("-q") ) == 0 )			// Quiet Mode (toggle)
+		if ( StrCmp( argv[ i ], TEXT("-q") ) == 0 )			// Quiet Mode (toggle)
 		{
 			gServiceQuietMode = !gServiceQuietMode;
 		}
-		else if( StrCmp( argv[ i ], TEXT("-install") ) == 0 )			// Install
+		else if ( StrCmp( argv[ i ], TEXT("-install") ) == 0 )			// Install
 		{
 			TCHAR desc[ 256 ];
 			
 			desc[ 0 ] = 0;
 			LoadString( GetModuleHandle( NULL ), IDS_SERVICE_DESCRIPTION, desc, sizeof( desc ) );
 			err = InstallService( kServiceName, kServiceName, desc, argv[0] );
-			if( err )
+			if ( err )
 			{
 				ReportStatus( EVENTLOG_ERROR_TYPE, "install service failed (%d)\n", err );
 				goto exit;
 			}
 		}
-		else if( StrCmp( argv[ i ], TEXT("-remove") ) == 0 )		// Remove
+		else if ( StrCmp( argv[ i ], TEXT("-remove") ) == 0 )		// Remove
 		{
 			err = RemoveService( kServiceName );
-			if( err )
+			if ( err )
 			{
 				ReportStatus( EVENTLOG_ERROR_TYPE, "remove service failed (%d)\n", err );
 				goto exit;
 			}
 		}
-		else if( StrCmp( argv[ i ], TEXT("-start") ) == 0 )		// Start
+		else if ( StrCmp( argv[ i ], TEXT("-start") ) == 0 )		// Start
 		{
 			start = TRUE;
 		}
-		else if( StrCmp( argv[ i ], TEXT("-server") ) == 0 )		// Server
+		else if ( StrCmp( argv[ i ], TEXT("-server") ) == 0 )		// Server
 		{
 			err = RunDirect( argc, argv );
-			if( err )
+			if ( err )
 			{
 				ReportStatus( EVENTLOG_ERROR_TYPE, "run service directly failed (%d)\n", err );
 			}
 			goto exit;
 		}
-		else if( ( StrCmp( argv[ i ], TEXT("-help") ) == 0 ) || 	// Help
+		else if ( ( StrCmp( argv[ i ], TEXT("-help") ) == 0 ) || 	// Help
 				 ( StrCmp( argv[ i ], TEXT("-h") ) == 0 ) )
 		{
 			Usage();
@@ -277,11 +277,11 @@ int	Main( int argc, LPTSTR argv[] )
 	// global initialization is needed, it should be done before starting the service dispatcher, but only if it 
 	// will take less than 30 seconds. Otherwise, use a separate thread for it and start the dispatcher immediately.
 	
-	if( start )
+	if ( start )
 	{
 		ok = StartServiceCtrlDispatcher( gServiceDispatchTable );
 		err = translate_errno( ok, (OSStatus) GetLastError(), kInUseErr );
-		if( err != kNoErr )
+		if ( err != kNoErr )
 		{
 			ReportStatus( EVENTLOG_ERROR_TYPE, "start service dispatcher failed (%d)\n", err );
 			goto exit;
@@ -383,7 +383,7 @@ static OSStatus	InstallService( LPCTSTR inName, LPCTSTR inDisplayName, LPCTSTR i
 	err = SetServiceParameters();
 	check_noerr( err );
 	
-	if( inDescription )
+	if ( inDescription )
 	{
 		err = SetServiceInfo( scm, inName, inDescription );
 		check_noerr( err );
@@ -397,11 +397,11 @@ static OSStatus	InstallService( LPCTSTR inName, LPCTSTR inDisplayName, LPCTSTR i
 	err = kNoErr;
 	
 exit:
-	if( service )
+	if ( service )
 	{
 		CloseServiceHandle( service );
 	}
-	if( scm )
+	if ( scm )
 	{
 		CloseServiceHandle( scm );
 	}
@@ -439,7 +439,7 @@ static OSStatus	RemoveService( LPCTSTR inName )
 	err = translate_errno( ok, (OSStatus) GetLastError(), kAuthenticationErr );
 	require_noerr( err, exit );
 	
-	if( status.dwCurrentState != SERVICE_STOPPED )
+	if ( status.dwCurrentState != SERVICE_STOPPED )
 	{
 		ok = ControlService( service, SERVICE_CONTROL_STOP, &status );
 		check_translated_errno( ok, (OSStatus) GetLastError(), kAuthenticationErr );
@@ -453,11 +453,11 @@ static OSStatus	RemoveService( LPCTSTR inName )
 	err = ERROR_SUCCESS;
 	
 exit:
-	if( service )
+	if ( service )
 	{
 		CloseServiceHandle( service );
 	}
-	if( scm )
+	if ( scm )
 	{
 		CloseServiceHandle( scm );
 	}
@@ -675,7 +675,7 @@ static OSStatus	SetServiceInfo( SC_HANDLE inSCM, LPCTSTR inServiceName, LPCTSTR 
 	
 	// Open the database (if not provided) and lock it to prevent other access while re-configuring.
 	
-	if( !inSCM )
+	if ( !inSCM )
 	{
 		inSCM = OpenSCManager( NULL, NULL, SC_MANAGER_ALL_ACCESS );
 		err = translate_errno( inSCM, (OSStatus) GetLastError(), kOpenErr );
@@ -716,11 +716,11 @@ static OSStatus	SetServiceInfo( SC_HANDLE inSCM, LPCTSTR inServiceName, LPCTSTR 
 exit:
 	// Close the service and release the lock.
 	
-	if( service )
+	if ( service )
 	{
 		CloseServiceHandle( service );
 	}
-	if( lock )
+	if ( lock )
 	{
 		UnlockServiceDatabase( lock ); 
 	}
@@ -733,12 +733,12 @@ exit:
 
 static void	ReportStatus( int inType, const char *inFormat, ... )
 {
-	if( !gServiceQuietMode )
+	if ( !gServiceQuietMode )
 	{
 		va_list		args;
 		
 		va_start( args, inFormat );
-		if( gServiceEventSource )
+		if ( gServiceEventSource )
 		{
 			char				s[ 1024 ];
 			BOOL				ok;
@@ -795,7 +795,7 @@ int	RunDirect( int argc, LPTSTR argv[] )
 	// Clean up.
 	
 exit:
-	if( initialized )
+	if ( initialized )
 	{
 		ServiceSpecificFinalize( argc, argv );
 	}
@@ -852,7 +852,7 @@ static void WINAPI ServiceMain( DWORD argc, LPTSTR argv[] )
 	// Run the service. This does not return until the service quits or is stopped.
 	
 	err = ServiceRun( (int) argc, argv );
-	if( err != kNoErr )
+	if ( err != kNoErr )
 	{
 		gServiceStatus.dwWin32ExitCode				= ERROR_SERVICE_SPECIFIC_ERROR;
 		gServiceStatus.dwServiceSpecificExitCode 	= (DWORD) err;
@@ -868,7 +868,7 @@ static void WINAPI ServiceMain( DWORD argc, LPTSTR argv[] )
 	
 exit:
 
-	if( gServiceEventSource )
+	if ( gServiceEventSource )
 	{
 		ok = DeregisterEventSource( gServiceEventSource );
 		check_translated_errno( ok, GetLastError(), kUnknownErr );
@@ -926,7 +926,7 @@ static OSStatus	ServiceSetupEventLogging( void )
 	require_noerr( err, exit );
 		
 exit:
-	if( key )
+	if ( key )
 	{
 		RegCloseKey( key );
 	}
@@ -1014,7 +1014,7 @@ static DWORD WINAPI	ServiceControlHandler( DWORD inControl, DWORD inEventType, L
 			break;
 	}
 	
-	if( setStatus && gServiceStatusHandle )
+	if ( setStatus && gServiceStatusHandle )
 	{
 		ok = SetServiceStatus( gServiceStatusHandle, &gServiceStatus );
 		check_translated_errno( ok, GetLastError(), kUnknownErr );
@@ -1106,7 +1106,7 @@ exit:
 	
 	ReportStatus( EVENTLOG_INFORMATION_TYPE, "Service stopped (%d)\n", err );
 	
-	if( initialized )
+	if ( initialized )
 	{
 		ServiceSpecificFinalize( argc, argv );
 	}
@@ -1125,7 +1125,7 @@ static void	ServiceStop( void )
 	
 	// Signal the event to cause the service to exit.
 	
-	if( gServiceStatusHandle )
+	if ( gServiceStatusHandle )
 	{
 		gServiceStatus.dwCurrentState = SERVICE_STOP_PENDING;
 		ok = SetServiceStatus( gServiceStatusHandle, &gServiceStatus );
@@ -1168,7 +1168,7 @@ static OSStatus	ServiceSpecificInitialize( int argc, LPTSTR argv[] )
 	require_noerr( err, exit);
 
 exit:
-	if( err != kNoErr )
+	if ( err != kNoErr )
 	{
 		ServiceSpecificFinalize( argc, argv );
 	}
@@ -1296,7 +1296,7 @@ static void	ServiceSpecificFinalize( int argc, LPTSTR argv[] )
 	// clean up loaded library
 	//
 
-	if( gIPHelperLibraryInstance )
+	if ( gIPHelperLibraryInstance )
 	{
 		gGetIpInterfaceEntryFunctionPtr = NULL;
 		
@@ -1404,7 +1404,7 @@ mDNSlocal mStatus	SetupNotifications()
 	inBuffer	= 0;
 	outBuffer	= 0;
 	err = WSAIoctl( sock, SIO_ADDRESS_LIST_CHANGE, &inBuffer, 0, &outBuffer, 0, &outSize, NULL, NULL );
-	if( err < 0 )
+	if ( err < 0 )
 	{
 		check( WSAGetLastError() == WSAEWOULDBLOCK );
 	}
@@ -1529,7 +1529,7 @@ mDNSlocal mStatus	SetupNotifications()
 	require_noerr( err, exit );
 
 exit:
-	if( err )
+	if ( err )
 	{
 		TearDownNotifications();
 	}
@@ -1542,7 +1542,7 @@ exit:
 
 mDNSlocal mStatus	TearDownNotifications()
 {
-	if( gInterfaceListChangedSocket != INVALID_SOCKET )
+	if ( gInterfaceListChangedSocket != INVALID_SOCKET )
 	{
 		mDNSPollUnregisterSocket( gInterfaceListChangedSocket );
 
@@ -1761,7 +1761,7 @@ InterfaceListNotification( SOCKET socket, LPWSANETWORKEVENTS event, void *contex
 	inBuffer	= 0;
 	outBuffer	= 0;
 	err = WSAIoctl( gInterfaceListChangedSocket, SIO_ADDRESS_LIST_CHANGE, &inBuffer, 0, &outBuffer, 0, &outSize, NULL, NULL );
-	if( err < 0 )
+	if ( err < 0 )
 	{
 		check( WSAGetLastError() == WSAEWOULDBLOCK );
 	}

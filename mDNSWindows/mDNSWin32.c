@@ -307,7 +307,7 @@ mDNSexport mStatus	mDNSPlatformInit( mDNS * const inMDNS )
 	// calling mDNS_Init and wants to provide its own storage for the platform-specific data so do not overwrite it.
 	
 	mDNSPlatformMemZero( &gMDNSPlatformSupport, sizeof( gMDNSPlatformSupport ) );
-	if( !inMDNS->p ) inMDNS->p				= &gMDNSPlatformSupport;
+	if ( !inMDNS->p ) inMDNS->p				= &gMDNSPlatformSupport;
 	inMDNS->p->mainThread					= OpenThread( THREAD_ALL_ACCESS, FALSE, GetCurrentThreadId() );
 	require_action( inMDNS->p->mainThread, exit, err = mStatus_UnknownErr );
 	inMDNS->p->checkFileSharesTimer = CreateWaitableTimer( NULL, FALSE, NULL );
@@ -520,7 +520,7 @@ mDNSexport void	mDNSPlatformClose( mDNS * const inMDNS )
 	// Free the DLL needed for IPv6 support.
 	
 #if( MDNS_WINDOWS_USE_IPV6_IF_ADDRS )
-	if( gIPHelperLibraryInstance )
+	if ( gIPHelperLibraryInstance )
 	{
 		gGetAdaptersAddressesFunctionPtr = NULL;
 		
@@ -572,14 +572,14 @@ mDNSexport mDNSu32	mDNSPlatformStrLCopy( void *inDst, const void *inSrc, mDNSu32
 {
 	const char *		src = (const char *) inSrc;
 	
-	if( inSize > 0 )
+	if ( inSize > 0 )
 	{
 		size_t		n;
 		char *		dst = (char *) inDst;
 		
 		for( n = inSize - 1; n > 0; --n )
 		{
-			if( ( *dst++ = *src++ ) == '\0' )
+			if ( ( *dst++ = *src++ ) == '\0' )
 			{
 				// Null terminator encountered, so exit.
 				goto exit;
@@ -806,7 +806,7 @@ mDNSexport mStatus	mDNSPlatformInterfaceNameToID( mDNS * const inMDNS, const cha
 	
 	for( ifd = inMDNS->p->interfaceList; ifd; ifd = ifd->next )
 	{
-		if( strcmp( ifd->name, inName ) == 0 )
+		if ( strcmp( ifd->name, inName ) == 0 )
 		{
 			break;
 		}
@@ -815,7 +815,7 @@ mDNSexport mStatus	mDNSPlatformInterfaceNameToID( mDNS * const inMDNS, const cha
 	
 	// Success!
 	
-	if( outID )
+	if ( outID )
 	{
 		*outID = (mDNSInterfaceID) ifd;
 	}
@@ -842,7 +842,7 @@ mDNSexport mStatus	mDNSPlatformInterfaceIDToInfo( mDNS * const inMDNS, mDNSInter
 	
 	for( ifd = inMDNS->p->interfaceList; ifd; ifd = ifd->next )
 	{
-		if( ifd == (mDNSInterfaceData *) inID )
+		if ( ifd == (mDNSInterfaceData *) inID )
 		{
 			break;
 		}
@@ -868,17 +868,17 @@ mDNSexport mDNSInterfaceID	mDNSPlatformInterfaceIDfromInterfaceIndex( mDNS * con
 	mDNSInterfaceID		id;
 	
 	id = mDNSNULL;
-	if( inIndex == kDNSServiceInterfaceIndexLocalOnly )
+	if ( inIndex == kDNSServiceInterfaceIndexLocalOnly )
 	{
 		id = mDNSInterface_LocalOnly;
 	}
-	else if( inIndex != 0 )
+	else if ( inIndex != 0 )
 	{
 		mDNSInterfaceData *		ifd;
 		
 		for( ifd = inMDNS->p->interfaceList; ifd; ifd = ifd->next )
 		{
-			if( ( ifd->scopeID == inIndex ) && ifd->interfaceInfo.InterfaceActive )
+			if ( ( ifd->scopeID == inIndex ) && ifd->interfaceInfo.InterfaceActive )
 			{
 				id = ifd->interfaceInfo.InterfaceID;
 				break;
@@ -900,18 +900,18 @@ mDNSexport mDNSu32	mDNSPlatformInterfaceIndexfromInterfaceID( mDNS * const inMDN
 	(void) suppressNetworkChange;
 
 	index = 0;
-	if( inID == mDNSInterface_LocalOnly )
+	if ( inID == mDNSInterface_LocalOnly )
 	{
 		index = (mDNSu32) kDNSServiceInterfaceIndexLocalOnly;
 	}
-	else if( inID )
+	else if ( inID )
 	{
 		mDNSInterfaceData *		ifd;
 		
 		// Search active interfaces.
 		for( ifd = inMDNS->p->interfaceList; ifd; ifd = ifd->next )
 		{
-			if( (mDNSInterfaceID) ifd == inID )
+			if ( (mDNSInterfaceID) ifd == inID )
 			{
 				index = ifd->scopeID;
 				break;
@@ -920,11 +920,11 @@ mDNSexport mDNSu32	mDNSPlatformInterfaceIndexfromInterfaceID( mDNS * const inMDN
 		
 		// Search inactive interfaces too so remove events for inactive interfaces report the old interface index.
 		
-		if( !ifd )
+		if ( !ifd )
 		{
 			for( ifd = inMDNS->p->inactiveInterfaceList; ifd; ifd = ifd->next )
 			{
-				if( (mDNSInterfaceID) ifd == inID )
+				if ( (mDNSInterfaceID) ifd == inID )
 				{
 					index = ifd->scopeID;
 					break;
@@ -1387,7 +1387,7 @@ mDNSexport mStatus
 	
 	dlog( kDebugLevelChatty, DEBUG_NAME "platform send %d bytes to %#a:%u\n", n, inDstIP, ntohs( inDstPort.NotAnInteger ) );
 	
-	if( inDstIP->type == mDNSAddrType_IPv4 )
+	if ( inDstIP->type == mDNSAddrType_IPv4 )
 	{
 		struct sockaddr_in *		sa4;
 		
@@ -1399,7 +1399,7 @@ mDNSexport mStatus
 
 		if (inSrcSocket) { sendingsocket = inSrcSocket->fd; debugf("mDNSPlatformSendUDP using port %d, static port %d, sock %d", mDNSVal16(inSrcSocket->port), inMDNS->p->unicastSock4.fd, sendingsocket); }
 	}
-	else if( inDstIP->type == mDNSAddrType_IPv6 )
+	else if ( inDstIP->type == mDNSAddrType_IPv6 )
 	{
 		struct sockaddr_in6 *		sa6;
 		
@@ -2230,7 +2230,7 @@ mStatus	SetupNiceName( mDNS * const inMDNS )
 		err = translate_errno( ok, (mStatus) GetLastError(), kNameErr );
 		check_noerr( err );
 		
-		if( !err )
+		if ( !err )
 		{
 			err = TCHARtoUTF8( hostname, utf8, sizeof( utf8 ) );
 		}
@@ -2312,7 +2312,7 @@ mDNSlocal mStatus	SetupHostName( mDNS * const inMDNS )
 	check_noerr( err );
 
 	// if we can't get the hostname
-	if( err || ( tempString[ 0 ] == '\0' ) )
+	if ( err || ( tempString[ 0 ] == '\0' ) )
 	{
 		// Invalidate name so fall back to a default name.
 		
@@ -2326,7 +2326,7 @@ mDNSlocal mStatus	SetupHostName( mDNS * const inMDNS )
 	// Set up the host name.
 	
 	ConvertUTF8PstringToRFC1034HostLabel( tempLabel.c, &inMDNS->hostlabel );
-	if( inMDNS->hostlabel.c[ 0 ] == 0 )
+	if ( inMDNS->hostlabel.c[ 0 ] == 0 )
 	{
 		// Nice name has no characters that are representable as an RFC1034 name (e.g. Japanese) so use the default.
 		
@@ -2418,13 +2418,13 @@ mStatus	SetupInterfaceList( mDNS * const inMDNS )
 #if( MDNS_WINDOWS_ENABLE_IPV4 )
 	for( p = addrs; p; p = p->ifa_next )
 	{
-		if( !p->ifa_addr || ( p->ifa_addr->sa_family != AF_INET ) || ( ( p->ifa_flags & flagMask ) != flagTest ) )
+		if ( !p->ifa_addr || ( p->ifa_addr->sa_family != AF_INET ) || ( ( p->ifa_flags & flagMask ) != flagTest ) )
 		{
 			continue;
 		}
-		if( p->ifa_flags & IFF_LOOPBACK )
+		if ( p->ifa_flags & IFF_LOOPBACK )
 		{
-			if( !loopbackv4 )
+			if ( !loopbackv4 )
 			{
 				loopbackv4 = p;
 			}
@@ -2474,13 +2474,13 @@ mStatus	SetupInterfaceList( mDNS * const inMDNS )
 
 	for( p = addrs; p; p = p->ifa_next )
 	{
-		if( !p->ifa_addr || ( p->ifa_addr->sa_family != AF_INET6 ) || ( ( p->ifa_flags & flagMask ) != flagTest ) )
+		if ( !p->ifa_addr || ( p->ifa_addr->sa_family != AF_INET6 ) || ( ( p->ifa_flags & flagMask ) != flagTest ) )
 		{
 			continue;
 		}
-		if( p->ifa_flags & IFF_LOOPBACK )
+		if ( p->ifa_flags & IFF_LOOPBACK )
 		{
-			if( !loopbackv6 )
+			if ( !loopbackv6 )
 			{
 				loopbackv6 = p;
 			}
@@ -2534,7 +2534,7 @@ mStatus	SetupInterfaceList( mDNS * const inMDNS )
 		{
 			continue;
 		}
-		if( ( p->ifa_addr->sa_family != AF_INET ) && ( p->ifa_addr->sa_family != AF_INET6 ) )
+		if ( ( p->ifa_addr->sa_family != AF_INET ) && ( p->ifa_addr->sa_family != AF_INET6 ) )
 		{
 			continue;
 		}
@@ -2555,7 +2555,7 @@ mStatus	SetupInterfaceList( mDNS * const inMDNS )
 
 		inMDNS->p->registeredLoopback4 = mDNStrue;
 		
-#if( MDNS_WINDOWS_ENABLE_IPV4 )
+#if ( MDNS_WINDOWS_ENABLE_IPV4 )
 
 		// If we're on a platform that doesn't have WSARecvMsg(), there's no way
 		// of determing the destination address of a packet that is sent to us.
@@ -2607,11 +2607,11 @@ mStatus	SetupInterfaceList( mDNS * const inMDNS )
 	CheckFileShares( inMDNS );
 
 exit:
-	if( err )
+	if ( err )
 	{
 		TearDownInterfaceList( inMDNS );
 	}
-	if( addrs )
+	if ( addrs )
 	{
 		freeifaddrs( addrs );
 	}
@@ -2640,7 +2640,7 @@ mStatus	TearDownInterfaceList( mDNS * const inMDNS )
 	while( *p )
 	{
 		ifd = *p;
-		if( NumCacheRecordsForInterfaceID( inMDNS, (mDNSInterfaceID) ifd ) > 0 )
+		if ( NumCacheRecordsForInterfaceID( inMDNS, (mDNSInterfaceID) ifd ) > 0 )
 		{
 			p = &ifd->next;
 			continue;
@@ -2741,7 +2741,7 @@ mDNSlocal mStatus	SetupInterface( mDNS * const inMDNS, const struct ifaddrs *inI
 
 	// Set up a socket for this interface (if needed).
 	
-	if( ifd->interfaceInfo.McastTxRx )
+	if ( ifd->interfaceInfo.McastTxRx )
 	{
 		DWORD size;
 			
@@ -2805,7 +2805,7 @@ mDNSlocal mStatus	SetupInterface( mDNS * const inMDNS, const struct ifaddrs *inI
 	
 exit:
 
-	if( ifd )
+	if ( ifd )
 	{
 		TearDownInterface( inMDNS, ifd );
 	}
@@ -2826,7 +2826,7 @@ mDNSlocal mStatus	TearDownInterface( mDNS * const inMDNS, mDNSInterfaceData *inI
 	
 	dlog( kDebugLevelInfo, DEBUG_NAME "Deregistering interface %#a with mDNS\n", &inIFD->interfaceInfo.ip );
 	
-	if( inIFD->hostRegistered )
+	if ( inIFD->hostRegistered )
 	{
 		inIFD->hostRegistered = mDNSfalse;
 		mDNS_DeregisterInterface( inMDNS, &inIFD->interfaceInfo, NormalActivation );
@@ -2839,7 +2839,7 @@ mDNSlocal mStatus	TearDownInterface( mDNS * const inMDNS, mDNSInterfaceData *inI
 	// If the interface is still referenced by items in the mDNS cache then put it on the inactive list. This keeps 
 	// the InterfaceID valid so remove events report the correct interface. If it is no longer referenced, free it.
 
-	if( NumCacheRecordsForInterfaceID( inMDNS, (mDNSInterfaceID) inIFD ) > 0 )
+	if ( NumCacheRecordsForInterfaceID( inMDNS, (mDNSInterfaceID) inIFD ) > 0 )
 	{
 		inIFD->next = inMDNS->p->inactiveInterfaceList;
 		inMDNS->p->inactiveInterfaceList = inIFD;
@@ -2891,7 +2891,7 @@ mDNSlocal mStatus	SetupSocket( mDNS * const inMDNS, const struct sockaddr *inAdd
 		check_translated_errno( err == 0, WSAGetLastError(), kOptionErr );
 	}
 
-	if( inAddr->sa_family == AF_INET )
+	if ( inAddr->sa_family == AF_INET )
 	{
 		mDNSv4Addr				ipv4;
 		struct sockaddr_in		sa4;
@@ -2949,7 +2949,7 @@ mDNSlocal mStatus	SetupSocket( mDNS * const inMDNS, const struct sockaddr *inAdd
 		check_translated_errno( err == 0, WSAGetLastError(), kOptionErr );
 
 	}
-	else if( inAddr->sa_family == AF_INET6 )
+	else if ( inAddr->sa_family == AF_INET6 )
 	{
 		struct sockaddr_in6 *		sa6p;
 		struct sockaddr_in6			sa6;
@@ -3033,7 +3033,7 @@ mDNSlocal mStatus	SetupSocket( mDNS * const inMDNS, const struct sockaddr *inAdd
 	err = mStatus_NoError;
 	
 exit:
-	if( sock != INVALID_SOCKET )
+	if ( sock != INVALID_SOCKET )
 	{
 		closesocket( sock );
 	}
@@ -3051,31 +3051,31 @@ mDNSlocal mStatus	SockAddrToMDNSAddr( const struct sockaddr * const inSA, mDNSAd
 	check( inSA );
 	check( outIP );
 	
-	if( inSA->sa_family == AF_INET )
+	if ( inSA->sa_family == AF_INET )
 	{
 		struct sockaddr_in *		sa4;
 		
 		sa4 						= (struct sockaddr_in *) inSA;
 		outIP->type 				= mDNSAddrType_IPv4;
 		outIP->ip.v4.NotAnInteger	= sa4->sin_addr.s_addr;
-		if( outPort )
+		if ( outPort )
 		{
 			outPort->NotAnInteger	= sa4->sin_port;
 		}
 		err = mStatus_NoError;
 	}
-	else if( inSA->sa_family == AF_INET6 )
+	else if ( inSA->sa_family == AF_INET6 )
 	{
 		struct sockaddr_in6 *		sa6;
 		
 		sa6 			= (struct sockaddr_in6 *) inSA;
 		outIP->type 	= mDNSAddrType_IPv6;
 		outIP->ip.v6 	= *( (mDNSv6Addr *) &sa6->sin6_addr );
-		if( IN6_IS_ADDR_LINKLOCAL( &sa6->sin6_addr ) )
+		if ( IN6_IS_ADDR_LINKLOCAL( &sa6->sin6_addr ) )
 		{
 			outIP->ip.v6.w[ 1 ] = 0;
 		}
-		if( outPort )
+		if ( outPort )
 		{
 			outPort->NotAnInteger = sa6->sin6_port;
 		}
@@ -3230,7 +3230,7 @@ UDPSocketNotification( SOCKET sock, LPWSANETWORKEVENTS event, void *context )
 					dstAddr.type 				= mDNSAddrType_IPv4;
 					dstAddr.ip.v4.NotAnInteger	= ipv4PacketInfo->ipi_addr.s_addr;
 				}
-				else if( ( header->cmsg_level == IPPROTO_IPV6 ) && ( header->cmsg_type == IPV6_PKTINFO ) )
+				else if ( ( header->cmsg_level == IPPROTO_IPV6 ) && ( header->cmsg_type == IPV6_PKTINFO ) )
 				{
 					IN6_PKTINFO * ipv6PacketInfo;
 						
@@ -3393,14 +3393,14 @@ mDNSlocal int	getifaddrs( struct ifaddrs **outAddrs )
 	// Try to the load the GetAdaptersAddresses function from the IP Helpers DLL. This API is only available on Windows
 	// XP or later. Looking up the symbol at runtime allows the code to still work on older systems without that API.
 	
-	if( !gIPHelperLibraryInstance )
+	if ( !gIPHelperLibraryInstance )
 	{
 		gIPHelperLibraryInstance = LoadLibrary( TEXT( "Iphlpapi" ) );
-		if( gIPHelperLibraryInstance )
+		if ( gIPHelperLibraryInstance )
 		{
 			gGetAdaptersAddressesFunctionPtr = 
 				(GetAdaptersAddressesFunctionPtr) GetProcAddress( gIPHelperLibraryInstance, "GetAdaptersAddresses" );
-			if( !gGetAdaptersAddressesFunctionPtr )
+			if ( !gGetAdaptersAddressesFunctionPtr )
 			{
 				BOOL		ok;
 				
@@ -3473,7 +3473,7 @@ mDNSlocal int	getifaddrs_ipv6( struct ifaddrs **outAddrs )
 		require_action( iaaList, exit, err = ERROR_NOT_ENOUGH_MEMORY );
 		
 		err = gGetAdaptersAddressesFunctionPtr( AF_UNSPEC, flags, NULL, iaaList, &iaaListSize );
-		if( err == ERROR_SUCCESS ) break;
+		if ( err == ERROR_SUCCESS ) break;
 		
 		free( iaaList );
 		iaaList = NULL;
@@ -3489,11 +3489,11 @@ mDNSlocal int	getifaddrs_ipv6( struct ifaddrs **outAddrs )
 		DWORD							ipv6IfIndex;
 		IP_ADAPTER_PREFIX			*	firstPrefix;
 
-		if( iaa->IfIndex > 0xFFFFFF )
+		if ( iaa->IfIndex > 0xFFFFFF )
 		{
 			dlog( kDebugLevelAlert, DEBUG_NAME "%s: IPv4 ifindex out-of-range (0x%08X)\n", __ROUTINE__, iaa->IfIndex );
 		}
-		if( iaa->Ipv6IfIndex > 0xFF )
+		if ( iaa->Ipv6IfIndex > 0xFF )
 		{
 			dlog( kDebugLevelAlert, DEBUG_NAME "%s: IPv6 ifindex out-of-range (0x%08X)\n", __ROUTINE__, iaa->Ipv6IfIndex );
 		}
@@ -3523,7 +3523,7 @@ mDNSlocal int	getifaddrs_ipv6( struct ifaddrs **outAddrs )
 
 		// Skip pseudo and tunnel interfaces.
 		
-		if( ( ( ipv6IfIndex == 1 ) && ( iaa->IfType != IF_TYPE_SOFTWARE_LOOPBACK ) ) || ( iaa->IfType == IF_TYPE_TUNNEL ) )
+		if ( ( ( ipv6IfIndex == 1 ) && ( iaa->IfType != IF_TYPE_SOFTWARE_LOOPBACK ) ) || ( iaa->IfType == IF_TYPE_TUNNEL ) )
 		{
 			continue;
 		}
@@ -3538,7 +3538,7 @@ mDNSlocal int	getifaddrs_ipv6( struct ifaddrs **outAddrs )
 			struct sockaddr_in		ipv4Netmask;
 
 			family = addr->Address.lpSockaddr->sa_family;
-			if( ( family != AF_INET ) && ( family != AF_INET6 ) ) continue;
+			if ( ( family != AF_INET ) && ( family != AF_INET6 ) ) continue;
 			
 			// <rdar://problem/6220642> iTunes 8: Bonjour doesn't work after upgrading iTunes 8
 			// Seems as if the problem here is a buggy implementation of some network interface
@@ -3577,10 +3577,10 @@ mDNSlocal int	getifaddrs_ipv6( struct ifaddrs **outAddrs )
 			// Get interface flags.
 			
 			ifa->ifa_flags = 0;
-			if( iaa->OperStatus == IfOperStatusUp ) 		ifa->ifa_flags |= IFF_UP;
-			if( iaa->IfType == IF_TYPE_SOFTWARE_LOOPBACK )	ifa->ifa_flags |= IFF_LOOPBACK;
+			if ( iaa->OperStatus == IfOperStatusUp ) 		ifa->ifa_flags |= IFF_UP;
+			if ( iaa->IfType == IF_TYPE_SOFTWARE_LOOPBACK )	ifa->ifa_flags |= IFF_LOOPBACK;
 			else if ( IsPointToPoint( addr ) )				ifa->ifa_flags |= IFF_POINTTOPOINT;
-			if( !( iaa->Flags & IP_ADAPTER_NO_MULTICAST ) )	ifa->ifa_flags |= IFF_MULTICAST;
+			if ( !( iaa->Flags & IP_ADAPTER_NO_MULTICAST ) )	ifa->ifa_flags |= IFF_MULTICAST;
 
 			
 			// <rdar://problem/4045657> Interface index being returned is 512
@@ -3741,7 +3741,7 @@ mDNSlocal int	getifaddrs_ipv6( struct ifaddrs **outAddrs )
 	
 	// Success!
 	
-	if( outAddrs )
+	if ( outAddrs )
 	{
 		*outAddrs = head;
 		head = NULL;
@@ -3749,11 +3749,11 @@ mDNSlocal int	getifaddrs_ipv6( struct ifaddrs **outAddrs )
 	err = ERROR_SUCCESS;
 	
 exit:
-	if( head )
+	if ( head )
 	{
 		freeifaddrs( head );
 	}
-	if( iaaList )
+	if ( iaaList )
 	{
 		free( iaaList );
 	}
@@ -3803,7 +3803,7 @@ mDNSlocal int	getifaddrs_ipv4( struct ifaddrs **outAddrs )
 		buffer = tempBuffer;
 		
 		err = WSAIoctl( sock, SIO_GET_INTERFACE_LIST, NULL, 0, buffer, size, &actualSize, NULL, NULL );
-		if( err == 0 )
+		if ( err == 0 )
 		{
 			break;
 		}
@@ -3825,7 +3825,7 @@ mDNSlocal int	getifaddrs_ipv4( struct ifaddrs **outAddrs )
 		struct sockaddr_in netmask;
 		
 		ifInfo = &buffer[ i ];
-		if( ifInfo->iiAddress.Address.sa_family != AF_INET )
+		if ( ifInfo->iiAddress.Address.sa_family != AF_INET )
 		{
 			continue;
 		}
@@ -3889,7 +3889,7 @@ mDNSlocal int	getifaddrs_ipv4( struct ifaddrs **outAddrs )
 	
 	// Success!
 	
-	if( outAddrs )
+	if ( outAddrs )
 	{
 		*outAddrs = head;
 		head = NULL;
@@ -3898,15 +3898,15 @@ mDNSlocal int	getifaddrs_ipv4( struct ifaddrs **outAddrs )
 	
 exit:
 
-	if( head )
+	if ( head )
 	{
 		freeifaddrs( head );
 	}
-	if( buffer )
+	if ( buffer )
 	{
 		free( buffer );
 	}
-	if( sock != INVALID_SOCKET )
+	if ( sock != INVALID_SOCKET )
 	{
 		closesocket( sock );
 	}
@@ -3928,32 +3928,32 @@ mDNSlocal void	freeifaddrs( struct ifaddrs *inIFAs )
 	{
 		q = p->ifa_next;
 		
-		if( p->ifa_name )
+		if ( p->ifa_name )
 		{
 			free( p->ifa_name );
 			p->ifa_name = NULL;
 		}
-		if( p->ifa_addr )
+		if ( p->ifa_addr )
 		{
 			free( p->ifa_addr );
 			p->ifa_addr = NULL;
 		}
-		if( p->ifa_netmask )
+		if ( p->ifa_netmask )
 		{
 			free( p->ifa_netmask );
 			p->ifa_netmask = NULL;
 		}
-		if( p->ifa_broadaddr )
+		if ( p->ifa_broadaddr )
 		{
 			free( p->ifa_broadaddr );
 			p->ifa_broadaddr = NULL;
 		}
-		if( p->ifa_dstaddr )
+		if ( p->ifa_dstaddr )
 		{
 			free( p->ifa_dstaddr );
 			p->ifa_dstaddr = NULL;
 		}
-		if( p->ifa_data )
+		if ( p->ifa_data )
 		{
 			free( p->ifa_data );
 			p->ifa_data = NULL;
@@ -4095,7 +4095,7 @@ mDNSlocal mDNSBool	CanReceiveUnicast( void )
 	sock = socket( AF_INET, SOCK_DGRAM, IPPROTO_UDP );
 	check_translated_errno( sock != INVALID_SOCKET, WSAGetLastError(), kUnknownErr );
 	ok = sock != INVALID_SOCKET;
-	if( ok )
+	if ( ok )
 	{
 		mDNSPlatformMemZero( &addr, sizeof( addr ) );
 		addr.sin_family			= AF_INET;
@@ -4329,7 +4329,7 @@ WindowsLatin1toUTF8( const char *inString, char *inBuffer, size_t inBufferSize )
 	require_noerr( err, exit );
 
 exit:
-	if( utf16 ) free( utf16 );
+	if ( utf16 ) free( utf16 );
 	return( err );
 }
 
