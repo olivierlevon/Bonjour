@@ -470,7 +470,7 @@ DEBUG_LOCAL int WSPAPI
 	dlog_query_set( kDebugLevelVerbose, inQuerySet );
 	
 	// Check if we can handle this type of request and if we support any of the protocols being requested.
-	// We only support the DNS namespace, TCP and UDP protocols, and IPv4. Only blob results are supported.
+	// We only support the DNS namespace, TCP and UDP protocols, IPv4 and IPv6. Only blob results are supported.
 	
 	require_action_quiet( inFlags & (LUP_RETURN_ADDR|LUP_RETURN_BLOB), exit, err = WSASERVICE_NOT_FOUND );
 	
@@ -485,7 +485,7 @@ DEBUG_LOCAL int WSPAPI
 		{
 			family = inQuerySet->lpafpProtocols[ i ].iAddressFamily;
 			protocol = inQuerySet->lpafpProtocols[ i ].iProtocol;
-			if ( ( family == AF_INET ) && ( ( protocol == IPPROTO_UDP ) || ( protocol == IPPROTO_TCP ) ) )
+			if ( ( ( family == AF_INET ) || ( family == AF_INET6 ) || ( family == AF_UNSPEC ) ) && ( ( protocol == IPPROTO_UDP ) || ( protocol == IPPROTO_TCP ) ) )
 			{
 				break;
 			}
