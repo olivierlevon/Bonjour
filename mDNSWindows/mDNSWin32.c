@@ -3133,7 +3133,7 @@ mDNSlocal mStatus	SetupSocket( mDNS * const inMDNS, const struct sockaddr *inAdd
 	}
 	else
 	{
-		dlog( kDebugLevelError, DEBUG_NAME "%s: unsupport socket family (%d)\n", __ROUTINE__, inAddr->sa_family );
+		dlog( kDebugLevelError, DEBUG_NAME "%s: unsupported socket family (%d)\n", __ROUTINE__, inAddr->sa_family );
 		err = kUnsupportedErr;
 		goto exit;
 	}
