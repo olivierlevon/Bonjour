@@ -21,7 +21,6 @@
 #include	<string.h>
 
 #include	"ClientCommon.h"
-#include	"CommonServices.h"
 #include	"DebugServices.h"
 
 #include	<iphlpapi.h>
@@ -283,7 +282,7 @@ STDAPI	DllRegisterServer( void )
 	dlog( kDebugLevelTrace, "DllRegisterServer\n" );
 
 	err = WSAStartup( MAKEWORD( 2, 2 ), &wsd );
-	err = translate_errno( err == 0, errno_compat(), WSAEINVAL );
+	err = translate_errno( err == 0, WSAGetLastError(), WSAEINVAL );
 	require_noerr( err, exit );
 
 	// Unregister before registering to workaround an installer
@@ -292,11 +291,11 @@ STDAPI	DllRegisterServer( void )
 	WSCUnInstallNameSpace( &gNSPGUID );
 
 	err = GetModuleFileNameW( gInstance, path, MAX_PATH );
-	err = translate_errno( err != 0, errno_compat(), kUnknownErr );
+	err = translate_errno( err != 0, GetLastError(), kUnknownErr );
 	require_noerr( err, exit );
 
 	err = WSCInstallNameSpace( gNSPName, path, NS_DNS, 1, &gNSPGUID );
-	err = translate_errno( err == 0, errno_compat(), WSAEINVAL );
+	err = translate_errno( err == 0, WSAGetLastError(), WSAEINVAL );
 	require_noerr( err, exit );
 	
 exit:
@@ -317,11 +316,11 @@ STDAPI	DllUnregisterServer( void )
 	dlog( kDebugLevelTrace, "DllUnregisterServer\n" );
 	
 	err = WSAStartup( MAKEWORD( 2, 2 ), &wsd );
-	err = translate_errno( err == 0, errno_compat(), WSAEINVAL );
+	err = translate_errno( err == 0, WSAGetLastError(), WSAEINVAL );
 	require_noerr( err, exit );
 	
 	err = WSCUnInstallNameSpace( &gNSPGUID );
-	err = translate_errno( err == 0, errno_compat(), WSAEINVAL );
+	err = translate_errno( err == 0, WSAGetLastError(), WSAEINVAL );
 	require_noerr( err, exit );
 		
 exit:
@@ -907,7 +906,7 @@ DEBUG_LOCAL OSStatus	QueryCreate( const WSAQUERYSETW *inQuerySet, DWORD inQueryS
 		s4 = INVALID_SOCKET;
 	}
 
-	err = translate_errno( s4 != INVALID_SOCKET, errno_compat(), kUnknownErr );
+	err = translate_errno( s4 != INVALID_SOCKET, WSAGetLastError(), kUnknownErr );
 	require_noerr( err, exit );
 
 	WSAEventSelect(s4, obj->data4Event, FD_READ|FD_CLOSE);
@@ -941,7 +940,7 @@ DEBUG_LOCAL OSStatus	QueryCreate( const WSAQUERYSETW *inQuerySet, DWORD inQueryS
 		s6 = INVALID_SOCKET;
 	}
 
-	err = translate_errno( s6 != INVALID_SOCKET, errno_compat(), kUnknownErr );
+	err = translate_errno( s6 != INVALID_SOCKET, WSAGetLastError(), kUnknownErr );
 	require_noerr( err, exit );
 
 	WSAEventSelect(s6, obj->data6Event, FD_READ|FD_CLOSE);
