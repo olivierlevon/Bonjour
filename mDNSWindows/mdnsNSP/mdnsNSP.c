@@ -243,14 +243,13 @@ BOOL APIENTRY	DllMain( HINSTANCE inInstance, DWORD inReason, LPVOID inReserved )
 			debug_set_property( kDebugPropertyTagPrintLevel, kDebugLevelNotice );
 			dlog( kDebugLevelTrace, "\n" );
 			dlog( kDebugLevelVerbose, "%s: process attach\n", __ROUTINE__ );
-
 			break;
 		
 		case DLL_PROCESS_DETACH:
 			HostsFileInfoFree( gHostsFileInfo );
 			gHostsFileInfo = NULL;
-			debug_terminate();
 			dlog( kDebugLevelVerbose, "%s: process detach\n", __ROUTINE__ );
+			debug_terminate();
 			break;
 		
 		case DLL_THREAD_ATTACH:
