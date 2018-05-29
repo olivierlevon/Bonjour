@@ -577,7 +577,7 @@ mDNSexport mDNSu32	mDNSPlatformStrLCopy( void *inDst, const void *inSrc, mDNSu32
 		size_t		n;
 		char *		dst = (char *) inDst;
 		
-		for( n = inSize - 1; n > 0; --n )
+		for ( n = inSize - 1; n > 0; --n )
 		{
 			if ( ( *dst++ = *src++ ) == '\0' )
 			{
@@ -588,7 +588,7 @@ mDNSexport mDNSu32	mDNSPlatformStrLCopy( void *inDst, const void *inSrc, mDNSu32
 		*dst = '\0';
 	}
 	
-	while( *src++ != '\0' )
+	while ( *src++ != '\0' )
 	{
 		// Stop at null terminator.
 	}
@@ -804,7 +804,7 @@ mDNSexport mStatus	mDNSPlatformInterfaceNameToID( mDNS * const inMDNS, const cha
 	
 	// Search for an interface with the specified name,
 	
-	for( ifd = inMDNS->p->interfaceList; ifd; ifd = ifd->next )
+	for ( ifd = inMDNS->p->interfaceList; ifd; ifd = ifd->next )
 	{
 		if ( strcmp( ifd->name, inName ) == 0 )
 		{
@@ -840,7 +840,7 @@ mDNSexport mStatus	mDNSPlatformInterfaceIDToInfo( mDNS * const inMDNS, mDNSInter
 	
 	// Search for an interface with the specified ID,
 	
-	for( ifd = inMDNS->p->interfaceList; ifd; ifd = ifd->next )
+	for ( ifd = inMDNS->p->interfaceList; ifd; ifd = ifd->next )
 	{
 		if ( ifd == (mDNSInterfaceData *) inID )
 		{
@@ -876,7 +876,7 @@ mDNSexport mDNSInterfaceID	mDNSPlatformInterfaceIDfromInterfaceIndex( mDNS * con
 	{
 		mDNSInterfaceData *		ifd;
 		
-		for( ifd = inMDNS->p->interfaceList; ifd; ifd = ifd->next )
+		for ( ifd = inMDNS->p->interfaceList; ifd; ifd = ifd->next )
 		{
 			if ( ( ifd->scopeID == inIndex ) && ifd->interfaceInfo.InterfaceActive )
 			{
@@ -909,7 +909,7 @@ mDNSexport mDNSu32	mDNSPlatformInterfaceIndexfromInterfaceID( mDNS * const inMDN
 		mDNSInterfaceData *		ifd;
 		
 		// Search active interfaces.
-		for( ifd = inMDNS->p->interfaceList; ifd; ifd = ifd->next )
+		for ( ifd = inMDNS->p->interfaceList; ifd; ifd = ifd->next )
 		{
 			if ( (mDNSInterfaceID) ifd == inID )
 			{
@@ -922,7 +922,7 @@ mDNSexport mDNSu32	mDNSPlatformInterfaceIndexfromInterfaceID( mDNS * const inMDN
 		
 		if ( !ifd )
 		{
-			for( ifd = inMDNS->p->inactiveInterfaceList; ifd; ifd = ifd->next )
+			for ( ifd = inMDNS->p->inactiveInterfaceList; ifd; ifd = ifd->next )
 			{
 				if ( (mDNSInterfaceID) ifd == inID )
 				{
@@ -2416,7 +2416,7 @@ mStatus	SetupInterfaceList( mDNS * const inMDNS )
 	flagTest = IFF_UP | IFF_MULTICAST;
 	
 #if( MDNS_WINDOWS_ENABLE_IPV4 )
-	for( p = addrs; p; p = p->ifa_next )
+	for ( p = addrs; p; p = p->ifa_next )
 	{
 		if ( !p->ifa_addr || ( p->ifa_addr->sa_family != AF_INET ) || ( ( p->ifa_flags & flagMask ) != flagTest ) )
 		{
@@ -2472,7 +2472,7 @@ mStatus	SetupInterfaceList( mDNS * const inMDNS )
 	
 #if( MDNS_WINDOWS_ENABLE_IPV6 )
 
-	for( p = addrs; p; p = p->ifa_next )
+	for ( p = addrs; p; p = p->ifa_next )
 	{
 		if ( !p->ifa_addr || ( p->ifa_addr->sa_family != AF_INET6 ) || ( ( p->ifa_flags & flagMask ) != flagTest ) )
 		{
@@ -2528,7 +2528,7 @@ mStatus	SetupInterfaceList( mDNS * const inMDNS )
 	flagMask |= IFF_LOOPBACK;
 	flagTest |= IFF_LOOPBACK;
 	
-	for( p = addrs; p; p = p->ifa_next )
+	for ( p = addrs; p; p = p->ifa_next )
 	{
 		if( !p->ifa_addr || ( ( p->ifa_flags & flagMask ) != flagTest ) )
 		{
@@ -2637,7 +2637,7 @@ mStatus	TearDownInterfaceList( mDNS * const inMDNS )
 	// so that remove events that occur after an interface goes away can still report the correct interface.
 
 	p = &inMDNS->p->inactiveInterfaceList;
-	while( *p )
+	while ( *p )
 	{
 		ifd = *p;
 		if ( NumCacheRecordsForInterfaceID( inMDNS, (mDNSInterfaceID) ifd ) > 0 )
@@ -2654,7 +2654,7 @@ mStatus	TearDownInterfaceList( mDNS * const inMDNS )
 
 	// Tear down all the interfaces.
 	
-	while( inMDNS->p->interfaceList )
+	while ( inMDNS->p->interfaceList )
 	{
 		ifd = inMDNS->p->interfaceList;
 		inMDNS->p->interfaceList = ifd->next;
@@ -2714,7 +2714,7 @@ mDNSlocal mStatus	SetupInterface( mDNS * const inMDNS, const struct ifaddrs *inI
 	ifd->interfaceInfo.McastTxRx   = ( ( inIFA->ifa_flags & IFF_MULTICAST ) && !( inIFA->ifa_flags & IFF_POINTTOPOINT ) ) ? mDNStrue : mDNSfalse;
 	ifd->interfaceInfo.InterfaceID = NULL;
 
-	for( p = inMDNS->p->interfaceList; p; p = p->next )
+	for ( p = inMDNS->p->interfaceList; p; p = p->next )
 	{
 		if ( strcmp( p->name, ifd->name ) == 0 )
 		{
@@ -3462,7 +3462,7 @@ mDNSlocal int	getifaddrs_ipv6( struct ifaddrs **outAddrs )
 	
 	flags = GAA_FLAG_INCLUDE_PREFIX | GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST | GAA_FLAG_SKIP_DNS_SERVER | GAA_FLAG_SKIP_FRIENDLY_NAME;
 	i = 0;
-	for( ;; )
+	for ( ;; )
 	{
 		iaaListSize = 0;
 		err = gGetAdaptersAddressesFunctionPtr( AF_UNSPEC, flags, NULL, NULL, &iaaListSize );
@@ -3482,7 +3482,7 @@ mDNSlocal int	getifaddrs_ipv6( struct ifaddrs **outAddrs )
 		dlog( kDebugLevelWarning, "%s: retrying GetAdaptersAddresses after %d failure(s) (%d %m)\n", __ROUTINE__, i, err, err );
 	}
 	
-	for( iaa = iaaList; iaa; iaa = iaa->Next )
+	for ( iaa = iaaList; iaa; iaa = iaa->Next )
 	{
 		int								addrIndex;
 		IP_ADAPTER_UNICAST_ADDRESS	*	addr;
@@ -3530,7 +3530,7 @@ mDNSlocal int	getifaddrs_ipv6( struct ifaddrs **outAddrs )
 		
 		// Add each address as a separate interface to emulate the way getifaddrs works.
 		
-		for( addrIndex = 0, addr = iaa->FirstUnicastAddress; addr; ++addrIndex, addr = addr->Next )
+		for ( addrIndex = 0, addr = iaa->FirstUnicastAddress; addr; ++addrIndex, addr = addr->Next )
 		{			
 			int						family;
 			IP_ADAPTER_PREFIX *		prefix;
@@ -3796,7 +3796,7 @@ mDNSlocal int	getifaddrs_ipv4( struct ifaddrs **outAddrs )
 		
 	n = 0;
 	size = 16 * sizeof( INTERFACE_INFO );
-	for( ;; )
+	for ( ;; )
 	{
 		tempBuffer = (INTERFACE_INFO *) realloc( buffer, size );
 		require_action( tempBuffer, exit, err = WSAENOBUFS );
@@ -3819,7 +3819,7 @@ mDNSlocal int	getifaddrs_ipv4( struct ifaddrs **outAddrs )
 	
 	// Process the raw interface list and build a linked list of IPv4 interfaces.
 	
-	for( i = 0; i < n; ++i )
+	for ( i = 0; i < n; ++i )
 	{
 		uint32_t ifIndex;
 		struct sockaddr_in netmask;
@@ -3924,7 +3924,7 @@ mDNSlocal void	freeifaddrs( struct ifaddrs *inIFAs )
 	
 	// Free each piece of the structure. Set to null after freeing to handle macro-aliased fields.
 	
-	for( p = inIFAs; p; p = q )
+	for ( p = inIFAs; p; p = q )
 	{
 		q = p->ifa_next;
 		
@@ -4706,7 +4706,7 @@ CheckFileShares( mDNS * const m )
 			PSHARE_INFO_1 p = bufPtr;
 			DWORD i;
 
-			for( i = 0; i < entriesRead; i++ ) 
+			for ( i = 0; i < entriesRead; i++ ) 
 			{
 				// We are only interested if the user is sharing anything other 
 				// than the built-in "print$" source
@@ -4828,7 +4828,7 @@ IsWOMPEnabled( mDNS * const m )
 
 	enabled = FALSE;
 
-	for( ifd = m->p->interfaceList; ifd; ifd = ifd->next )
+	for ( ifd = m->p->interfaceList; ifd; ifd = ifd->next )
 	{
 		if ( IsWOMPEnabledForAdapter( ifd->name ) )
 		{

@@ -217,7 +217,7 @@ int	Main( int argc, LPTSTR argv[] )
 	
 	// Parse arguments.
 	
-	for( i = 1; i < argc; ++i )
+	for ( i = 1; i < argc; ++i )
 	{
 		if ( StrCmp( argv[ i ], TEXT("-q") ) == 0 )			// Quiet Mode (toggle)
 		{
@@ -1193,7 +1193,7 @@ static OSStatus	ServiceSpecificRun( int argc, LPTSTR argv[] )
 	err = uDNS_SetupDNSConfig( &gMDNSRecord );
 	check( !err );
 
-	while( !done )
+	while ( !done )
 	{
 		static mDNSs32 RepeatedBusy = 0;	
 		mDNSs32 nextTimerEvent;
