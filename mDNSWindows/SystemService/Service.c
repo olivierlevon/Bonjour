@@ -1197,7 +1197,6 @@ static OSStatus	ServiceSpecificRun( int argc, LPTSTR argv[] )
 	{
 		static mDNSs32 RepeatedBusy = 0;	
 		mDNSs32 nextTimerEvent;
-		mStatus err;
 
 		// Give the mDNS core a chance to do its work and determine next event time.
 
