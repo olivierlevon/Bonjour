@@ -250,6 +250,7 @@ BOOL APIENTRY	DllMain( HINSTANCE inInstance, DWORD inReason, LPVOID inReserved )
 		case DLL_PROCESS_DETACH:
 			HostsFileInfoFree( gHostsFileInfo );
 			gHostsFileInfo = NULL;
+			debug_terminate();
 			dlog( kDebugLevelVerbose, "%s: process detach\n", __ROUTINE__ );
 			break;
 		
