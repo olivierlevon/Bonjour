@@ -33,11 +33,6 @@
 
 #pragma comment(lib, "DelayImp.lib")
 
-#ifdef _MSC_VER
-#define swprintf _snwprintf
-#define snprintf _snprintf
-#endif
-
 #define MAX_LABELS 128
 
 #if 0
