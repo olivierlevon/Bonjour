@@ -1497,7 +1497,7 @@ mDNSlocal mStatus	TearDownNotifications()
 		mDNSPollUnregisterSocket( gInterfaceListChangedSocket );
 
 		closesocket( gInterfaceListChangedSocket );
-		gInterfaceListChangedSocket = kInvalidSocketRef;
+		gInterfaceListChangedSocket = INVALID_SOCKET;
 	}
 
 	if ( gDescChangedEvent != NULL )

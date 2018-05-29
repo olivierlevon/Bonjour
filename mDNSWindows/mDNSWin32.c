@@ -2716,7 +2716,7 @@ mDNSlocal mStatus	SetupInterface( mDNS * const inMDNS, const struct ifaddrs *inI
 	
 	ifd = (mDNSInterfaceData *) calloc( 1, sizeof( *ifd ) );
 	require_action( ifd, exit, err = mStatus_NoMemoryErr );
-	ifd->sock.fd	= kInvalidSocketRef;
+	ifd->sock.fd	= INVALID_SOCKET;
 	ifd->sock.ifd	= ifd;
 	ifd->sock.next	= NULL;
 	ifd->sock.m		= inMDNS;
@@ -2806,7 +2806,7 @@ mDNSlocal mStatus	SetupInterface( mDNS * const inMDNS, const struct ifaddrs *inI
 	
 	ifd->interfaceInfo.Advertise = ( mDNSu8 ) inMDNS->AdvertiseLocalAddresses;
 
-	if ( ifd->sock.fd != kInvalidSocketRef )
+	if ( ifd->sock.fd != INVALID_SOCKET )
 	{
 		err = mDNSPollRegisterSocket( ifd->sock.fd, FD_READ, UDPSocketNotification, &ifd->sock );
 		require_noerr( err, exit );
@@ -3058,7 +3058,7 @@ mDNSlocal mStatus	SetupSocket( mDNS * const inMDNS, const struct sockaddr *inAdd
 	// Success!
 	
 	*outSocketRef = sock;
-	sock = kInvalidSocketRef;
+	sock = INVALID_SOCKET;
 	err = mStatus_NoError;
 	
 exit:
