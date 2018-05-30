@@ -37,11 +37,11 @@
 // Both mDNS.c and mDNSWin32.h declare UDPSocket_struct type resulting in a compile-time error, so
 // trick the compiler when including mDNSWin32.h
 #   define UDPSocket_struct _UDPSocket_struct
-#   include <mDNSEmbeddedAPI.h>
-#   include <mDNSWin32.h>
-#   include <PosixCompat.h>
-#   include <Poll.h>
-#   include <iphlpapi.h>
+#   include "mDNSEmbeddedAPI.h"
+#   include "mDNSWin32.h"
+#   include "PosixCompat.h"
+#   include "Poll.h"
+#   include "iphlpapi.h"
 #if defined(_DEBUG)
 #ifdef VLD
 #include <vld.h> 
