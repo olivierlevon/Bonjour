@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 4 -*-
  *
- * Copyright (c) 2002-2004 Apple Computer, Inc. All rights reserved.
+ * Copyright (c) 2002-2018 Apple Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -993,13 +993,30 @@ mDNSexport int main(int argc, char **argv)
 {
     const char *progname = strrchr(argv[0], '/') ? strrchr(argv[0], '/') + 1 : argv[0];
     int i;
-    mStatus status;
+    mStatus status = mStatus_NoError;
+#if defined(WIN32)
+    WSADATA wsaData;
+	int WinSockInitialized = 0;
+	int ret;
+#endif
 
 #if defined(WIN32)
     HeapSetInformation(NULL, HeapEnableTerminationOnCorruption, NULL, 0);
 #endif
 
     setlinebuf(stdout);             // Want to see lines as they appear, not block buffered
+
+#if defined(WIN32)
+    // Initialize WinSock WinSock 2.2 or later, needed by if_nametoindex/if_indextoname on Windows
+	ret = WSAStartup(MAKEWORD(2, 2), &wsaData);
+    if (ret != 0)
+	{
+		fprintf(stderr, "cannot initialize WinSock\n");
+		return ret;
+    }
+	else
+		WinSockInitialized = 1;
+#endif
 
     for (i=1; i<argc; i++)
     {
@@ -1049,8 +1066,14 @@ mDNSexport int main(int argc, char **argv)
     }
 
     status = mDNSNetMonitor();
-    if (status) { fprintf(stderr, "%s: mDNSNetMonitor failed %d\n", progname, (int)status); return(status); }
-    return(0);
+    if (status) 
+		fprintf(stderr, "%s: mDNSNetMonitor failed %d\n", progname, (int)status); 
+#if defined(WIN32)
+    // Clean up WinSock.
+	if (WinSockInitialized)
+		WSACleanup();
+#endif	
+    return(status);
 
 usage:
     fprintf(stderr, "\nmDNS traffic monitor\n");
@@ -1086,5 +1109,10 @@ usage:
     fprintf(stderr, "ResolveQ       Resolve questions from clients actively connecting to an instance of this service\n");
     fprintf(stderr, "ResolveA       Resolve answers/announcments giving connection information for an instance of this service\n");
     fprintf(stderr, "\n");
+#if defined(WIN32)
+    // Clean up WinSock.
+	if (WinSockInitialized)
+		WSACleanup();
+#endif	
     return(-1);
 }

@@ -185,7 +185,6 @@ typedef DWORD ( WINAPI * GetIpInterfaceEntryFunctionPtr )( PMIB_IPINTERFACE_ROW 
 mDNSlocal HMODULE								gIPHelperLibraryInstance		= NULL;
 mDNSlocal GetIpInterfaceEntryFunctionPtr		gGetIpInterfaceEntryFunctionPtr	= NULL;
 
-
 #if 0
 #pragma mark -
 #endif
@@ -200,11 +199,19 @@ int	Main( int argc, LPTSTR argv[] )
 	BOOL			ok;
 	BOOL			start;
 	int				i;
+	WSADATA			wsaData;
+	int WinSockInitialized = 0;
 
 	HeapSetInformation( NULL, HeapEnableTerminationOnCorruption, NULL, 0 );
 
 	debug_initialize( kDebugOutputTypeMetaConsole );
 	debug_set_property( kDebugPropertyTagPrintLevel, kDebugLevelVerbose );
+
+	// Startup WinSock 2.2 or later.
+	
+	err = WSAStartup( MAKEWORD( 2, 2 ), &wsaData );
+	require_noerr( err, exit );
+	WinSockInitialized = 1;
 
 	// Default to automatically starting the service dispatcher if no extra arguments are specified.
 	
@@ -267,7 +274,8 @@ int	Main( int argc, LPTSTR argv[] )
 			break;
 		}
 	}
-	
+
+
 	// Start the service dispatcher if requested. This does not return until all services have terminated. If any 
 	// global initialization is needed, it should be done before starting the service dispatcher, but only if it 
 	// will take less than 30 seconds. Otherwise, use a separate thread for it and start the dispatcher immediately.
@@ -285,6 +293,10 @@ int	Main( int argc, LPTSTR argv[] )
 	err = 0;
 	
 exit:
+
+	if ( WinSockInitialized )
+		WSACleanup();
+
 	dlog( kDebugLevelTrace, DEBUG_NAME "exited (%d %m)\n", err, err );
 	_CrtDumpMemoryLeaks();
 	return( (int) err );
