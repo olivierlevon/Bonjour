@@ -278,9 +278,6 @@ mDNSexport mStatus	mDNSPlatformInit( mDNS * const inMDNS )
 	if ( !inMDNS->p ) inMDNS->p				= &gMDNSPlatformSupport;
 	inMDNS->p->mainThread					= OpenThread( THREAD_ALL_ACCESS, FALSE, GetCurrentThreadId() );
 	require_action( inMDNS->p->mainThread, exit, err = mStatus_UnknownErr );
-	inMDNS->p->checkFileSharesTimer = CreateWaitableTimer( NULL, FALSE, NULL );
-	require_action( inMDNS->p->checkFileSharesTimer, exit, err = mStatus_UnknownErr );
-	inMDNS->p->checkFileSharesTimeout		= 10;		// Retry time for CheckFileShares() in seconds
 	
 	inMDNS->CanReceiveUnicastOn5353 = CanReceiveUnicast();
 	
