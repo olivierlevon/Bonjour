@@ -93,7 +93,6 @@ struct	mDNS_PlatformSupport_struct
 	char						nbname[ 32 ];
 	char						nbdomain[ 32 ];
 	mDNSBool					registeredLoopback4;
-	int							interfaceCount;
 	mDNSInterfaceData *			interfaceList;
 	mDNSInterfaceData *			inactiveInterfaceList;
 	struct UDPSocket_struct		unicastSock4;

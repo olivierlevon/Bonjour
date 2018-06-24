@@ -2481,7 +2481,6 @@ mStatus	SetupInterfaceList( mDNS * const inMDNS )
 			
 		*next = ifd;
 		next  = &ifd->next;
-		++inMDNS->p->interfaceCount;
 	}
 #endif
 	
@@ -2532,9 +2531,7 @@ mStatus	SetupInterfaceList( mDNS * const inMDNS )
 
 		*next = ifd;
 		next  = &ifd->next;
-		++inMDNS->p->interfaceCount;
 	}
-
 
 #endif
 
@@ -2589,7 +2586,6 @@ mStatus	SetupInterfaceList( mDNS * const inMDNS )
 
 		*next = ifd;
 		next  = &ifd->next;
-		++inMDNS->p->interfaceCount;
 	}
 
 	if ( !foundv6 && loopbackv6 )
@@ -2618,7 +2614,6 @@ mStatus	SetupInterfaceList( mDNS * const inMDNS )
 
 		*next = ifd;
 		next  = &ifd->next;
-		++inMDNS->p->interfaceCount;
 	}
 
 exit:
@@ -2676,7 +2671,6 @@ mStatus	TearDownInterfaceList( mDNS * const inMDNS )
 		
 		TearDownInterface( inMDNS, ifd );
 	}
-	inMDNS->p->interfaceCount = 0;
 
 	myFreeIfAddrs();
 	
