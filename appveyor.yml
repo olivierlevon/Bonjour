@@ -1,0 +1,7 @@
+version: 878.30.4b{build}
+image: Visual Studio 2017
+configuration: Release
+platform: x86
+build:
+  project: mDNSWindows\SystemService\Service.vcxproj
+verbosity: minimal
