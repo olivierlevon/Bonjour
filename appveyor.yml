@@ -4,4 +4,4 @@ configuration: Release
 platform: x86
 build:
   project: mDNSWindows\SystemService\Service.vcxproj
-verbosity: minimal
+  verbosity: minimal
