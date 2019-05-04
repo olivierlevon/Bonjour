@@ -1238,8 +1238,8 @@ static void HandleEvents(void)
 }
 #else
 {
-    int dns_sd_fd  = client    ? DNSServiceRefSockFD(client   ) : -1;
-    int dns_sd_fd2 = client_pa ? DNSServiceRefSockFD(client_pa) : -1;
+	dnssd_sock_t dns_sd_fd  = client    ? DNSServiceRefSockFD(client   ) : -1;
+	dnssd_sock_t dns_sd_fd2 = client_pa ? DNSServiceRefSockFD(client_pa) : -1;
     int nfds = dns_sd_fd + 1;
     fd_set readfds;
     struct timeval tv;
