@@ -474,7 +474,7 @@ abstract public class	DNSSD
 			String name = System.getProperty( "com.apple.dnssd.DNSSD" );
 			if (name == null)
 				name = "com.apple.dnssd.AppleDNSSD";	// Fall back to Apple-provided class.
-			fInstance = (DNSSD) Class.forName(name).newInstance();
+			fInstance = (DNSSD) Class.forName(name).getDeclaredConstructor().newInstance();
 		}
 		catch( Exception e )
 		{
