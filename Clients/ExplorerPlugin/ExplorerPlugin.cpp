@@ -454,7 +454,6 @@ DEBUG_LOCAL OSStatus	UnregisterServer( CLSID inCLSID )
 	TCHAR				clsidString[ 64 ];
 	HKEY				key;
 	TCHAR				keyName[ MAX_PATH * 2 ];
-	OSVERSIONINFO		versionInfo;
 
 	// Convert the CLSID to a string based on the encoding of this code (ANSI or Unicode).
 	
