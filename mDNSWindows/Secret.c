@@ -249,7 +249,7 @@ exit:
 		handle = NULL;
 	}
 
-	return ok;
+	return (mDNSBool)ok;
 }
 
 
