@@ -3253,7 +3253,7 @@ mDNSlocal AuthRecord *MarkRRForSending(mDNS *const m)
 
 mDNSlocal mDNSBool SendGroupUpdates(mDNS *const m)
 {
-    mDNSOpaque16 msgid;
+    mDNSOpaque16 msgid = zeroID;
     mDNSs32 spaceleft = 0;
     mDNSs32 zoneSize, rrSize;
     mDNSu8 *oldnext; // for debugging
