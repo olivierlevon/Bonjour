@@ -19,7 +19,8 @@ dlldata.c
 DLLX.h
 EventLog.rc
 EventLog.h
-
+DLLX_i.c
+DLLX_p.c
 
 # Build results
 [Dd]ebug/
