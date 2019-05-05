@@ -703,10 +703,10 @@ LONG	ExplorerBarWindow::OnResolve( ResolveInfo * resolve )
 	url.AppendFormat( TEXT( "%S" ), resolve->handler->urlScheme );					// URL Scheme
 	if( username.GetLength() > 0 )
 	{
-		url.AppendFormat( TEXT( "%s" ), username );									// Username
+		url.AppendFormat( TEXT( "%s" ), (LPCTSTR)username );						// Username
 		if( password.GetLength() > 0 )
 		{
-			url.AppendFormat( TEXT( ":%s" ), password );							// Password
+			url.AppendFormat( TEXT( ":%s" ), (LPCTSTR)password );					// Password
 		}
 		url.AppendFormat( TEXT( "@" ) );
 	}
