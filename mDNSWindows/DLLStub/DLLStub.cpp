@@ -85,7 +85,7 @@ DNSServiceRefSockFD(DNSServiceRef sdRef)
 {
 	typedef int (DNSSD_API * Func)(DNSServiceRef sdRef);
 	static Func func = NULL;
-	int ret = INVALID_SOCKET;
+	dnssd_sock_t ret = INVALID_SOCKET;
 
 	if ( DLLStub::GetProcAddress( ( FARPROC* ) &func, __FUNCTION__ ) )
 	{
