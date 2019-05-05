@@ -97,6 +97,7 @@
       <ProgramDataBaseFileName>$(IntDir)dnssd.pdb</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)dnssdStatic.lib</OutputFile>
@@ -118,6 +119,7 @@
       <ProgramDataBaseFileName>$(IntDir)dnssd.pdb</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)dnssdStatic.lib</OutputFile>
@@ -133,6 +135,7 @@
       <ProgramDataBaseFileName>$(IntDir)dnssd.lib.pdb</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)dnssdStatic.lib</OutputFile>
@@ -159,6 +162,7 @@ xcopy /Y "$(OutDir)dnssd.lib.pdb"                                               
       <ProgramDataBaseFileName>$(IntDir)dnssd.lib.pdb</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)dnssdStatic.lib</OutputFile>

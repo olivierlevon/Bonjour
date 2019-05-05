@@ -108,6 +108,7 @@
       <CallingConvention>StdCall</CallingConvention>
       <CompileAs>Default</CompileAs>
       <DisableSpecificWarnings>4127;4204;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>../;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -151,6 +152,7 @@
       <CallingConvention>StdCall</CallingConvention>
       <CompileAs>Default</CompileAs>
       <DisableSpecificWarnings>4127;4204;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>../;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -183,6 +185,7 @@
       <CompileAs>Default</CompileAs>
       <DisableSpecificWarnings>4127;4204;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <MinimalRebuild />
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>../;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -235,6 +238,7 @@ xcopy /I/Y "$(ProjectDir)..\..\mDNSShared\dns_sd.h"                             
       <CompileAs>Default</CompileAs>
       <DisableSpecificWarnings>4127;4204;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <MinimalRebuild />
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>../;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
