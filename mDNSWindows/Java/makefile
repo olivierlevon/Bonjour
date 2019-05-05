@@ -1,6 +1,6 @@
 # -*- tab-width: 4 -*-
 #
-# Copyright (c) 2002-2018 Apple Inc. All rights reserved.
+# Copyright (c) 2002-2019 Apple Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,8 +27,8 @@
 # such as:  
 # "C:\Program Files\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat"
 # 
-# The default location of the JDK is \javasdk. You can override this on the
-# command line (e.g. nmake JDK="C:\Program Files\Java\jdk1.8.0_172").
+# The default location of the JDK is JAVA_HOME. You can override this on the
+# command line (e.g. nmake JDK="C:\Program Files\Java\jdk1.8.0_212").
 
 ############################################################################
 
