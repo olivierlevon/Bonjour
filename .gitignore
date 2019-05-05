@@ -5,6 +5,12 @@ Thumbs.db
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Java build
+*.class
+
+# Coverity directory
+cov-int
+
 # User-specific files
 *.suo
 *.user
