@@ -612,7 +612,7 @@ CPrinterSetupWizardSheet::InstallPrinterCUPS(Printer * printer, Service * servic
 	require_noerr( err, exit );
 
 	// Copy the PPD file to the Windows driver directory...
-	filename.Format( TEXT( "%s/%s.ppd" ), driverdir, dest );
+	filename.Format( TEXT( "%s/%s.ppd" ), driverdir, (LPCTSTR)dest );
 
 	ok = in.Open( ppdfile, CFile::modeRead | CFile::typeBinary );
 	translate_errno( ok, GetLastError(), kUnknownErr );
@@ -636,7 +636,7 @@ CPrinterSetupWizardSheet::InstallPrinterCUPS(Printer * printer, Service * servic
 	// Copy the driver files to the driver directory...
 	for ( i = 0; i < ( sizeof( g_printerDriverFiles ) / sizeof( g_printerDriverFiles[0] ) ); i++ )
 	{
-		filename.Format( TEXT( "%s/drivers/%s/%s" ), datadir, platform, g_printerDriverFiles[i]);
+		filename.Format( TEXT( "%s/drivers/%s/%s" ), datadir, (LPCTSTR)platform, g_printerDriverFiles[i]);
 	
 		ok = in.Open(filename, CFile::modeRead | CFile::typeBinary );
 		err = translate_errno( ok, GetLastError(), kUnknownErr );
@@ -656,8 +656,8 @@ CPrinterSetupWizardSheet::InstallPrinterCUPS(Printer * printer, Service * servic
 	}
 
 	// Do the Windows system calls needed to add the printer driver...
-	filename.Format( TEXT( "%s.ppd" ), dest);
-	dependentFiles.Format( TEXT( "pscript5.dll%c" ) TEXT( "%s.ppd%c" ) TEXT( "ps5ui.dll%c" ) TEXT( "pscript.hlp%c" ) TEXT( "pscript.ntf%c" ) TEXT( "cups6.ini%c" ) TEXT( "cupsps6.dll%c" ) TEXT( "cupsui6.dll%c" ), 0, dest, 0, 0, 0, 0, 0, 0, 0);
+	filename.Format( TEXT( "%s.ppd" ), (LPCTSTR)dest);
+	dependentFiles.Format( TEXT( "pscript5.dll%c" ) TEXT( "%s.ppd%c" ) TEXT( "ps5ui.dll%c" ) TEXT( "pscript.hlp%c" ) TEXT( "pscript.ntf%c" ) TEXT( "cups6.ini%c" ) TEXT( "cupsps6.dll%c" ) TEXT( "cupsui6.dll%c" ), 0, (LPCTSTR)dest, 0, 0, 0, 0, 0, 0, 0);
 
 	driverinfo.cVersion         = 3;
 	driverinfo.pName            = printer->actualName.GetBuffer();
@@ -682,7 +682,7 @@ CPrinterSetupWizardSheet::InstallPrinterCUPS(Printer * printer, Service * servic
     }
 
     // Add the printer using the HTTP/IPP port...
-	portName.Format( TEXT( "%s://%s:%d/printers/%s" ), cupsLib.cupsEncryption() == HTTP_ENCRYPT_ALWAYS ? TEXT( "https" ) : TEXT( "http" ), service->hostname.GetBuffer(), service->portNumber, dest );
+	portName.Format( TEXT( "%s://%s:%d/printers/%s" ), cupsLib.cupsEncryption() == HTTP_ENCRYPT_ALWAYS ? TEXT( "https" ) : TEXT( "http" ), service->hostname.GetBuffer(), service->portNumber, (LPCTSTR)dest );
 
     memset(&printerinfo, 0, sizeof(printerinfo));
     printerinfo.pPrinterName	= printer->actualName.GetBuffer();
@@ -1348,7 +1348,7 @@ CPrinterSetupWizardSheet::OnAddPrinter(
 
 		if (it != m_printerNames.end())
 		{
-			printer->actualName.Format(L"%s (%d)", printer->displayName, printerNameCount);
+			printer->actualName.Format(L"%s (%d)", (LPCTSTR)printer->displayName, printerNameCount);
 		}
 		else
 		{
