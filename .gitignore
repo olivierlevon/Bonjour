@@ -7,6 +7,11 @@ Thumbs.db
 
 # Java build
 *.class
+*.jar
+objects/
+prod/
+build/
+
 
 # Coverity directory
 cov-int
