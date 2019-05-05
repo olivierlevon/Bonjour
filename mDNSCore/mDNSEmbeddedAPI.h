@@ -2497,7 +2497,6 @@ struct mDNS_struct
 
     TrustAnchor     *TrustAnchors;
     int             notifyToken;
-    int             uds_listener_skt;           // Listening socket for incoming UDS clients. This should not be here -- it's private to uds_daemon.c and nothing to do with mDNSCore -- SC
     mDNSu32         AutoTargetServices;         // # of services that have AutoTarget set
 
 #if BONJOUR_ON_DEMAND
