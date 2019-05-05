@@ -43,12 +43,12 @@ JAR = $(JDK)\bin\jar
 DEBUG=0
 !if $(DEBUG) == 1
 JFLAGS = -g
-OBJDIR = objects\debug
-BUILDDIR = build\debug
+OBJDIR = objects\debug\x64
+BUILDDIR = build\debug\x64
 !else
 JFLAGS = 
-OBJDIR = objects\prod
-BUILDDIR = build\prod
+OBJDIR = objects\prod\x64
+BUILDDIR = build\prod\x64
 !endif
 
 SCOBJ = $(OBJDIR)\SimpleChat
