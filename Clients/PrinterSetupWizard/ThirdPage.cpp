@@ -398,7 +398,6 @@ CThirdPage::LoadPrintDriverDefsFromFile(Manufacturers & manufacturers, const CSt
 		CStringList			modelSectionNameDecl;
 		CString				modelSectionName;
 		CString				baseModelName;
-		CString				model;
 		INFCONTEXT			modelContext;
 		LONG				modelCount;
 		POSITION			p;

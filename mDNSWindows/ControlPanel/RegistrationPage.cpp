@@ -183,7 +183,7 @@ CRegistrationPage::OnSetActive()
 {
 	TCHAR	name[kDNSServiceMaxDomainName + 1];
 	DWORD	nameLen = ( kDNSServiceMaxDomainName + 1 ) * sizeof( TCHAR );
-	DWORD	err;
+	LSTATUS	err = ERROR_SUCCESS;
 
 	BOOL b = CPropertyPage::OnSetActive();
 
@@ -230,7 +230,6 @@ CRegistrationPage::OnSetActive()
 		DWORD		cSubKeys = 0;
 		DWORD		cbMaxSubKey;
 		DWORD		cchMaxClass;
-		OSStatus	err;
 
 		err = RegQueryInfoKey( m_registrationSetupKey, NULL, NULL, NULL, &cSubKeys, &cbMaxSubKey, &cchMaxClass, NULL, NULL, NULL, NULL, NULL );       
 		if ( !err )
@@ -295,7 +294,7 @@ CRegistrationPage::Commit()
 	char	passwordUTF8[ 256 ];
 	DWORD	enabled = 1;
 	BOOL	secret = FALSE;
-	DWORD	err;
+	LSTATUS	err = ERROR_SUCCESS;
 
 	m_hostnameControl.GetWindowText( hostname );
 	hostname.MakeLower();
@@ -334,7 +333,6 @@ CRegistrationPage::Commit()
 		DWORD		cchMaxClass;
 		DWORD		dwSize;
 		int			i;
-		OSStatus	err = kNoErr;
 
 		// First, remove all the entries that are there
 

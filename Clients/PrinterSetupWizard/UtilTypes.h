@@ -259,7 +259,7 @@ Queue::~Queue()
 }
 
 inline Model*
-Manufacturer::find( const CString & name )
+Manufacturer::find( const CString & nametofind )
 {
     Models::iterator it;
 
@@ -267,7 +267,7 @@ Manufacturer::find( const CString & name )
     {
         Model * model = *it;
 
-        if ( model->name == name )
+        if ( model->name == nametofind)
         {
             return model;
         }

@@ -306,7 +306,6 @@ CCPApp::InitInstance()
 		TCHAR		iconPath[ MAX_PATH + 12 ]	= TEXT( "" );
 		TCHAR		exePath[ MAX_PATH ]			= TEXT( "" );
 		DWORD		nChars;
-		OSStatus	err;
 
 		nChars = GetModuleFileName( NULL, exePath, sizeof_array( exePath ) );
 
