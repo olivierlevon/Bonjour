@@ -676,7 +676,7 @@ static void DNSSD_API zonedata_browse(DNSServiceRef sdref, const DNSServiceFlags
 
     newref = malloc(sizeof(*newref));
     *newref = client;
-    DNSServiceResolve(newref, kDNSServiceFlagsShareConnection, ifIndex, replyName, replyType, replyDomain, zonedata_resolve, newref);
+    (void)DNSServiceResolve(newref, kDNSServiceFlagsShareConnection, ifIndex, replyName, replyType, replyDomain, zonedata_resolve, newref);
 }
 
 static void DNSSD_API browse_reply(DNSServiceRef sdref, const DNSServiceFlags flags, uint32_t ifIndex, DNSServiceErrorType errorCode,

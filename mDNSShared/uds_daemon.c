@@ -5174,8 +5174,8 @@ mDNSexport int udsserver_init(dnssd_sock_t skts[], mDNSu32 count)
     // We start a "LocalOnly" query looking for Automatic Browse Domain records.
     // When Domain Enumeration in uDNS.c finds an "lb" record from the network, its "FoundDomain" routine
     // creates a "LocalOnly" record, which results in our AutomaticBrowseDomainChange callback being invoked
-    mDNS_GetDomains(&mDNSStorage, &mDNSStorage.AutomaticBrowseDomainQ, mDNS_DomainTypeBrowseAutomatic,
-                    mDNSNULL, mDNSInterface_LocalOnly, AutomaticBrowseDomainChange, mDNSNULL);
+    (void)mDNS_GetDomains(&mDNSStorage, &mDNSStorage.AutomaticBrowseDomainQ, mDNS_DomainTypeBrowseAutomatic,
+                          mDNSNULL, mDNSInterface_LocalOnly, AutomaticBrowseDomainChange, mDNSNULL);
 
     // Add "local" as recommended registration domain ("dns-sd -E"), recommended browsing domain ("dns-sd -F"), and automatic browsing domain
     RegisterLocalOnlyDomainEnumPTR(&mDNSStorage, &localdomain, mDNS_DomainTypeRegistration);
