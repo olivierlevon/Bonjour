@@ -148,7 +148,7 @@ CExplorerPluginApp::InitInstance()
 	require_noerr( err, exit );
 
 	g_nonLocalizedResources = LoadLibrary( resource );
-	translate_errno( g_nonLocalizedResources, GetLastError(), kUnknownErr );
+	err = translate_errno( g_nonLocalizedResources, GetLastError(), kUnknownErr );
 	require_noerr( err, exit );
 
 	g_nonLocalizedResourcesName = resource;
