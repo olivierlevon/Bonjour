@@ -51,7 +51,7 @@
 static HANDLE gStopEvent = INVALID_HANDLE_VALUE;
 static mDNSBool gRunning;
 static void CALLBACK StopNotification( HANDLE event, void *context ) { gRunning = mDNSfalse; }
-static BOOL WINAPI ConsoleControlHandler( DWORD inControlEvent ) { SetEvent( gStopEvent ); return TRUE; }
+static BOOL WINAPI ConsoleControlHandler( DWORD inControlEvent ) { (void)SetEvent( gStopEvent ); return TRUE; }
 void setlinebuf( FILE * fp ) {}
 #else
 #   include <netdb.h>           // For gethostbyname()
