@@ -506,7 +506,7 @@ exit:
         LNTERRORcount = 0;  // clear LNTERRORcount
     }
 
-    if (tcpInfo) mDNS_Unlock(tcpInfo->m);
+    mDNS_Unlock(tcpInfo->m);
 
     if (status == mStatus_ConfigChanged) DisposeInfoFromUnmapList(tcpInfo->m, tcpInfo);
 }
