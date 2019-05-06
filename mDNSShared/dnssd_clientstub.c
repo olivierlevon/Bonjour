@@ -470,7 +470,7 @@ static DNSServiceErrorType ConnectToServer(DNSServiceRef *ref, DNSServiceFlags f
 {
     int NumTries = 0;
 
-    dnssd_sockaddr_t saddr;
+    dnssd_sockaddr_t saddr = { 0 };
     DNSServiceOp *sdr;
 
     if (!ref) 
@@ -671,7 +671,7 @@ static DNSServiceErrorType deliver_request(ipc_msg_hdr *hdr, DNSServiceOp *sdr)
         #if defined(USE_TCP_LOOPBACK)
         {
             union { uint16_t s; u_char b[2]; } port;
-            dnssd_sockaddr_t caddr;
+			dnssd_sockaddr_t caddr = { 0 };
             dnssd_socklen_t len = (dnssd_socklen_t) sizeof(caddr);
             listenfd = socket(AF_DNSSD, SOCK_STREAM, 0);
             if (!dnssd_SocketValid(listenfd)) deliver_request_bailout("TCP socket");
@@ -690,7 +690,7 @@ static DNSServiceErrorType deliver_request(ipc_msg_hdr *hdr, DNSServiceOp *sdr)
         {
             mode_t mask;
             int bindresult;
-            dnssd_sockaddr_t caddr;
+            dnssd_sockaddr_t caddr = { 0 };
             listenfd = socket(AF_DNSSD, SOCK_STREAM, 0);
             if (!dnssd_SocketValid(listenfd)) deliver_request_bailout("USE_NAMED_ERROR_RETURN_SOCKET socket");
 
