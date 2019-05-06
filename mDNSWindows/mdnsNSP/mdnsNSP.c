@@ -372,12 +372,6 @@ int WSPAPI	NSPStartup( LPGUID inProviderID, LPNSP_ROUTINE outRoutines )
 	
 exit:
 	dlog( kDebugLevelTrace, "%s end   (ticks=%d)\n", __ROUTINE__, GetTickCount() );
-	if ( err != NO_ERROR )
-	{
-		NSPCleanup( inProviderID );
-		SetLastError( (DWORD) err );
-		return( SOCKET_ERROR );
-	}
 	return( NO_ERROR );
 }
 
