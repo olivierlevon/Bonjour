@@ -669,18 +669,12 @@ static OSStatus	SetServiceInfo( SC_HANDLE inSCM, LPCTSTR inServiceName, LPCTSTR 
 	
 	check( inServiceName );
 	check( inDescription );
-	
+	check( inSCM );
+
 	lock 	= NULL;
 	service	= NULL;
 	
-	// Open the database (if not provided) and lock it to prevent other access while re-configuring.
-	
-	if ( !inSCM )
-	{
-		inSCM = OpenSCManager( NULL, NULL, SC_MANAGER_ALL_ACCESS );
-		err = translate_errno( inSCM, (OSStatus) GetLastError(), kOpenErr );
-		require_noerr( err, exit );
-	}
+	// Lock the database to prevent other access while re-configuring.
 	
 	lock = LockServiceDatabase( inSCM );
 	err = translate_errno( lock, (OSStatus) GetLastError(), kInUseErr );
