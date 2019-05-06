@@ -1033,12 +1033,6 @@ mDNSexport TCPSocket *mDNSPlatformTCPAccept( TCPSocketFlags flags, int fd )
 
 exit:
 
-	if ( err && sock )
-	{
-		free( sock );
-		sock = NULL;
-	}
-
 	return sock;
 }
 
