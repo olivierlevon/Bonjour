@@ -230,7 +230,7 @@ int	Main( int argc, LPTSTR argv[] )
 			TCHAR desc[ 256 ];
 			
 			desc[ 0 ] = 0;
-			LoadString( GetModuleHandle( NULL ), IDS_SERVICE_DESCRIPTION, desc, sizeof( desc ) );
+			LoadString( GetModuleHandle( NULL ), IDS_SERVICE_DESCRIPTION, desc, sizeof( desc ) / sizeof( TCHAR ) );
 			err = InstallService( kServiceName, kServiceName, desc, argv[0] );
 			if ( err )
 			{
