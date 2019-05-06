@@ -4707,6 +4707,7 @@ mDNSlocal void read_msg(request_state *req)
             port.b[0] = req->msgptr[0];
             port.b[1] = req->msgptr[1];
             req->msgptr += 2;
+			mDNSPlatformMemZero(&cliaddr, sizeof(cliaddr));
             cliaddr.sin_family      = AF_INET;
             cliaddr.sin_port        = port.NotAnInteger;
             cliaddr.sin_addr.s_addr = inet_addr(MDNS_TCP_SERVERADDR);
