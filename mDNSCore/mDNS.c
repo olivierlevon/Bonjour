@@ -14562,7 +14562,7 @@ mDNSexport void mDNS_ConfigChanged(mDNS *const m)
 {
     if (m->SPSState == 1)
     {
-        domainlabel name, newname;
+        domainlabel name = "", newname;
 #ifndef SPC_DISABLED
         domainname type, domain;
         DeconstructServiceName(m->SPSRecords.RR_SRV.resrec.name, &name, &type, &domain);
