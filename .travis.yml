@@ -1,0 +1,9 @@
+language: c
+
+sudo: false
+
+branches:
+  only:
+  - master
+
+script: make os=linux DEBUG=1
