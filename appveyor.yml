@@ -5,3 +5,7 @@ platform: x86
 build:
   project: mDNSWindows\SystemService\Service.vcxproj
   verbosity: minimal
+  skip_commits:
+  files:
+    - mDNSPosix/*
+    - mDNSshared/dnsextd*
