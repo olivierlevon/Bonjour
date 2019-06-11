@@ -6,4 +6,4 @@ branches:
   only:
   - master
 
-script: make os=linux DEBUG=1
+script: cd mDNSPosix && make os=linux DEBUG=1
