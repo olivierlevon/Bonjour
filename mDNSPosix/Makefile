@@ -292,7 +292,7 @@ InstalledStartup: $(STARTUPSCRIPTDIR)/$(STARTUPSCRIPTNAME)
 InstalledManPages: $(MANPATH)/man8/mdnsd.8
 	@echo $+ " installed"
 
-InstalledClients: $(INSTBASE)/bin/dns-sd
+InstalledClients: $(INSTBASE)/bin/dns-sd $(MANPATH)/man1/dns-sd.1
 	@echo $+ " installed"
 
 InstalledNSS: $(NSSINSTPATH)/$(NSSLINKNAME) /etc/nss_mdns.conf $(MANPATH)/man5/nss_mdns.conf.5 $(MANPATH)/man8/libnss_mdns.8
@@ -331,6 +331,10 @@ else
 endif
 endif
 
+$(MANPATH)/man1/%.1: %.1
+	cp $< $@
+	chmod 444 $@
+
 $(MANPATH)/man5/%.5: %.5
 	cp $< $@
 	chmod 444 $@
@@ -339,7 +343,15 @@ $(MANPATH)/man8/%.8: %.8
 	cp $< $@
 	chmod 444 $@
 
+$(MANPATH)/man1/dns-sd.1: $(SHAREDDIR)/dns-sd.1
+	cp $< $@
+	chmod 444 $@
+
 $(MANPATH)/man8/mdnsd.8: $(SHAREDDIR)/mDNSResponder.8
+	cp $< $@
+	chmod 444 $@
+
+$(MANPATH)/man8/dnsextd.8: $(SHAREDDIR)/dnsextd.8
 	cp $< $@
 	chmod 444 $@
 
@@ -375,7 +387,7 @@ JAVACFLAGS = $(CFLAGS) $(JAVACFLAGS_OS) -I$(JDK)/include
 
 JavaForXcode_: setup $(BUILDDIR)/dns_sd.jar $(PROJECT_DERIVED_FILE_DIR)/DNSSD.java.h
 	@echo $@ done
-	
+
 $(PROJECT_DERIVED_FILE_DIR)/DNSSD.java.h: $(OBJDIR)/DNSSD.java.h
 	@if test ! -d $(PROJECT_DERIVED_FILE_DIR) ; then mkdir -p $(PROJECT_DERIVED_FILE_DIR) ; fi
 	$(CP) $< $@
