@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 # Notes:
 # $@ means "The file name of the target of the rule"
 # $< means "The name of the first prerequisite"
@@ -34,7 +35,7 @@ POSIXDIR ?= ../mDNSPosix
 # Set up diverging paths for debug vs. prod builds
 DEBUG=0
 ifeq ($(DEBUG),1)
-CFLAGS_DEBUG = -g -DDEBUG -DMDNS_DEBUGMSGS=2 -DDEBUG_FPRINTF_ENABLED
+CFLAGS_DEBUG = -g -DDEBUG
 BUILDDIR = build/debug
 else
 # We use -Os for two reasons:

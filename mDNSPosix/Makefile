@@ -25,6 +25,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+
 # IMPORTANT NOTE: This is a Makefile for *GNU make*
 # On some systems, a different program may be the default "make" command.
 # If "make os=xxx" gives lots of errors like "Missing dependency operator",
@@ -72,7 +73,7 @@ JAVACFLAGS_OS = -fPIC -shared -ldns_sd
 # Set up diverging paths for debug vs. prod builds
 DEBUG=0
 ifeq ($(DEBUG),1)
-CFLAGS_DEBUG = -g -DMDNS_DEBUGMSGS=2
+CFLAGS_DEBUG = -g -DMDNS_DEBUGMSGS=2 -DDEBUG_FPRINTF_ENABLED
 OBJDIR = objects/debug
 BUILDDIR = build/debug
 STRIP = echo
@@ -262,10 +263,10 @@ $(BUILDDIR)/libdns_sd.$(LDSUFFIX): $(CLIENTLIBOBJS)
 	@$(LD) $(LINKOPTS) -o $@ $+
 	@$(STRIP) $@
 
-Clients: setup libdns_sd ../Clients/build/dns-sd
+Clients: setup libdns_sd ../Clients/$(BUILDDIR)/dns-sd
 	@echo "Clients done"
 
-../Clients/build/dns-sd:
+../Clients/$(BUILDDIR)/dns-sd:
 	@$(MAKE) -C ../Clients
 
 # nss_mdns target builds the Name Service Switch module
@@ -342,7 +343,7 @@ $(MANPATH)/man8/mdnsd.8: $(SHAREDDIR)/mDNSResponder.8
 	cp $< $@
 	chmod 444 $@
 
-$(INSTBASE)/bin/dns-sd: ../Clients/build/dns-sd
+$(INSTBASE)/bin/dns-sd: ../Clients/$(BUILDDIR)/dns-sd
 	$(CP) $< $@
 
 $(NSSINSTPATH)/$(NSSLINKNAME): $(NSSINSTPATH)/$(NSSLIBFILE)
