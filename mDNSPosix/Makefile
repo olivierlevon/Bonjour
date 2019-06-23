@@ -367,10 +367,10 @@ $(NSSINSTPATH)/$(NSSLIBFILE): $(BUILDDIR)/$(NSSLIBFILE)
 # The following targets build Java wrappers for the dns-sd.h API.
 # Note that the JavaForXcode targets are used when building the project for OS X using Xcode
 
-JAVAC = $(JDK)/bin/javac
-JAVAH = $(JDK)/bin/javah
-JAVADOC = $(JDK)/bin/javadoc
-JAR = $(JDK)/bin/jar
+JAVAC = javac
+JAVAH = javah
+JAVADOC = javadoc
+JAR = jar
 JAVACFLAGS = $(CFLAGS) $(JAVACFLAGS_OS) -I$(JDK)/include
 
 JavaForXcode_: setup $(BUILDDIR)/dns_sd.jar $(PROJECT_DERIVED_FILE_DIR)/DNSSD.java.h
