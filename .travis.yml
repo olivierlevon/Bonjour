@@ -35,4 +35,7 @@ notifications:
 #       build configuration       #
 #---------------------------------#
 
-script: cd mDNSPosix && make os=linux all Java JavaDoc dnsextd DEBUG=1
+script: 
+  - which javac
+  - javac -version
+  - cd mDNSPosix && make os=linux all Java JavaDoc dnsextd DEBUG=1
