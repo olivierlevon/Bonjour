@@ -1,9 +1,30 @@
+# Bonjour's travis-ci.org integration file
+# Used to build Posix platform (Linux Ubuntu) version of Bonjour
+
+#---------------------------------#
+#      general configuration      #
+#---------------------------------#
+
 language: c
 
+os: linux
+dist: xenial
+
 sudo: false
+
+#---------------------------------#
+#    environment configuration    #
+#---------------------------------#
 
 branches:
   only:
   - master
+
+git:
+  submodules: false
+
+#---------------------------------#
+#       build configuration       #
+#---------------------------------#
 
 script: cd mDNSPosix && make os=linux DEBUG=1

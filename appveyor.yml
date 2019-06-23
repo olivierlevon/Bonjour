@@ -1,11 +1,38 @@
+# Bonjour's AppVeyor integration file
+# Used to build Windows platform version of Bonjour
+
+#---------------------------------#
+#      general configuration      #
+#---------------------------------#
+
 version: 878.30.4b{build}
+
+branches:
+  only:
+    - master
+
 skip_commits:
   files:
     - mDNSPosix/*
     - mDNSshared/dnsextd*
+    - README*
+    - LICENSE*
+
+#---------------------------------#
+#    environment configuration    #
+#---------------------------------#
+
 image: Visual Studio 2017
+
 configuration: Release
+
 platform: x86
+
+#---------------------------------#
+#       build configuration       #
+#---------------------------------#
+
 build:
+  parallel: true                 # enable MSBuild parallel builds
   project: mDNSWindows\SystemService\Service.vcxproj
   verbosity: minimal
