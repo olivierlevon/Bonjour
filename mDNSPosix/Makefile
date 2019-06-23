@@ -239,7 +239,7 @@ clean:
 DAEMONOBJS = $(OBJDIR)/PosixDaemon.c.o $(OBJDIR)/mDNSPosix.c.o $(OBJDIR)/mDNSUNP.c.o $(OBJDIR)/mDNS.c.o \
              $(OBJDIR)/DNSDigest.c.o $(OBJDIR)/uDNS.c.o $(OBJDIR)/DNSCommon.c.o $(OBJDIR)/uds_daemon.c.o \
              $(OBJDIR)/mDNSDebug.c.o $(OBJDIR)/dnssd_ipc.c.o $(OBJDIR)/GenLinkedList.c.o $(OBJDIR)/PlatformCommon.c.o \
-			 $(OBJDIR)/CryptoAlg.c.o $(OBJDIR)/anonymous.c.o
+			 $(OBJDIR)/CryptoAlg.c.o $(OBJDIR)/anonymous.c.o $(OBJDIR)/LegacyNATTraversal.c.o
 
 # dnsextd target build dnsextd
 DNSEXTDOBJ = $(OBJDIR)/mDNSPosix.c.o $(OBJDIR)/mDNSUNP.c.o $(OBJDIR)/mDNSDebug.c.o $(OBJDIR)/GenLinkedList.c.o $(OBJDIR)/DNSDigest.c.o \
@@ -250,7 +250,7 @@ Daemon: setup $(BUILDDIR)/mdnsd
 	@echo "Responder daemon done"
 
 $(BUILDDIR)/mdnsd: $(DAEMONOBJS)
-	$(CC) -o $@ $+ $(LINKOPTS)
+	$(CC) -D_LEGACY_NAT_TRAVERSAL_ -o $@ $+ $(LINKOPTS)
 	@$(STRIP) $@
 
 # libdns_sd target builds the client library
