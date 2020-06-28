@@ -5,7 +5,7 @@
 #      general configuration      #
 #---------------------------------#
 
-language: c, java
+language: c
 
 os: linux
 dist: xenial
@@ -38,6 +38,9 @@ notifications:
 #---------------------------------#
 
 script: 
+  - which javac
+  - javac -version
+  - jdk_switcher use oraclejdk8
   - which javac
   - javac -version
   - cd mDNSPosix && make os=linux all Java JavaDoc dnsextd DEBUG=1
