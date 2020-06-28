@@ -10,6 +10,9 @@ language: c
 os: linux
 dist: xenial
 
+jdk:
+  - oraclejdk8
+
 sudo: false
 
 #---------------------------------#
